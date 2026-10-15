@@ -51,7 +51,6 @@
   function hero(ctx,x,y,time,motion){
     const t=reduced.matches?0:time,walking=motion==='walk'&&!reduced.matches;
     const walkPosition=t/140,walkFrame=Math.floor(walkPosition)%8;
-    const walkBlend=walkPosition-Math.floor(walkPosition);
     const progress=action?Math.min(1,Math.max(0,(time-action.time)/900)):1;
     const attacking=motion==='attack'&&progress>.12&&progress<.85&&!reduced.matches;
     const casting=motion==='cast'&&!reduced.matches,hurt=motion==='hurt'&&!reduced.matches;
@@ -62,8 +61,8 @@
     let drawn=false;
     if(walking){
       // Eight uninterrupted contact/down/passing/up frames; soles stay on the ground.
-      const paintWalk=(cell,alpha)=>{
-        ctx.save();ctx.globalAlpha=alpha;if(cell>=4)ctx.scale(-1,1);
+      const paintWalk=(cell)=>{
+        ctx.save();if(cell>=4)ctx.scale(-1,1);
         // Narrow the stride below the hips without squeezing the head or torso.
         for(let top=-105;top<3;top+=2){
           const depth=Math.max(0,Math.min(1,(top+48)/50));
@@ -73,8 +72,10 @@
         }
         ctx.restore();
       };
-      const blend=walkBlend*walkBlend*(3-2*walkBlend);
-      paintWalk(walkFrame,1-blend);paintWalk((walkFrame+1)%8,blend);
+      // Keep a single opaque pose: crossfading silhouettes duplicates faces and limbs.
+      // Continuous subpixel sway supplements the eight pose frames without ghosting.
+      ctx.save();ctx.translate(Math.sin(walkPosition*Math.PI/2)*.6,0);
+      paintWalk(walkFrame);ctx.restore();
       drawn=walkingSheet.complete&&!!walkingSheet.naturalWidth;
     }else if(!casting&&!hurt){
       // Hands and weapon are painted together, including two-handed heavy weapons.
