@@ -32,7 +32,7 @@
       const cw=attackSheet.naturalWidth/3,sy=attackSheet.naturalHeight/1774;
       const bounds=[0,279,589,833,1132,1407,1774],feet=[274,572,824,1124,1398,1730];
       const anchors=[[142,132,180],[143,133,142],[139,132,145],[139,145,151],[139,138,162],[145,144,153]];
-      const top=bounds[row]*sy,bottom=Math.min(bounds[row+1],feet[row]+1)*sy,scale=height/(260*sy);
+      const top=bounds[row]*sy,bottom=Math.min(bounds[row+1],feet[row]+1)*sy,scale=height/(260*sy)*(type==='戦槌'?.88:1);
       const width=row===2&&col===1?cw*.81:cw;
       ctx.drawImage(attackSheet,col*cw,top,width,bottom-top,-anchors[row][col]*cw/295.67*scale,(top-feet[row]*sy)*scale,width*scale,(bottom-top)*scale);
     }else groundedSprite(ctx,armedSheet,3,2,row,0,2,height,spriteGeometry.armed);
