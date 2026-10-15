@@ -86,3 +86,7 @@ body[data-scene=battle] #app:has(>.pixel-targets)>.critical-stats span{font-size
 .pixel-heading{align-items:center;position:relative;z-index:1}
 .pixel-heading>button{min-height:0;box-sizing:border-box;align-self:center}
 body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{grid-template-rows:28px minmax(0,1fr) 25px}
+
+#attack-motion-preview canvas{width:100%;height:auto;aspect-ratio:60/19;max-height:none}
+#attack-motion-preview .choices{display:flex;flex-wrap:wrap;gap:6px}
+#attack-motion-preview .choices button{min-width:64px}
