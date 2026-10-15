@@ -117,16 +117,60 @@
     if(dead&&!reduced.matches){ctx.globalAlpha=1-hit;ctx.fillStyle='#dfc4ff';for(let j=0;j<16;j++){const q=j*2.4;ctx.beginPath();ctx.arc(Math.cos(q)*hit*34,-25+Math.sin(q)*hit*30,1.2,0,Math.PI*2);ctx.fill();}}
     ctx.restore();
   }
+
+  function ruinsBackground(ctx,width,time){
+    const moving=scene.mode==='explore'&&!reduced.matches;
+    const seconds=moving?time/1000:0;
+    ctx.fillStyle='#101d2a';ctx.fillRect(0,0,width,152);
+    if(stageBackground.complete&&stageBackground.naturalWidth){
+      const iw=stageBackground.naturalWidth,ih=stageBackground.naturalHeight;
+      const tileWidth=moving?Math.max(width*1.2,520):width;
+      const sh=Math.min(ih,iw/(tileWidth/152));
+      const distance=seconds*9,first=Math.floor(distance/tileWidth),offset=distance%tileWidth;
+      for(let i=0;i<(moving?2:1);i++){
+        const x=i*tileWidth-offset;
+        ctx.save();ctx.translate(x,0);
+        if((first+i)%2){ctx.translate(tileWidth,0);ctx.scale(-1,1);}
+        ctx.drawImage(stageBackground,0,(ih-sh)*.65,iw,sh,0,0,tileWidth+.5,152);ctx.restore();
+      }
+    }
+    if(scene.mode!=='explore')return;
+    // Nearby broken columns and floor joints pass faster than the distant ruins.
+    const ground=ctx.createLinearGradient(0,113,0,152);
+    ground.addColorStop(0,'#15253600');ground.addColorStop(1,'#07111bd9');
+    ctx.fillStyle=ground;ctx.fillRect(0,113,width,39);
+    const stoneOffset=(seconds*22)%84;
+    ctx.strokeStyle='#8ba5ac20';ctx.lineWidth=.6;
+    for(let x=-84-stoneOffset;x<width+84;x+=84){
+      ctx.beginPath();ctx.moveTo(x,124);ctx.lineTo(x-22,152);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x,137);ctx.lineTo(x+84,137);ctx.stroke();
+    }
+    const period=360,distance=seconds*18,start=Math.floor(distance/period),offset=distance%period;
+    for(let i=0;i<Math.ceil(width/period)+1;i++){
+      const x=i*period-offset+300,k=(start+i)%3;
+      const height=[52,34,65][k],base=128;
+      const stone=ctx.createLinearGradient(x-12,0,x+12,0);
+      stone.addColorStop(0,'#0b1522');stone.addColorStop(.5,'#30434b');stone.addColorStop(1,'#111e2a');
+      ctx.fillStyle=stone;ctx.fillRect(x-7,base-height,14,height);
+      ctx.fillStyle='#3d5054';ctx.fillRect(x-10,base-height,20,4);
+      ctx.fillStyle='#17232c';ctx.fillRect(x-12,base-3,25,6);
+      ctx.strokeStyle='#92a09b44';ctx.beginPath();ctx.moveTo(x+1,base-height+8);ctx.lineTo(x-2,base-height+16);ctx.lineTo(x+2,base-height+23);ctx.stroke();
+      ctx.fillStyle='#52604b55';ctx.fillRect(x-6,base-height+3,7,3);
+      ctx.fillStyle='#24333c';ctx.fillRect(x+19,base+2,10,4);ctx.fillRect(x-24,base+4,8,3);
+    }
+    // A slow translucent mist layer adds depth without obscuring the heroine.
+    for(let i=0;i<3;i++){
+      const x=((i*width/2+seconds*4)%(width+140))-70;
+      const mist=ctx.createRadialGradient(x,108,2,x,108,75);
+      mist.addColorStop(0,'#b2d6e612');mist.addColorStop(1,'#b2d6e600');
+      ctx.fillStyle=mist;ctx.fillRect(x-75,68,150,80);
+    }
+  }
   function draw(time){
     if(!scene)return;const ctx=scene.canvas.getContext('2d');if(!ctx)return;
     ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";frame++;const t=reduced.matches?0:time;
-    ctx.fillStyle='#101d2a';ctx.fillRect(0,0,480,152);
     const viewWidth=scene.width||480;
-    if(stageBackground.complete&&stageBackground.naturalWidth){
-      const iw=stageBackground.naturalWidth,ih=stageBackground.naturalHeight;
-      const sh=Math.min(ih,iw/(viewWidth/152));
-      ctx.drawImage(stageBackground,0,(ih-sh)*.65,iw,sh,0,0,viewWidth,152);
-    }else{ctx.fillStyle='#152537';ctx.fillRect(0,0,viewWidth,152);}
+    ruinsBackground(ctx,viewWidth,t);
     const shade=ctx.createLinearGradient(0,0,0,152);shade.addColorStop(0,'#0a162b40');shade.addColorStop(1,'#09102185');ctx.fillStyle=shade;ctx.fillRect(0,0,viewWidth,152);
     const a=action,elapsed=a?time-a.time:10000,p=Math.min(1,elapsed/(a?.kind==='enemy'?1100:900)),active=p<1;
     let motion=scene.mode==='explore'?'walk':'idle',hx=(scene.width||480)*.2;
