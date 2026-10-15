@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [ARCANA-source.zip, index.html, pixel-stage.js, pixel-stage.css, character-art-v1.png, '.github/workflows/pages.yml']
+    paths: [ARCANA-source.zip, index.html, pixel-stage.js, pixel-stage.css, '.github/workflows/pages.yml']
 permissions:
   contents: read
   pages: write
@@ -22,7 +22,7 @@ jobs:
       - name: Extract complete game
         run: |
           unzip -q ARCANA-source.zip -d site
-          cp index.html pixel-stage.js pixel-stage.css character-art-v1.png site/dist/
+          cp index.html pixel-stage.js pixel-stage.css site/dist/
           test -f site/dist/index.html
           test -d site/dist/assets/card-art
       - uses: actions/configure-pages@v5
