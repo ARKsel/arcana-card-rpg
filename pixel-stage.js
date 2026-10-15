@@ -10,22 +10,23 @@
     const anchor=mode==='battle'?document.querySelector('.arena'):document.querySelector('.explore-scene');
     if(!anchor)return;
     const box=document.createElement('section');box.className='pixel-theatre';
-    box.innerHTML=`<div class="pixel-heading"><span>${mode==='battle'?'BATTLE / CARD COMMAND':'EXPLORATION / THE FORGOTTEN SANCTUM'}</span><span>${esc(weapon)} × ${esc(magic)}</span></div><canvas width="960" height="304" role="img" aria-label="${mode==='battle'?'主人公と敵のドット絵。敵は下のカードで選択できます。':'遺跡を歩く冒険者のドット絵'}"></canvas><div class="pixel-caption" aria-live="polite">${mode==='battle'?'カードを使って技を繰り出す':'遺跡の奥へ。進む道を選んでください。'}</div>`;
+    box.innerHTML=`<div class="pixel-heading"><span>${mode==='battle'?'BATTLE / CARD COMMAND':'EXPLORATION / THE FORGOTTEN SANCTUM'}</span><span>${esc(weapon)} × ${esc(magic)}</span></div><canvas width="1920" height="608" role="img" aria-label="${mode==='battle'?'主人公と敵のドット絵。敵は下のカードで選択できます。':'遺跡を歩く冒険者のドット絵'}"></canvas><div class="pixel-caption" aria-live="polite">${mode==='battle'?'カードを使って技を繰り出す':'遺跡の奥へ。進む道を選んでください。'}</div>`;
     anchor.before(box);if(mode==='battle')anchor.classList.add('pixel-targets');
     scene={mode,box,canvas:box.querySelector('canvas'),foes:foes.map(e=>({...e})),weapon,magic};
     draw(performance.now());if(!animation)animation=requestAnimationFrame(tick);
   }
   function tick(time){animation=0;if(!scene?.box.isConnected){scene=null;return;}if(!document.hidden)draw(time);animation=requestAnimationFrame(tick);}
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
-  // The heroine uses a 2x pixel grid: individual hair strands, eyes and embroidery.
+  // The heroine uses a 4x pixel grid: individual hair strands, eyes and embroidery.
   function hero(ctx,x,y,time,motion){
     const moving=motion==='walk',phase=reduced.matches?0:Math.floor(time/120)%4;
     const stride=moving?[0,3,0,-3][phase]:0;
     const bob=reduced.matches?0:moving?phase%2:Math.floor(time/460)%2;
     const sway=reduced.matches?0:Math.floor(time/220)%3-1;
-    ctx.save();ctx.translate(Math.round(x),Math.round(y)-bob*.5);ctx.scale(.5,.5);
+    ctx.save();ctx.translate(Math.round(x),Math.round(y)-bob*.5);ctx.scale(.25,.25);
     const ink='#222039',silver='#c2c7df',white='#f7f5ff',shade='#939dbd',skin='#f7d9cd';
-    const r=(x,y,w,h,c)=>rect(ctx,x,y,w,h,c);
+    const r=(x,y,w,h,c)=>rect(ctx,x*2,y*2,w*2,h*2,c);
+    const fine=(x,y,w,h,c)=>rect(ctx,x,y,w,h,c);
     r(-24,-3,51,5,'#08101b');
     // Long silver-white hair flows behind her shoulders and waist.
     r(-20,-102,29,6,ink);r(-25,-95,44,24,ink);r(-26,-77,39,28,ink);
@@ -57,11 +58,48 @@
     // Dark ribbon and little star ornament identify her silhouette.
     r(-20,-85,8,5,'#55436f');r(-22,-88,5,6,'#8870a5');r(-17,-84,4,12,'#57446f');
     r(-17,-87,3,7,'#f4d99a');r(-19,-85,7,3,'#f4d99a');r(-17,-85,3,3,white);
+    // Single-pixel strands and four-tone highlights on the denser sprite grid.
+    for(let i=0;i<9;i++){
+      const xx=-44+i*4,yy=-185+(i%3)*3;
+      fine(xx,yy,1,17+i%4,'#ffffff');
+      fine(xx+1,yy+13,1,14,'#d7ddec');
+    }
+    for(let i=0;i<5;i++){
+      const xx=-46+sway*2+i*4;
+      fine(xx,-133+i*3,1,30-i*3,i%2?'#f7f8ff':'#aab5d0');
+      fine(xx-3,-96+i*3,1,11,'#e9eaff');
+    }
+    // Eyelashes, iris gradients, pupils, cheek shading and catchlights.
+    for(const eye of [0,24]){
+      fine(eye-1,-155,12,2,'#30253f');
+      fine(eye+1,-152,7,7,'#6c4e9e');
+      fine(eye+3,-149,5,5,'#b9a0ef');
+      fine(eye+3,-153,2,5,'#3b275b');
+      fine(eye+1,-153,3,2,'#ffffff');
+      fine(eye+6,-149,1,2,'#f7efff');
+    }
+    fine(8,-136,6,1,'#ffe5df');fine(20,-141,2,3,'#e3b6b2');
+    fine(16,-135,5,1,'#ac758c');fine(17,-134,3,1,'#e1b1bb');
+    fine(-10,-145,2,6,'#e8c3c2');fine(37,-145,1,5,'#fff0e5');
+    // Gold embroidery, seams, lapel reflections and skirt pleats.
+    for(let i=0;i<8;i++){
+      const xx=-29+i*8,yy=-65+(i%2)*2;
+      fine(xx,yy,3,1,'#f7df9a');fine(xx+1,yy-2,1,5,'#c3a267');
+      fine(xx+2,-58,2,1,'#fff0c4');
+    }
+    fine(-24,-117,2,27,'#ffffff');fine(-19,-114,1,21,'#b1a6c9');
+    fine(20,-116,2,25,'#f0ecfc');fine(25,-113,1,22,'#a19aba');
+    fine(-4,-108,1,19,'#8b78a7');fine(10,-108,1,18,'#332d48');
+    fine(5,-86,3,2,'#ffffff');fine(6,-83,2,2,'#937db6');
+    for(const xx of [-20,16]){
+      fine(xx,-49,1,18,'#625474');fine(xx+4,-48,1,13,'#a18ba8');
+      fine(xx+1,-16,4,1,'#fff0ba');fine(xx+2,-15,1,3,'#b9a06c');
+    }
     const casting=motion==='cast';
     r(16,casting?-65:-53,7,casting?8:14,ink);r(17,casting?-64:-52,5,casting?6:12,'#ece5f2');
     r(casting?22:18,casting?-65:-41,6,7,skin);r(casting?23:19,casting?-64:-40,4,2,white);
     if(casting){r(29,-69,5,5,colors[scene.magic]);r(31,-73,1,13,white);r(27,-67,9,1,white);}
-    else {ctx.save();ctx.translate(0,-4);ctx.scale(2,2);weaponArt(ctx,scene.weapon,motion==='attack');ctx.restore();}
+    else {ctx.save();ctx.translate(0,-4);ctx.scale(4,4);weaponArt(ctx,scene.weapon,motion==='attack');ctx.restore();}
     ctx.restore();
   }
   function weaponArt(ctx,type,attack){
@@ -115,7 +153,7 @@
   }
   function draw(time){
     if(!scene)return;const ctx=scene.canvas.getContext('2d');if(!ctx)return;
-    ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=false;frame++;const t=reduced.matches?0:time;
+    ctx.setTransform(4,0,0,4,0,0);ctx.imageSmoothingEnabled=false;frame++;const t=reduced.matches?0:time;
     ctx.fillStyle='#101d2a';ctx.fillRect(0,0,480,152);
     // Pixel-built ruins: distant arches, lanterns, masonry and a moving floor.
     for(let i=0;i<7;i++){let x=i*88-35;rect(ctx,x,25,11,91,'#253846');rect(ctx,x+10,20,50,7,'#253846');rect(ctx,x+57,25,11,91,'#253846');rect(ctx,x+15,30,37,75,'#14222f');rect(ctx,x+22,48,5,13,'#b28c55');rect(ctx,x+23,50,3,7,Math.floor(t/180)%2?'#ffd89a':'#e8ae67');}
