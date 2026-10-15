@@ -6,7 +6,7 @@
   const armedSheet=new Image();armedSheet.src='heroine-weapons-v2.png';
   const walkingSheet=new Image();walkingSheet.src='heroine-walk-v2.png';
   const weaponOrder=['片手剣','大剣','短剣','弓','槍','戦槌'];
-  const spriteGeometry={"armed":{"width":1536,"height":1024,"cols":3,"rows":2,"referenceHeight":502,"frames":[{"left":87,"top":10,"right":467,"bottom":512,"anchorX":270,"sourceX":0,"sourceY":0},{"left":84,"top":10,"right":407,"bottom":512,"anchorX":264,"sourceX":512,"sourceY":0},{"left":55,"top":10,"right":380,"bottom":512,"anchorX":242,"sourceX":1024,"sourceY":0},{"left":102,"top":0,"right":531,"bottom":486,"anchorX":287,"sourceX":0,"sourceY":512,"clips":[[0,0,512,512],[512,120,19,40]]},{"left":63,"top":-14,"right":504,"bottom":486,"anchorX":271,"sourceX":512,"sourceY":512,"clips":[[45,0,467,512],[467,-14,45,14]]},{"left":69,"top":2,"right":493,"bottom":486,"anchorX":279,"sourceX":1024,"sourceY":512}],"rowReferenceHeights":[502,490]},"walk":{"width":1774,"height":887,"cols":4,"rows":2,"referenceHeight":436,"frames":[{"left":59,"top":8,"right":437,"bottom":444,"anchorX":280,"sourceX":0,"sourceY":0},{"left":74,"top":8,"right":306,"bottom":444,"anchorX":259,"sourceX":444,"sourceY":0},{"left":50,"top":7,"right":305,"bottom":444,"anchorX":246,"sourceX":887,"sourceY":0},{"left":38,"top":8,"right":389,"bottom":444,"anchorX":233,"sourceX":1330,"sourceY":0},{"left":60,"top":19,"right":444,"bottom":427,"anchorX":247,"sourceX":0,"sourceY":444},{"left":154,"top":10,"right":405,"bottom":426,"anchorX":214,"sourceX":444,"sourceY":444},{"left":128,"top":10,"right":386,"bottom":430,"anchorX":190,"sourceX":887,"sourceY":444},{"left":56,"top":13,"right":382,"bottom":429,"anchorX":209,"sourceX":1330,"sourceY":444}],"rowReferenceHeights":[436,415]}};
+  const spriteGeometry={"armed":{"width":1536,"height":1024,"cols":3,"rows":2,"referenceHeight":502,"frames":[{"left":87,"top":10,"right":467,"bottom":512,"anchorX":270,"sourceX":0,"sourceY":0},{"left":84,"top":10,"right":407,"bottom":512,"anchorX":264,"sourceX":512,"sourceY":0},{"left":55,"top":10,"right":380,"bottom":512,"anchorX":242,"sourceX":1024,"sourceY":0},{"left":102,"top":0,"right":531,"bottom":486,"anchorX":287,"sourceX":0,"sourceY":512,"clips":[[0,0,512,512],[512,120,19,40]]},{"left":63,"top":-14,"right":504,"bottom":486,"anchorX":271,"sourceX":512,"sourceY":512,"clips":[[45,0,467,512],[467,-14,45,14]]},{"left":69,"top":2,"right":493,"bottom":486,"anchorX":279,"sourceX":1024,"sourceY":512}],"rowReferenceHeights":[502,490]},"walk":{"width":1774,"height":887,"cols":4,"rows":2,"referenceHeight":436,"frames":[{"left":59,"top":8,"right":437,"bottom":444,"anchorX":280,"hand":[395.96,207.33],"sourceX":0,"sourceY":0},{"left":74,"top":8,"right":306,"bottom":444,"anchorX":259,"hand":[294.27,213.96],"sourceX":444,"sourceY":0},{"left":50,"top":7,"right":305,"bottom":444,"anchorX":246,"hand":[288.78,219.13],"sourceX":887,"sourceY":0},{"left":38,"top":8,"right":389,"bottom":444,"anchorX":233,"hand":[331.61,203.88],"sourceX":1330,"sourceY":0},{"left":60,"top":19,"right":444,"bottom":427,"anchorX":247,"hand":[128.16,193.95],"sourceX":0,"sourceY":444},{"left":154,"top":10,"right":405,"bottom":426,"anchorX":214,"hand":[165.21,207.24],"sourceX":444,"sourceY":444},{"left":128,"top":10,"right":386,"bottom":430,"anchorX":190,"hand":[146.64,212.86],"sourceX":887,"sourceY":444},{"left":56,"top":13,"right":382,"bottom":429,"anchorX":209,"hand":[108.85,197.83],"sourceX":1330,"sourceY":444}],"rowReferenceHeights":[436,415]}};
   const enemySheet=new Image();enemySheet.src='character-art-v1.png';
   const stageBackground=new Image();stageBackground.src='assets/sanctum.png';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -77,8 +77,14 @@
     }else if(!hurt&&!bakedWeapon){
       const hands=[[20,-49],[30,-56],[30,-57],[51,-82],[49,-84],[18,-55]];
       const angle=walkFrame*Math.PI/4;
-      const hand=walking?[24+Math.sin(angle)*3,-50+Math.cos(angle)*1.5]:hands[cell];
-      ctx.save();ctx.translate(hand[0]-12,hand[1]+7);
+      let hand=hands[cell],grip=[12,-12];
+      if(walking){
+        const geometry=spriteGeometry.walk,pose=geometry.frames[walkFrame],scale=103/geometry.rowReferenceHeights[Math.floor(walkFrame/4)];
+        const point=pose.hand||[pose.anchorX+20,pose.bottom-210];
+        hand=[(walkFrame>=4?-1:1)*(point[0]-pose.anchorX)*scale,2-(pose.bottom-point[1])*scale];
+        if(scene.weapon==='弓')grip=[24,-23];else if(['槍','戦槌'].includes(scene.weapon))grip=[12,-19];
+      }
+      ctx.save();ctx.translate(hand[0]-grip[0],hand[1]-grip[1]);
       weaponArt(ctx,scene.weapon,attacking);ctx.restore();
     }
     ctx.restore();
