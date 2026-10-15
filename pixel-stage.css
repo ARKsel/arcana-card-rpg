@@ -81,3 +81,8 @@ body[data-scene=battle] #app:has(>.pixel-targets)>.critical-stats span{font-size
 .weapon-art-dialog p{font-size:12px;margin:10px 0}
 .weapon-art-dialog .choices{max-width:none}
 @media(max-width:700px){.pixel-heading>span:nth-child(2){display:none}.pixel-heading>button{font-size:8px;padding:1px 3px}.weapon-art-titlebar h2{font-size:15px}.weapon-art-dialog{padding:12px}}
+
+/* Keep the illustration control inside the compact battle heading. */
+.pixel-heading{align-items:center;position:relative;z-index:1}
+.pixel-heading>button{min-height:0;box-sizing:border-box;align-self:center}
+body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{grid-template-rows:28px minmax(0,1fr) 25px}
