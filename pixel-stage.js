@@ -5,6 +5,81 @@
   const heroineSheet=new Image();heroineSheet.src='heroine-reference-v1.png';
   const armedSheet=new Image();armedSheet.src='heroine-weapons-v2.png';
   const walkingSheet=new Image();walkingSheet.src='heroine-walk-v2.png';
+  const attackSheet=new Image();attackSheet.src='heroine-attacks-v1.png';
+  const attacks={
+    '片手剣':{duration:820,impact:.42,reach:66,color:'#c3edff',name:'横一閃'},
+    '大剣':{duration:1150,impact:.52,reach:76,color:'#ffe4a6',name:'断ち下ろし'},
+    '短剣':{duration:720,impact:.35,reach:53,color:'#e1c2ff',name:'双刃連撃'},
+    '弓':{duration:980,impact:.65,reach:0,color:'#b6f1cb',name:'疾風の射撃'},
+    '槍':{duration:880,impact:.43,reach:84,color:'#a7e9ff',name:'貫通突き'},
+    '戦槌':{duration:1200,impact:.54,reach:68,color:'#ffd08d',name:'砕地撃'}
+  };
+  const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
+  function attackTravel(type,p){
+    const spec=attacks[type]||attacks['片手剣'];if(type==='弓')return -Math.sin(p*Math.PI)*3;
+    return ease(p/(spec.impact*.85))*(1-ease((p-.69)/.31));
+  }
+  function attackHero(ctx,type,x,y,p,height=103){
+    const spec=attacks[type]||attacks['片手剣'];
+    const col=p<spec.impact-.09?0:p<spec.impact+.15?1:2;
+    const row=Math.max(0,weaponOrder.indexOf(type));
+    ctx.save();ctx.translate(x,y);
+    const heavy=type==='大剣'||type==='戦槌';
+    const settle=Math.sin(ease(Math.max(0,p-spec.impact)/.28)*Math.PI);
+    ctx.translate(0,heavy?settle*2:-Math.sin(p*Math.PI)*1.3);
+    if(attackSheet.complete&&attackSheet.naturalWidth){
+      // One fully opaque articulated pose at a time; transparent margins remain intact.
+      const cw=attackSheet.naturalWidth/3,sy=attackSheet.naturalHeight/1774;
+      const bounds=[0,279,589,833,1132,1407,1774],feet=[276,574,828,1127,1402,1734];
+      const anchors=[[142,132,180],[143,133,142],[139,132,145],[139,145,151],[139,138,162],[145,144,153]];
+      const top=bounds[row]*sy,bottom=bounds[row+1]*sy,scale=height/(260*sy);
+      ctx.drawImage(attackSheet,col*cw,top,cw,bottom-top,-anchors[row][col]*cw/295.67*scale,(top-feet[row]*sy)*scale,cw*scale,(bottom-top)*scale);
+    }else groundedSprite(ctx,armedSheet,3,2,row,0,2,height,spriteGeometry.armed);
+    ctx.restore();
+  }
+  function weaponEffects(ctx,type,origin,target,p,baseline=120){
+    const spec=attacks[type]||attacks['片手剣'],q=(p-spec.impact)/.28;
+    const stroke=(points,color,width)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points(ctx);ctx.stroke();};
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    if(type==='弓'){
+      const flight=(p-.32)/(spec.impact-.32);
+      if(flight>=0&&flight<=1){const x=origin+24+(target-origin-24)*flight,y=baseline-44;
+        const trail=ctx.createLinearGradient(x-42,y,x,y);trail.addColorStop(0,'#b6f1cb00');trail.addColorStop(1,'#e9ffed');
+        stroke(c=>{c.moveTo(x-42,y);c.lineTo(x,y);},trail,2);
+        stroke(c=>{c.moveTo(x-12,y);c.lineTo(x+4,y);c.moveTo(x,y-3);c.lineTo(x+4,y);c.lineTo(x,y+3);},'#f5ffde',1.3);
+      }
+    }
+    if(q>=-.28&&q<=1){
+      const k=Math.max(0,q),alpha=Math.max(0,1-k);ctx.globalAlpha=alpha;
+      ctx.shadowColor=spec.color;ctx.shadowBlur=7;
+      if(type==='片手剣'||type==='短剣'){
+        const slash=(tilt,delay)=>{const v=Math.max(0,Math.min(1,(q+.22-delay)*2.7));if(!v)return;
+          ctx.save();ctx.translate(target,baseline-39);ctx.rotate(tilt);
+          stroke(c=>c.ellipse(-9,0,38,16,0,-2.5,-2.5+v*3.5),spec.color,5*(1-k)+1);
+          stroke(c=>c.ellipse(-9,-1,38,16,0,-2.5,-2.5+v*3.5),'#ffffff',1.2);ctx.restore();};
+        slash(type==='短剣'?-.65:-.25,0);if(type==='短剣')slash(.7,.2);
+      }else if(type==='大剣'){
+        stroke(c=>{c.moveTo(target-30,baseline-80);c.quadraticCurveTo(target+28,baseline-45,target-4,baseline-4);},spec.color,9*(1-k)+1);
+        stroke(c=>{c.moveTo(target-29,baseline-80);c.quadraticCurveTo(target+27,baseline-45,target-4,baseline-4);},'#fffdf2',2);
+      }else if(type==='槍'){
+        stroke(c=>{c.moveTo(target-67,baseline-37);c.lineTo(target+22,baseline-37);},spec.color,4*(1-k)+.5);
+        stroke(c=>{c.moveTo(target-60,baseline-37);c.lineTo(target+22,baseline-37);c.moveTo(target+9,baseline-43);c.lineTo(target+22,baseline-37);c.lineTo(target+9,baseline-31);},'#f4fdff',1);
+      }else if(type==='戦槌'){
+        stroke(c=>c.ellipse(target,baseline,8+k*48,2+k*9,0,0,Math.PI*2),spec.color,2.5*(1-k)+.5);
+        for(let j=0;j<7;j++){const dx=(j-3)*8;stroke(c=>{c.moveTo(target,baseline);c.lineTo(target+dx*.5,baseline-4);c.lineTo(target+dx,baseline+1);},'#ffe3a5',.8);}
+      }
+      if(q>=0){
+        ctx.shadowBlur=0;
+        for(let j=0;j<(type==='戦槌'?15:9);j++){
+          const angle=j*2.399,dist=5+k*(type==='戦槌'?35:24),cy=type==='戦槌'?baseline-3:baseline-38;
+          const px=target+Math.cos(angle)*dist,py=cy+Math.sin(angle)*dist*(type==='戦槌'?.55:.8)+k*k*9;
+          stroke(c=>{c.moveTo(px,py);c.lineTo(px+Math.cos(angle)*(3+2*k),py+Math.sin(angle)*3);},j%3?'#fff7df':spec.color,j%3?.9:1.7);
+        }
+        ctx.globalAlpha=alpha*.7;stroke(c=>c.arc(target,baseline-38,3+k*15,0,Math.PI*2),spec.color,.7);
+      }
+    }
+    ctx.restore();
+  }
   const weaponOrder=['片手剣','大剣','短剣','弓','槍','戦槌'];
   const spriteGeometry={"armed":{"width":1536,"height":1024,"cols":3,"rows":2,"referenceHeight":502,"frames":[{"left":87,"top":10,"right":467,"bottom":512,"anchorX":270,"sourceX":0,"sourceY":0},{"left":84,"top":10,"right":407,"bottom":512,"anchorX":264,"sourceX":512,"sourceY":0},{"left":55,"top":10,"right":380,"bottom":512,"anchorX":242,"sourceX":1024,"sourceY":0},{"left":102,"top":0,"right":531,"bottom":486,"anchorX":287,"sourceX":0,"sourceY":512,"clips":[[0,0,512,512],[512,120,19,40]]},{"left":63,"top":-14,"right":504,"bottom":486,"anchorX":271,"sourceX":512,"sourceY":512,"clips":[[45,0,467,512],[467,-14,45,14]]},{"left":69,"top":2,"right":493,"bottom":486,"anchorX":279,"sourceX":1024,"sourceY":512}],"rowReferenceHeights":[502,490]},"walk":{"width":1774,"height":887,"cols":4,"rows":2,"referenceHeight":436,"frames":[{"left":59,"top":8,"right":437,"bottom":444,"anchorX":280,"hand":[395.96,207.33],"sourceX":0,"sourceY":0},{"left":74,"top":8,"right":306,"bottom":444,"anchorX":259,"hand":[294.27,213.96],"sourceX":444,"sourceY":0},{"left":50,"top":7,"right":305,"bottom":444,"anchorX":246,"hand":[288.78,219.13],"sourceX":887,"sourceY":0},{"left":38,"top":8,"right":389,"bottom":444,"anchorX":233,"hand":[331.61,203.88],"sourceX":1330,"sourceY":0},{"left":60,"top":19,"right":444,"bottom":427,"anchorX":247,"hand":[128.16,193.95],"sourceX":0,"sourceY":444},{"left":154,"top":10,"right":405,"bottom":426,"anchorX":214,"hand":[165.21,207.24],"sourceX":444,"sourceY":444},{"left":128,"top":10,"right":386,"bottom":430,"anchorX":190,"hand":[146.64,212.86],"sourceX":887,"sourceY":444},{"left":56,"top":13,"right":382,"bottom":429,"anchorX":209,"hand":[108.85,197.83],"sourceX":1330,"sourceY":444}],"rowReferenceHeights":[436,415]}};
   const enemySheet=new Image();enemySheet.src='character-art-v1.png';
@@ -19,6 +94,7 @@
     if(!anchor)return;
     const box=document.createElement('section');box.className='pixel-theatre';
     box.innerHTML=`<div class="pixel-heading"><span>${mode==='battle'?'BATTLE / CARD COMMAND':'EXPLORATION / THE FORGOTTEN SANCTUM'}</span><span>${esc(weapon)} × ${esc(magic)}</span><button type="button" onclick="arcanaOpenWeaponArt()" aria-label="装備中の武器イラストを見る">装備イラスト</button></div><canvas width="960" height="304" role="img" aria-label="${mode==='battle'?'主人公と敵のアニメーション。敵は下のカードで選択できます。':'白と赤の衣装で歩く白髪の冒険者'}"></canvas><div class="pixel-caption" aria-live="polite">${mode==='battle'?'カードを使って技を繰り出す':'遺跡の奥へ。進む道を選んでください。'}</div>`;
+    const previewButton=document.createElement('button');previewButton.type='button';previewButton.textContent='攻撃モーション';previewButton.onclick=()=>globalThis.arcanaPreviewAttack(scene?.weapon||weapon);box.querySelector('.pixel-heading').append(previewButton);
     anchor.before(box);if(mode==='battle')anchor.classList.add('pixel-targets');
     const canvas=box.querySelector('canvas');
     const bounds=canvas.getBoundingClientRect?.();
@@ -51,13 +127,14 @@
   function hero(ctx,x,y,time,motion){
     const t=reduced.matches?0:time,walking=motion==='walk'&&!reduced.matches;
     const walkPosition=t/140,walkFrame=Math.floor(walkPosition)%8;
-    const progress=action?Math.min(1,Math.max(0,(time-action.time)/900)):1;
-    const attacking=motion==='attack'&&progress>.12&&progress<.85&&!reduced.matches;
+    const progress=action?Math.min(1,Math.max(0,(time-action.time)/(action.duration||900))):1;
+    const attacking=motion==='attack'&&!reduced.matches;
     const casting=motion==='cast'&&!reduced.matches,hurt=motion==='hurt'&&!reduced.matches;
     const cell=hurt?5:casting?4:attacking?3:0;
     const equipped=weaponOrder.indexOf(scene.weapon);
     ctx.save();ctx.translate(x,y);
     ctx.fillStyle='#07102177';ctx.beginPath();ctx.ellipse(0,1,21,2.5,0,0,Math.PI*2);ctx.fill();
+    if(attacking){attackHero(ctx,action.weapon||scene.weapon,0,0,progress);ctx.restore();return;}
     let drawn=false;
     if(walking){
       // Eight uninterrupted contact/down/passing/up frames; soles stay on the ground.
@@ -172,24 +249,29 @@
     const viewWidth=scene.width||480;
     ruinsBackground(ctx,viewWidth,t);
     const shade=ctx.createLinearGradient(0,0,0,152);shade.addColorStop(0,'#0a162b40');shade.addColorStop(1,'#09102185');ctx.fillStyle=shade;ctx.fillRect(0,0,viewWidth,152);
-    const a=action,elapsed=a?time-a.time:10000,p=Math.min(1,elapsed/(a?.kind==='enemy'?1100:900)),active=p<1;
+    const a=action,elapsed=a?time-a.time:10000,p=Math.min(1,elapsed/(a?.duration||900)),active=p<1;
+    const spec=attacks[a?.weapon||scene.weapon]||attacks['片手剣'];
+    const impact=a?.kind==='attack'?spec.impact:a?.kind==='magic'?.6:.2;
     let motion=scene.mode==='explore'?'walk':'idle',hx=(scene.width||480)*.2;
-    if(active&&a.kind==='attack'){motion='attack';hx+=reduced.matches?0:Math.sin(p*Math.PI)*90;}
+    if(active&&a.kind==='attack'){
+      motion='attack';const target=foeX(a.targets[0]??s?.target??0,scene.foes.length);
+      hx+=reduced.matches||a.weapon==='弓'?0:attackTravel(a.weapon,p)*Math.max(0,target-hx-spec.reach);
+    }
     if(active&&['magic','heal','guard'].includes(a.kind))motion='cast';
     if(active&&(a.kind==='hurt'||a.kind==='enemy'&&a.hits.length)){motion='hurt';hx+=reduced.matches?0:Math.sin(p*40)*4;}
     hero(ctx,hx,120,t,motion);
     const foes=scene.mode==='battle'?scene.foes:[];
-    foes.forEach((e,i)=>{let x=foeX(i,foes.length);if(active&&a.kind==='enemy'&&!reduced.matches){const ep=Math.max(0,Math.min(1,p*1.6-i*.28));x-=Math.sin(ep*Math.PI)*48;}const affected=active&&a?.targets?.includes(i);monster(ctx,x,120,i,t,e.hp<=0,affected?p:e.hp<=0?1:0);if(s?.target===i&&e.hp>0){rect(ctx,x-3,57,7,3,'#ead398');rect(ctx,x-1,60,3,3,'#ead398');}});
+    foes.forEach((e,i)=>{let x=foeX(i,foes.length);if(active&&a.kind==='enemy'&&!reduced.matches){const ep=Math.max(0,Math.min(1,p*1.6-i*.28));x-=Math.sin(ep*Math.PI)*48;}const affected=active&&a?.targets?.includes(i),landed=affected&&p>=impact;const death=affected&&!landed?false:e.hp<=0;const hit=landed?Math.min(1,(p-impact)/(1-impact)):e.hp<=0&&!affected?1:0;monster(ctx,x,120,i,t,death,hit);if(s?.target===i&&e.hp>0){rect(ctx,x-3,57,7,3,'#ead398');rect(ctx,x-1,60,3,3,'#ead398');}});
     if(active&&!reduced.matches){
       const color=colors[a.element]||'#f5dfac';
       if(a.kind==='magic'){for(const i of a.targets){const origin=(scene.width||480)*.2;const x=origin+(foeX(i,foes.length)-origin)*p;magicArt(ctx,x,87,a.element,p);}}
-      if(a.kind==='attack'&&p>.25)for(const i of a.targets){const x=foeX(i,foes.length);for(let j=0;j<6;j++)rect(ctx,x-16+j*5,77+j*5,3,9,'#fff0ce');}
+      if(a.kind==='attack')for(const i of a.targets.length?a.targets:[s?.target??0])weaponEffects(ctx,a.weapon,(scene.width||480)*.2,foeX(i,foes.length),p);
       if(a.kind==='heal'||a.kind==='guard'){for(let j=0;j<9;j++)rect(ctx,(scene.width||480)*.2-22+j*5,108-(p*35+j*7)%45,3,4,a.kind==='heal'?'#9ef0bf':color);}
-      for(const hit of a.hits||[]){ctx.fillStyle=hit.player?'#ffb6a0':'#fff1c4';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText(hit.text,hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),67-p*16);}
+      if(p>=impact)for(const hit of a.hits||[]){const rise=(p-impact)/(1-impact);ctx.save();ctx.globalAlpha=Math.min(1,(1-rise)*3);ctx.fillStyle=hit.player?'#ffb6a0':'#fff1c4';ctx.strokeStyle='#131923';ctx.lineWidth=2;ctx.font='bold 11px monospace';ctx.textAlign='center';const tx=hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),ty=67-rise*18;ctx.strokeText(hit.text,tx,ty);ctx.fillText(hit.text,tx,ty);ctx.restore();}
     }
   }
   function foeX(i,count){const w=scene?.width||480;return count<=1?w*.74:w*.58+i*Math.min(100,w*.3/Math.max(1,count-1));}
-  function perform(kind,label,targets=[],hits=[],element=magic){action={kind,targets,hits,element,time:performance.now()};if(scene){scene.foes=(s?.enemies||[]).map(e=>({...e}));scene.box.querySelector('.pixel-caption').textContent=label;draw(action.time);}}
+  function perform(kind,label,targets=[],hits=[],element=magic){const type=scene?.weapon||weapon;action={kind,targets,hits,element,weapon:type,duration:kind==='attack'?(attacks[type]?.duration||900):kind==='enemy'?1100:900,time:performance.now()};if(scene){scene.foes=(s?.enemies||[]).map(e=>({...e}));scene.box.querySelector('.pixel-caption').textContent=label;draw(action.time);}}
   const originalRender=render;render=function(...args){const result=originalRender(...args);mount('battle');return result;};
   const originalExplore=exploration;exploration=function(...args){const result=originalExplore(...args);mount('explore');return result;};
   const originalPlay=play;play=function(i){
@@ -206,6 +288,31 @@
   };
   const originalEnd=endTurn;endTurn=function(...args){const run=s,hp=s?.hp;const result=originalEnd(...args);if(s===run&&s?.phase==='battle')perform('enemy',s.hp<hp?'敵の攻撃を受けた':'敵の攻撃を防いだ',[],s.hp<hp?[{player:true,text:'−'+(hp-s.hp)}]:[]);return result;};
 
+  let previewAnimation=0;
+  globalThis.arcanaPreviewAttack=function(type=scene?.weapon||weapon){
+    if(!weaponOrder.includes(type))return;
+    cancelAnimationFrame(previewAnimation);
+    let dialog=document.getElementById('attack-motion-preview');
+    if(!dialog){dialog=document.createElement('dialog');dialog.id='attack-motion-preview';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','武器別の攻撃モーション');document.body.append(dialog);dialog.addEventListener('close',()=>cancelAnimationFrame(previewAnimation));}
+    dialog.innerHTML='<div class="weapon-art-titlebar"><h2>'+esc(type)+' · '+attacks[type].name+'</h2><button type="button" onclick="document.getElementById(\'attack-motion-preview\').close()">閉じる ×</button></div><div class="choices">'+weaponOrder.map(w=>'<button type="button" class="'+(w===type?'chosen':'')+'" onclick="arcanaPreviewAttack(\''+w+'\')">'+esc(w)+'</button>').join('')+'</div><p>溜め → 攻撃 → 振り抜き。武器を切り替えて演出を確認できます。</p><canvas width="960" height="304" role="img" aria-label="'+esc(type)+'の攻撃モーション"></canvas>';
+    const canvas=dialog.querySelector('canvas'),ctx=canvas.getContext('2d'),start=performance.now(),spec=attacks[type];
+    function paint(now){
+      if(!dialog.open||!canvas.isConnected)return;
+      const elapsed=(now-start)%(spec.duration+650),p=reduced.matches?spec.impact+.03:Math.min(1,elapsed/spec.duration);
+      ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,480,152);
+      const bg=ctx.createLinearGradient(0,0,0,152);bg.addColorStop(0,'#122a3b');bg.addColorStop(1,'#060d18');ctx.fillStyle=bg;ctx.fillRect(0,0,480,152);
+      ctx.strokeStyle='#b6c3cf30';ctx.beginPath();ctx.moveTo(0,124);ctx.lineTo(480,124);ctx.stroke();
+      const active=elapsed<spec.duration||reduced.matches,x=96+(type==='弓'?0:attackTravel(type,p)*Math.max(0,344-96-spec.reach));
+      ctx.fillStyle='#0c0b1599';ctx.beginPath();ctx.ellipse(x,121,22,3,0,0,Math.PI*2);ctx.fill();
+      if(active)attackHero(ctx,type,x,120,p);else groundedSprite(ctx,armedSheet,3,2,weaponOrder.indexOf(type),96,122,103,spriteGeometry.armed);
+      ctx.save();ctx.translate(344,83);ctx.strokeStyle=spec.color;ctx.fillStyle='#253a50';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(13,0);ctx.lineTo(0,22);ctx.lineTo(-13,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+      if(active)weaponEffects(ctx,type,96,344,p);
+      ctx.fillStyle='#e8d9b0';ctx.font='8px sans-serif';ctx.fillText(reduced.matches?'攻撃ポーズ':!active?'構え':p<spec.impact?'溜め':p<spec.impact+.15?'攻撃':'振り抜き',14,18);
+      if(!reduced.matches)previewAnimation=requestAnimationFrame(paint);
+    }
+    if(!dialog.open)dialog.showModal();paint(start);
+    if(reduced.matches&&!attackSheet.complete)attackSheet.addEventListener('load',()=>paint(start),{once:true});
+  };
   globalThis.arcanaOpenWeaponArt=function(type=scene?.weapon||weapon){
     if(!weaponOrder.includes(type))return;
     let dialog=document.getElementById('weapon-art-preview');
@@ -220,3 +327,4 @@
   // Initial page may already have a resumed adventure.
   if(s?.phase==='battle')mount('battle');else if(s?.phase==='explore')mount('explore');
 })();
+
