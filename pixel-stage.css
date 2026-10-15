@@ -68,3 +68,6 @@ body[data-scene=battle] #app:has(>.pixel-targets)>.critical-stats{grid-column:2;
 body[data-scene=battle] #app:has(>.pixel-targets)>.critical-stats>div{padding:3px 4px;gap:3px}
 body[data-scene=battle] #app:has(>.pixel-targets)>.critical-stats span{font-size:8px}
 @media(max-width:700px){body[data-scene=battle] #app:has(>.pixel-targets)>.character-stats{grid-column:1/-1}body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{height:145px}body[data-scene=battle] #app:has(>.pixel-targets)>.topbar h2{font-size:14px}}
+
+.pixel-theatre canvas{image-rendering:auto}
+.pixel-theatre canvas{image-rendering:auto;object-fit:fill!important}
