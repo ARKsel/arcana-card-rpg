@@ -6,7 +6,7 @@
   const enemySheet=new Image();enemySheet.src='character-art-v1.png';
   const stageBackground=new Image();stageBackground.src='assets/sanctum.png';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  let scene=null, action=null, frame=0, animation=0;
+  let scene=null, action=null, frame=0, animation=0, lastPaint=-Infinity;
   const esc = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function mount(mode, foes=s?.enemies||[]) {
     scene?.resizeObserver?.disconnect();
@@ -14,22 +14,15 @@
     const anchor=mode==='battle'?document.querySelector('.arena'):document.querySelector('.explore-scene');
     if(!anchor)return;
     const box=document.createElement('section');box.className='pixel-theatre';
-    box.innerHTML=`<div class="pixel-heading"><span>${mode==='battle'?'BATTLE / CARD COMMAND':'EXPLORATION / THE FORGOTTEN SANCTUM'}</span><span>${esc(weapon)} × ${esc(magic)}</span></div><canvas width="1920" height="608" role="img" aria-label="${mode==='battle'?'主人公と敵のアニメーション。敵は下のカードで選択できます。':'白と赤の衣装で歩く白髪の冒険者'}"></canvas><div class="pixel-caption" aria-live="polite">${mode==='battle'?'カードを使って技を繰り出す':'遺跡の奥へ。進む道を選んでください。'}</div>`;
+    box.innerHTML=`<div class="pixel-heading"><span>${mode==='battle'?'BATTLE / CARD COMMAND':'EXPLORATION / THE FORGOTTEN SANCTUM'}</span><span>${esc(weapon)} × ${esc(magic)}</span></div><canvas width="960" height="304" role="img" aria-label="${mode==='battle'?'主人公と敵のアニメーション。敵は下のカードで選択できます。':'白と赤の衣装で歩く白髪の冒険者'}"></canvas><div class="pixel-caption" aria-live="polite">${mode==='battle'?'カードを使って技を繰り出す':'遺跡の奥へ。進む道を選んでください。'}</div>`;
     anchor.before(box);if(mode==='battle')anchor.classList.add('pixel-targets');
     const canvas=box.querySelector('canvas');
     const bounds=canvas.getBoundingClientRect?.();
-    if(bounds?.height>0&&bounds?.width>0)canvas.width=Math.round(608*bounds.width/bounds.height/4)*4;
-    scene={mode,box,canvas,width:(canvas.width||1920)/4,foes:foes.map(e=>({...e})),weapon,magic};
-    if(typeof ResizeObserver==='function'){
-      const mounted=scene;mounted.resizeObserver=new ResizeObserver(()=>{
-        if(scene!==mounted||!canvas.isConnected)return;
-        const b=canvas.getBoundingClientRect();
-        if(b.height>0){const width=Math.round(608*b.width/b.height/4)*4;if(canvas.width!==width)canvas.width=width;mounted.width=width/4;}
-      });mounted.resizeObserver.observe(canvas);
-    }
+    if(bounds?.height>0&&bounds?.width>0)canvas.width=Math.round(304*bounds.width/bounds.height/2)*2;
+    scene={mode,box,canvas,width:(canvas.width||960)/2,foes:foes.map(e=>({...e})),weapon,magic};
     draw(performance.now());if(!animation)animation=requestAnimationFrame(tick);
   }
-  function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;return;}if(!document.hidden)draw(time);animation=requestAnimationFrame(tick);}
+  function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;return;}if(!document.hidden&&time-lastPaint>=32){lastPaint=time;draw(time);}animation=requestAnimationFrame(tick);}
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
   function atlasSprite(ctx,image,cols,rows,cell,x,y,w,h,alpha=1){
     if(!image.complete||!image.naturalWidth)return;
@@ -114,7 +107,7 @@
   }
   function draw(time){
     if(!scene)return;const ctx=scene.canvas.getContext('2d');if(!ctx)return;
-    ctx.setTransform(4,0,0,4,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";frame++;const t=reduced.matches?0:time;
+    ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";frame++;const t=reduced.matches?0:time;
     ctx.fillStyle='#101d2a';ctx.fillRect(0,0,480,152);
     const viewWidth=scene.width||480;
     if(stageBackground.complete&&stageBackground.naturalWidth){
