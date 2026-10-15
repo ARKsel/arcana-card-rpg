@@ -1,1 +1,59 @@
 .pixel-theatre{margin:20px 0 12px;border:1px solid #88734e;border-radius:12px;overflow:hidden;background:#101d2a;box-shadow:0 12px 35px #0005;text-align:left}.pixel-heading{display:flex;justify-content:space-between;gap:12px;padding:11px 16px;color:#dcc697;background:#151d28;font-size:10px;letter-spacing:1.5px}.pixel-theatre canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;aspect-ratio:480/152}.pixel-caption{min-height:36px;padding:9px 16px;border-top:1px solid #66583e;color:#f2dfb5;font-size:12px;background:#131e2b}.arena.pixel-targets{min-height:0;padding:12px;gap:12px;background:#101a25}.pixel-targets .arena-backdrop,.pixel-targets .monster{display:none}.pixel-targets .enemy{min-height:0;padding:12px;flex:1;max-width:280px}.pixel-targets .intent{position:static;margin-bottom:8px}.pixel-targets .enemy b{font-size:14px}.pixel-targets .hp{margin-top:8px}.dungeon-explore .pixel-theatre{width:100%}.pixel-theatre+.explore-scene{display:none}@media(max-width:600px){.pixel-heading{padding:9px 10px;font-size:8px;letter-spacing:.6px}.pixel-caption{font-size:11px}.arena.pixel-targets{flex-wrap:wrap}.pixel-targets .enemy{min-width:120px;padding:9px}.pixel-targets .intent{font-size:10px}.pixel-targets .enemy b{font-size:12px}}
+/* Battle command desk: keep the stage, resources and hand together. */
+body[data-scene=battle]:has(.pixel-targets) header{height:48px;min-height:48px;padding:4px 3vw;gap:12px}
+body[data-scene=battle]:has(.pixel-targets) header a{font-size:22px}
+body[data-scene=battle]:has(.pixel-targets) header button{font-size:10px;padding:7px 10px}
+body[data-scene=battle]:has(.pixel-targets) #app{max-width:1500px;padding:10px 20px;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:7px 12px;align-content:start}
+body[data-scene=battle] #app:has(>.pixel-targets)>.topbar{grid-column:1/-1;padding:6px 12px;min-height:44px}
+body[data-scene=battle] #app:has(>.pixel-targets)>.topbar h2{font-size:18px;margin:0}
+body[data-scene=battle] #app:has(>.pixel-targets) .topbar .progress{display:none}
+body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{grid-column:1;margin:0;height:clamp(150px,27vh,220px);display:grid;grid-template-rows:23px minmax(0,1fr) 25px}
+body[data-scene=battle] #app:has(>.pixel-targets) .pixel-heading{padding:5px 10px;font-size:9px}
+body[data-scene=battle] #app:has(>.pixel-targets) .pixel-theatre canvas{height:100%;width:100%;object-fit:contain;aspect-ratio:auto}
+body[data-scene=battle] #app:has(>.pixel-targets) .pixel-caption{min-height:0;padding:4px 10px;font-size:11px}
+body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-targets{grid-column:2;margin:0;padding:8px;gap:6px;min-height:0;max-height:220px;overflow:auto;flex-direction:column}
+body[data-scene=battle] #app:has(>.pixel-targets) .enemy{width:100%;max-width:none;min-width:0;padding:5px 8px}
+body[data-scene=battle] #app:has(>.pixel-targets) .enemy b{font-size:12px}
+body[data-scene=battle] #app:has(>.pixel-targets) .enemy .intent{font-size:10px;margin:0 0 3px;padding:2px 5px}
+body[data-scene=battle] #app:has(>.pixel-targets) .enemy .hp{margin:4px 0;height:5px}
+body[data-scene=battle] #app:has(>.pixel-targets)>.stats{grid-column:1/-1;padding:6px 12px;margin:0;gap:18px;flex-wrap:nowrap}
+body[data-scene=battle] #app:has(>.pixel-targets) .player-health{min-width:100px;max-width:280px}
+body[data-scene=battle] #app:has(>.pixel-targets) .health-label{margin-bottom:3px;font-size:11px}
+body[data-scene=battle] #app:has(>.pixel-targets) .player-hp{height:7px}
+body[data-scene=battle] #app:has(>.pixel-targets) .stats strong{font-size:18px}
+body[data-scene=battle] #app:has(>.pixel-targets) .stats button{padding:8px 15px}
+body[data-scene=battle] #app:has(>.pixel-targets)>.character-stats{grid-column:1/-1;display:flex;justify-content:flex-start;margin:0;gap:5px;flex-wrap:wrap}
+body[data-scene=battle] #app:has(>.pixel-targets)>.character-stats>div{min-width:0;display:flex;flex-direction:row;align-items:center;gap:5px;padding:3px 7px;box-shadow:none}
+body[data-scene=battle] #app:has(>.pixel-targets)>.character-stats strong{font:12px Georgia,serif}
+body[data-scene=battle] #app:has(>.pixel-targets)>.character-stats span{font-size:9px}
+body[data-scene=battle] #app:has(>.pixel-targets)>.hint{grid-column:1/-1;margin:0;font-size:10px;line-height:1.4}
+body[data-scene=battle] #app:has(>.pixel-targets)>p.hint{display:none}
+body[data-scene=battle] #app:has(>.pixel-targets)>.log{grid-column:1/-1;margin:0;padding:3px 10px;min-height:0;max-height:25px;overflow:auto;font-size:11px;line-height:19px}
+body[data-scene=battle] #app:has(>.pixel-targets)>.cards{grid-column:1/-1;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;gap:9px;padding:4px 3px 9px;scroll-snap-type:x proximity}
+body[data-scene=battle] #app:has(>.pixel-targets)>.cards .card{flex:0 0 clamp(145px,16vw,180px);width:auto;max-width:none;min-height:224px;padding:0;scroll-snap-align:start}
+body[data-scene=battle] #app:has(>.pixel-targets) .card .type{font-size:9px;padding:7px 9px}
+body[data-scene=battle] #app:has(>.pixel-targets) .card-art{height:66px}
+body[data-scene=battle] #app:has(>.pixel-targets) .card-title{font-size:13px;padding:5px 9px 0}
+body[data-scene=battle] #app:has(>.pixel-targets) .card .desc{font-size:11px;line-height:1.45;padding:0 9px 7px;margin-top:5px}
+body[data-scene=battle] #app:has(>.pixel-targets) .card-scaling{font-size:9px;line-height:1.35;margin-bottom:3px}
+body[data-scene=battle] #app:has(>.pixel-targets) .card-foot{font-size:8px;padding:4px 9px}
+@media(max-width:700px){
+ body[data-scene=battle]:has(.pixel-targets) header>span,body[data-scene=battle]:has(.pixel-targets) header a svg{display:none}
+ body[data-scene=battle]:has(.pixel-targets) header{gap:4px;padding:4px 8px;flex-wrap:nowrap;overflow-x:auto}
+ body[data-scene=battle]:has(.pixel-targets) header a{font-size:15px;letter-spacing:1px}
+ body[data-scene=battle]:has(.pixel-targets) header button{white-space:nowrap;font-size:9px;padding:6px;min-height:0}
+ body[data-scene=battle]:has(.pixel-targets) #app{padding:7px;grid-template-columns:minmax(0,1fr) 125px;gap:5px}
+ body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{height:160px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .pixel-heading{font-size:7px;letter-spacing:0}
+ body[data-scene=battle] #app:has(>.pixel-targets) .pixel-heading>span:last-child{display:none}
+ body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-targets{max-height:160px;padding:3px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .enemy{padding:4px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .enemy b{font-size:10px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .enemy .intent{font-size:8px;letter-spacing:0}
+ body[data-scene=battle] #app:has(>.pixel-targets)>.stats{padding:5px;gap:8px;flex-wrap:wrap}
+ body[data-scene=battle] #app:has(>.pixel-targets) .player-health{min-width:100px;flex-basis:auto;flex:1}
+ body[data-scene=battle] #app:has(>.pixel-targets) .stats>span{font-size:10px;gap:3px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .stats .glyph{width:13px;height:13px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .stats button{padding:6px;font-size:10px;flex-basis:auto;margin-top:0}
+ body[data-scene=battle] #app:has(>.pixel-targets)>.cards .card{flex-basis:145px;min-height:224px}
+}
