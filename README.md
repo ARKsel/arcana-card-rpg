@@ -1,21 +1,21 @@
 # ARCANA — 武器と魔法のカードRPG
 
-ARKselアカウントへ移したゲーム本体の保存先です。
+公開ゲーム：https://arksel.github.io/arcana-card-rpg/
 
-## ゲーム本体
+ARKselの公開リポジトリです。GitHub ActionsでGitHub Pagesへ配信しています。
 
-`ARCANA-source.zip` に公開中のゲームの完全なファイル一式を収録しています。
-HTML、JavaScript、CSS、ブラウザ保存機能、カード画像1692枚、背景画像、開発会話ログを含みます。
+## 現在のソース構成
 
-ZIPをダウンロードして展開し、`dist/index.html` をブラウザで開くと遊べます。
-`dist` フォルダの構成を保ったまま利用してください。
+- `ARCANA-source.zip`：基礎ゲームとカード画像1692枚などを含む `dist` 一式。
+- `index.html`：最新の画面構造・開発会話ログ・使用画像アーカイブ。
+- `pixel-stage.js` / `pixel-stage.css`：キャラクター、武器、探索・戦闘のアニメーションと画面配置。
+- `heroine-reference-v1.png`、`heroine-weapons-v2.png`、`heroine-walk-v2.png`、`character-art-v1.png`：現在のキャラクター素材。
+- `.github/workflows/pages.yml`：ZIPを展開し、ルートの最新HTMLと演出ファイル・素材を上書きして公開。
 
-現在の公開URL: https://arcana-card-rpg.yorihide19811203.chatgpt.site/
+ルートの `game.js` / `style.css` は参照用コピーです。現在のワークフローはこれらをZIPへ上書きしません。基礎ゲームを変更する場合は配信元も合わせて更新してください。
 
-このリポジトリは非公開です。GitHub Pagesへの公開設定は行っていません。
-セーブデータはブラウザ内に保存され、ZIPには含まれません。保存画面からエクスポート／インポートできます。
+## ローカルで起動する場合
 
-## 編集用ファイル
+ZIPを展開して `dist` フォルダを作り、公開ワークフローと同じルートの上書きファイルを `dist` へコピーしてください。フォルダ構成を保ち、ローカルHTTPサーバーで配信すると現在の公開版を再現できます。ZIP単体は最新のキャラクター演出や開発ログを含まない基礎版です。
 
-ルートの `game.js`、`style.css`、`index.html` は内容を確認するためのコピーです。
-実行に必要な画像を含めた完全版は `ARCANA-source.zip` にあります。
+セーブデータはブラウザ内に保存します。別端末や別URLへ移す際は「保存 / 冒険者」からエクスポート／インポートしてください。
