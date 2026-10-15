@@ -50,7 +50,7 @@
   }
   function hero(ctx,x,y,time,motion){
     const t=reduced.matches?0:time,walking=motion==='walk'&&!reduced.matches;
-    const walkFrame=Math.floor(t/85)%8;
+    const walkFrame=Math.floor(t/140)%8;
     const progress=action?Math.min(1,Math.max(0,(time-action.time)/900)):1;
     const attacking=motion==='attack'&&progress>.12&&progress<.85&&!reduced.matches;
     const casting=motion==='cast'&&!reduced.matches,hurt=motion==='hurt'&&!reduced.matches;
@@ -58,15 +58,15 @@
     const equipped=weaponOrder.indexOf(scene.weapon);
     ctx.save();ctx.translate(x,y);
     ctx.fillStyle='#07102177';ctx.beginPath();ctx.ellipse(0,1,21,2.5,0,0,Math.PI*2);ctx.fill();
-    let bakedWeapon=false,drawn=false;
+    let drawn=false;
     if(walking){
       // Eight uninterrupted contact/down/passing/up frames; soles stay on the ground.
       ctx.save();if(walkFrame>=4)ctx.scale(-1,1);
       drawn=groundedSprite(ctx,walkingSheet,4,2,walkFrame,0,2,103,spriteGeometry.walk);ctx.restore();
-    }else if(!attacking&&!casting&&!hurt){
+    }else if(!casting&&!hurt){
       // Hands and weapon are painted together, including two-handed heavy weapons.
-      drawn=groundedSprite(ctx,armedSheet,3,2,Math.max(0,equipped),0,2,103,spriteGeometry.armed);
-      bakedWeapon=drawn;
+      ctx.save();if(attacking){ctx.translate(0,-42);ctx.rotate(Math.sin(progress*Math.PI)*.12);ctx.translate(0,42);}
+      drawn=groundedSprite(ctx,armedSheet,3,2,Math.max(0,equipped),0,2,103,spriteGeometry.armed);ctx.restore();
     }
     if(!drawn)atlasSprite(ctx,heroineSheet,3,2,cell,0,4,110,112);
     if(casting){
@@ -74,53 +74,6 @@
       const glow=ctx.createRadialGradient(0,0,0,0,0,11);
       glow.addColorStop(0,'#ffffff');glow.addColorStop(.3,color);glow.addColorStop(1,'transparent');
       ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,11,0,Math.PI*2);ctx.fill();ctx.restore();
-    }else if(!hurt&&!bakedWeapon){
-      const hands=[[20,-49],[30,-56],[30,-57],[51,-82],[49,-84],[18,-55]];
-      const angle=walkFrame*Math.PI/4;
-      let hand=hands[cell],grip=[12,-12];
-      if(walking){
-        const geometry=spriteGeometry.walk,pose=geometry.frames[walkFrame],scale=103/geometry.rowReferenceHeights[Math.floor(walkFrame/4)];
-        const point=pose.hand||[pose.anchorX+20,pose.bottom-210];
-        hand=[(walkFrame>=4?-1:1)*(point[0]-pose.anchorX)*scale,2-(pose.bottom-point[1])*scale];
-        if(scene.weapon==='弓')grip=[24,-23];else if(['槍','戦槌'].includes(scene.weapon))grip=[12,-19];
-      }
-      ctx.save();ctx.translate(hand[0]-grip[0],hand[1]-grip[1]);
-      weaponArt(ctx,scene.weapon,attacking);ctx.restore();
-    }
-    ctx.restore();
-  }
-  function weaponArt(ctx,type,attack){
-    ctx.save();ctx.translate(10,-19);if(attack)ctx.rotate(-.55+Math.sin(Math.max(0,(performance.now()-(action?.time||0))/900)*Math.PI)*1.5);
-    ctx.lineWidth=1;ctx.lineJoin='round';ctx.strokeStyle='#24324b';
-    const metal=ctx.createLinearGradient(-2,0,6,0);
-    metal.addColorStop(0,'#8095ae');metal.addColorStop(.4,'#fcffff');metal.addColorStop(.55,'#d0dfec');metal.addColorStop(1,'#6e87a5');
-    const poly=(points,color)=>{ctx.beginPath();ctx.moveTo(...points[0]);for(const pt of points.slice(1))ctx.lineTo(...pt);ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.stroke();};
-    if(type==='弓'){
-      ctx.strokeStyle='#dec38b';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(0,-26);ctx.bezierCurveTo(20,-19,20,10,0,16);ctx.stroke();
-      ctx.strokeStyle='#f7efdc';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(0,-26);ctx.lineTo(0,16);ctx.stroke();
-      ctx.strokeStyle='#99b8cd';ctx.beginPath();ctx.moveTo(-6,-4);ctx.lineTo(25,-4);ctx.stroke();poly([[25,-7],[31,-4],[25,-1]],metal);
-      ctx.strokeStyle='#a6cae4';ctx.lineWidth=.5;for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(-5-k,-4);ctx.lineTo(-9-k,-7);ctx.stroke();}
-      ctx.strokeStyle='#79573d';ctx.lineWidth=.6;for(let yy=-9;yy<1;yy+=2){ctx.beginPath();ctx.moveTo(12,yy);ctx.lineTo(15,yy+1);ctx.stroke();}
-    }else if(type==='戦槌'){
-      poly([[0,-20],[4,-20],[4,14],[0,14]],'#8c6957');poly([[-11,-30],[15,-30],[17,-27],[17,-16],[14,-13],[-11,-13],[-14,-16],[-14,-27]],metal);
-      poly([[-4,-26],[7,-26],[7,-17],[-4,-17]],'#5e7494');poly([[0,-24],[4,-24],[4,-20],[0,-20]],'#d7be80');
-      ctx.strokeStyle='#eaf4ff';ctx.lineWidth=.45;ctx.strokeRect(-11,-27,24,11);ctx.strokeStyle='#cdb273';ctx.strokeRect(-3,-25,8,9);
-    }else if(type==='槍'){
-      poly([[1,-34],[3,-34],[3,21],[1,21]],'#a78861');poly([[2,-48],[-4,-32],[2,-27],[8,-32]],metal);
-      ctx.strokeStyle='#f8ffff';ctx.beginPath();ctx.moveTo(2,-45);ctx.lineTo(2,-29);ctx.stroke();
-      poly([[-3,-27],[7,-27],[7,-24],[-3,-24]],'#d4bd87');
-      ctx.strokeStyle='#d0dded';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(-2,-34);ctx.lineTo(2,-42);ctx.lineTo(5,-34);ctx.stroke();
-      ctx.strokeStyle='#5f435e';for(let yy=-10;yy<9;yy+=2){ctx.beginPath();ctx.moveTo(1,yy);ctx.lineTo(3,yy+1);ctx.stroke();}
-    }else{
-      const length=type==='大剣'?43:type==='短剣'?20:32,w=type==='大剣'?7:4;
-      poly([[0,0],[0,-length+6],[w/2,-length],[w,-length+6],[w,0]],metal);
-      ctx.strokeStyle='#ffffff';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(w/2,-length+4);ctx.lineTo(w/2,-2);ctx.stroke();
-      poly([[-5,-1],[w+5,-1],[w+5,2],[-5,2]],'#d6bb7b');
-      poly([[.5,2],[w-.5,2],[w-.5,12],[.5,12]],'#73546f');poly([[-1,12],[w+1,12],[w,15],[0,15]],'#dcc78b');
-      ctx.fillStyle='#b59adc';ctx.fillRect(w/2-1,0,2,2);
-      ctx.strokeStyle='#f0dbaf';ctx.lineWidth=.4;for(let yy=3;yy<12;yy+=1.8){ctx.beginPath();ctx.moveTo(1,yy);ctx.lineTo(w-1,yy+1);ctx.stroke();}
-      ctx.strokeStyle='#a6b9d1';ctx.beginPath();ctx.moveTo(w*.75,-length+8);ctx.lineTo(w*.75,-4);ctx.stroke();
-      ctx.fillStyle='#ffffff';ctx.fillRect(w/2-.5,0,.7,.7);
     }
     ctx.restore();
   }
