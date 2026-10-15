@@ -26,7 +26,7 @@
     scene={mode,box,canvas,width:(canvas.width||960)/2,foes:foes.map(e=>({...e})),weapon,magic};
     draw(performance.now());if(!animation)animation=requestAnimationFrame(tick);
   }
-  function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;return;}if(!document.hidden&&time-lastPaint>=32){lastPaint=time;draw(time);}animation=requestAnimationFrame(tick);}
+  function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;return;}if(!document.hidden&&time-lastPaint>=15){lastPaint=time;draw(time);}animation=requestAnimationFrame(tick);}
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
   function atlasSprite(ctx,image,cols,rows,cell,x,y,w,h,alpha=1){
     if(!image.complete||!image.naturalWidth)return;
@@ -50,7 +50,8 @@
   }
   function hero(ctx,x,y,time,motion){
     const t=reduced.matches?0:time,walking=motion==='walk'&&!reduced.matches;
-    const walkFrame=Math.floor(t/140)%8;
+    const walkPosition=t/140,walkFrame=Math.floor(walkPosition)%8;
+    const walkBlend=walkPosition-Math.floor(walkPosition);
     const progress=action?Math.min(1,Math.max(0,(time-action.time)/900)):1;
     const attacking=motion==='attack'&&progress>.12&&progress<.85&&!reduced.matches;
     const casting=motion==='cast'&&!reduced.matches,hurt=motion==='hurt'&&!reduced.matches;
@@ -61,8 +62,20 @@
     let drawn=false;
     if(walking){
       // Eight uninterrupted contact/down/passing/up frames; soles stay on the ground.
-      ctx.save();if(walkFrame>=4)ctx.scale(-1,1);
-      drawn=groundedSprite(ctx,walkingSheet,4,2,walkFrame,0,2,103,spriteGeometry.walk);ctx.restore();
+      const paintWalk=(cell,alpha)=>{
+        ctx.save();ctx.globalAlpha=alpha;if(cell>=4)ctx.scale(-1,1);
+        // Narrow the stride below the hips without squeezing the head or torso.
+        for(let top=-105;top<3;top+=2){
+          const depth=Math.max(0,Math.min(1,(top+48)/50));
+          const width=1-depth*.4;
+          ctx.save();ctx.beginPath();ctx.rect(-150,top,300,2);ctx.clip();ctx.scale(width,1);
+          groundedSprite(ctx,walkingSheet,4,2,cell,0,2,103,spriteGeometry.walk);ctx.restore();
+        }
+        ctx.restore();
+      };
+      const blend=walkBlend*walkBlend*(3-2*walkBlend);
+      paintWalk(walkFrame,1-blend);paintWalk((walkFrame+1)%8,blend);
+      drawn=walkingSheet.complete&&!!walkingSheet.naturalWidth;
     }else if(!casting&&!hurt){
       // Hands and weapon are painted together, including two-handed heavy weapons.
       ctx.save();if(attacking){ctx.translate(0,-42);ctx.rotate(Math.sin(progress*Math.PI)*.12);ctx.translate(0,42);}
