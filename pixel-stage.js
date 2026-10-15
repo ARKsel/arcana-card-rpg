@@ -17,89 +17,68 @@
   }
   function tick(time){animation=0;if(!scene?.box.isConnected){scene=null;return;}if(!document.hidden)draw(time);animation=requestAnimationFrame(tick);}
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
-  // The heroine uses a 4x pixel grid: individual hair strands, eyes and embroidery.
+  // Rebuilt articulated pixel sprite: six walk poses, blinking, cloth and hair.
   function hero(ctx,x,y,time,motion){
-    const moving=motion==='walk',phase=reduced.matches?0:Math.floor(time/120)%4;
-    const stride=moving?[0,3,0,-3][phase]:0;
-    const bob=reduced.matches?0:moving?phase%2:Math.floor(time/460)%2;
-    const sway=reduced.matches?0:Math.floor(time/220)%3-1;
-    ctx.save();ctx.translate(Math.round(x),Math.round(y)-bob*.5);ctx.scale(.25,.25);
-    const ink='#222039',silver='#c2c7df',white='#f7f5ff',shade='#939dbd',skin='#f7d9cd';
-    const r=(x,y,w,h,c)=>rect(ctx,x*2,y*2,w*2,h*2,c);
-    const fine=(x,y,w,h,c)=>rect(ctx,x,y,w,h,c);
-    r(-24,-3,51,5,'#08101b');
-    // Long silver-white hair flows behind her shoulders and waist.
-    r(-20,-102,29,6,ink);r(-25,-95,44,24,ink);r(-26,-77,39,28,ink);
-    r(-29+sway,-65,31,25,ink);r(-32+sway,-46,25,13,ink);
-    r(-20,-100,27,7,white);r(-24,-93,41,20,silver);r(-24,-76,17,26,silver);
-    r(-27+sway,-58,14,17,silver);r(-30+sway,-43,13,7,silver);
-    r(-21,-89,6,27,white);r(-22,-65,5,21,white);r(-25+sway,-45,4,9,white);
-    r(-14,-92,5,37,'#e4e5f4');r(-17,-57,4,18,shade);r(-12,-77,5,26,shade);
-    // Stockings and buckled boots move in alternating walking poses.
-    for(const [lx,offset] of [[-11,stride],[7,-stride]]){
-      r(lx,-29,9,24,ink);r(lx+1,-27,6,18,'#39344e');r(lx+1,-27,6,3,'#d3c4e2');
-      r(lx+offset-1,-10,11,8,ink);r(lx+offset,-9,9,5,'#4d4561');r(lx+offset+4,-8,3,2,'#dec58b');r(lx+offset-1,-3,13,3,'#82748d');
+    const t=reduced.matches?0:time,walk=motion==='walk';
+    const f=Math.floor(t/105)%6,stride=walk?[0,5,8,0,-5,-8][f]:0;
+    const ap=action?Math.min(1,(time-action.time)/900):1;
+    const swing=motion==='attack'?Math.sin(ap*Math.PI):0;
+    const breath=walk?[0,1,2,0,1,2][f]:Math.floor(t/450)%2;
+    const hair=walk?[0,1,3,2,0,-1][f]:Math.floor(t/300)%3-1;
+    ctx.save();ctx.translate(Math.round(x),Math.round(y)-breath*.4);ctx.scale(.4,.4);
+    if(motion==='hurt')ctx.rotate(-.07);
+    const r=(x,y,w,h,c)=>rect(ctx,x,y,w,h,c);
+    const ink='#28263e',dark='#45425e',violet='#74628f',silver='#c5d0e9',white='#fbfaff',skin='#f6d8ce',gold='#e4c58a';
+    r(-26,-3,56,5,'#0b1422');
+    // Swept long hair silhouette: layered edges rather than a rectangular hood.
+    r(-15,-136,29,3,ink);r(-23,-132,45,7,ink);r(-27,-125,52,19,ink);
+    r(-29,-108,23,27,ink);r(-33+hair,-84,24,28,ink);r(-38+hair,-58,24,12,ink);
+    r(-17,-133,29,5,white);r(-23,-127,44,13,silver);r(-24,-115,15,35,silver);
+    r(-29+hair,-81,15,25,silver);r(-33+hair,-57,14,8,silver);
+    for(let i=0;i<6;i++){r(-22+i*5,-125+i%2*2,2,13,'#ffffff');r(-23+i*3,-108,1,26-i*3,'#edf0ff');}
+    r(-21,-94,3,22,white);r(-27+hair,-74,2,17,white);r(-15,-108,3,31,'#a2b0ce');
+    // Alternating legs, lifted knees and heel/toe poses.
+    for(const [lx,step] of [[-11,stride],[9,-stride]]){
+      ctx.save();ctx.translate(lx, -43);ctx.rotate(step*.018);
+      r(-5,0,12,37,ink);r(-3,1,8,29,dark);r(-3,1,8,5,'#d7c8e6');r(-2,8,2,19,'#69607b');
+      const lift=walk&&step>0?Math.floor(step/3):0;
+      r(-5,-lift+31,14,9,ink);r(-3,-lift+32,12,5,'#65566f');r(1,-lift+32,4,2,gold);r(-5,-lift+39,18,2,'#a497ac');ctx.restore();
     }
-    // Midnight-violet dress, ivory jacket, silver pauldrons and gold trim.
-    r(-14,-65,30,27,ink);r(-17,-43,35,13,ink);r(-20,-33,41,6,ink);
-    r(-11,-61,25,22,'#514467');r(-12,-44,28,12,'#66527e');r(-16,-34,33,6,'#806796');
-    r(-13,-62,9,20,'#ece8f4');r(8,-62,7,21,'#ccc9dd');r(-9,-59,4,14,white);
-    r(-17,-63,9,8,shade);r(-17,-63,9,3,white);r(12,-62,8,9,silver);r(13,-62,6,3,white);
-    r(-11,-42,27,3,'#e2c98f');r(0,-44,6,6,'#f3dda4');r(2,-43,2,3,'#b09cce');
-    for(let i=-12;i<17;i+=7){r(i,-35,2,6,'#d4beda');r(i,-28,4,1,'#e4c989');}
-    r(-4,-63,11,4,white);r(-1,-59,5,6,'#b9a2dd');r(0,-59,3,2,'#e3d5ff');
-    // Small anime face, shaded chin, two violet eyes and a white fringe.
-    r(-8,-88,29,23,ink);r(-7,-86,27,18,skin);r(-4,-68,20,4,'#e9bfb9');r(0,-65,11,3,skin);
-    r(-6,-88,29,6,white);r(-9,-83,9,13,silver);r(-5,-84,6,8,white);
-    r(1,-85,5,7,white);r(9,-85,5,5,'#e3e4f1');r(17,-85,5,11,white);
-    r(0,-77,5,5,ink);r(1,-77,3,4,'#a496dc');r(2,-77,2,2,white);
-    r(12,-77,5,5,ink);r(13,-77,3,4,'#a496dc');r(14,-77,2,2,white);
-    r(0,-70,4,2,'#edb6c2');r(15,-70,4,2,'#edb6c2');r(8,-68,3,1,'#af7f94');
-    // Dark ribbon and little star ornament identify her silhouette.
-    r(-20,-85,8,5,'#55436f');r(-22,-88,5,6,'#8870a5');r(-17,-84,4,12,'#57446f');
-    r(-17,-87,3,7,'#f4d99a');r(-19,-85,7,3,'#f4d99a');r(-17,-85,3,3,white);
-    // Single-pixel strands and four-tone highlights on the denser sprite grid.
-    for(let i=0;i<9;i++){
-      const xx=-44+i*4,yy=-185+(i%3)*3;
-      fine(xx,yy,1,17+i%4,'#ffffff');
-      fine(xx+1,yy+13,1,14,'#d7ddec');
+    // Split coat tails sway independently of the torso.
+    r(-19-hair,-61,16,20,ink);r(9+hair,-61,17,21,ink);
+    r(-17-hair,-59,12,16,'#76618f');r(11+hair,-59,12,17,'#5d4f79');
+    r(-17-hair,-45,12,2,gold);r(11+hair,-44,12,2,gold);
+    // Fitted ivory jacket, violet skirt, gold seams, gem clasp.
+    r(-15,-94,32,33,ink);r(-18,-65,38,19,ink);
+    r(-12,-91,26,28,'#e9e7f4');r(-7,-88,17,24,'#63527e');
+    r(-11,-88,4,21,white);r(11,-88,3,23,'#b4b5d0');
+    r(-15,-64,32,15,violet);r(-18,-51,38,4,'#a28ab3');
+    for(let i=-13;i<17;i+=6){r(i,-61,2,10,'#bda6cd');r(i,-49,3,1,gold);r(i+1,-55,1,3,'#f1d9a0');}
+    r(-13,-67,29,3,gold);r(-2,-69,7,7,'#faf0c6');r(0,-68,3,4,'#9885c7');
+    r(-18,-92,11,9,silver);r(-18,-92,10,2,white);r(12,-92,10,9,silver);r(13,-91,7,2,white);
+    r(-3,-91,9,4,white);r(0,-88,4,7,'#b3a0d9');r(1,-88,2,2,'#f9efff');
+    // Rounded pixel face with two shaded violet irises and eyelash animation.
+    r(-8,-119,32,20,ink);r(-5,-116,28,18,skin);r(-1,-99,20,4,'#edc4be');r(3,-95,11,2,skin);
+    r(-8,-121,31,5,white);r(-9,-116,7,14,silver);r(-5,-118,6,8,white);
+    r(2,-120,5,8,white);r(10,-119,5,5,'#e2e8fa');r(19,-117,5,14,white);
+    const blink=t>0&&t%3700>3550;
+    for(const eye of [0,13]){
+      r(eye,-109,7,1,ink);
+      if(!blink){r(eye+1,-108,5,6,'#76569e');r(eye+2,-105,3,3,'#c8aff3');r(eye+2,-108,2,3,'#3f2e62');r(eye+1,-108,2,2,white);}
     }
-    for(let i=0;i<5;i++){
-      const xx=-46+sway*2+i*4;
-      fine(xx,-133+i*3,1,30-i*3,i%2?'#f7f8ff':'#aab5d0');
-      fine(xx-3,-96+i*3,1,11,'#e9eaff');
-    }
-    // Eyelashes, iris gradients, pupils, cheek shading and catchlights.
-    for(const eye of [0,24]){
-      fine(eye-1,-155,12,2,'#30253f');
-      fine(eye+1,-152,7,7,'#6c4e9e');
-      fine(eye+3,-149,5,5,'#b9a0ef');
-      fine(eye+3,-153,2,5,'#3b275b');
-      fine(eye+1,-153,3,2,'#ffffff');
-      fine(eye+6,-149,1,2,'#f7efff');
-    }
-    fine(8,-136,6,1,'#ffe5df');fine(20,-141,2,3,'#e3b6b2');
-    fine(16,-135,5,1,'#ac758c');fine(17,-134,3,1,'#e1b1bb');
-    fine(-10,-145,2,6,'#e8c3c2');fine(37,-145,1,5,'#fff0e5');
-    // Gold embroidery, seams, lapel reflections and skirt pleats.
-    for(let i=0;i<8;i++){
-      const xx=-29+i*8,yy=-65+(i%2)*2;
-      fine(xx,yy,3,1,'#f7df9a');fine(xx+1,yy-2,1,5,'#c3a267');
-      fine(xx+2,-58,2,1,'#fff0c4');
-    }
-    fine(-24,-117,2,27,'#ffffff');fine(-19,-114,1,21,'#b1a6c9');
-    fine(20,-116,2,25,'#f0ecfc');fine(25,-113,1,22,'#a19aba');
-    fine(-4,-108,1,19,'#8b78a7');fine(10,-108,1,18,'#332d48');
-    fine(5,-86,3,2,'#ffffff');fine(6,-83,2,2,'#937db6');
-    for(const xx of [-20,16]){
-      fine(xx,-49,1,18,'#625474');fine(xx+4,-48,1,13,'#a18ba8');
-      fine(xx+1,-16,4,1,'#fff0ba');fine(xx+2,-15,1,3,'#b9a06c');
-    }
-    const casting=motion==='cast';
-    r(16,casting?-65:-53,7,casting?8:14,ink);r(17,casting?-64:-52,5,casting?6:12,'#ece5f2');
-    r(casting?22:18,casting?-65:-41,6,7,skin);r(casting?23:19,casting?-64:-40,4,2,white);
-    if(casting){r(29,-69,5,5,colors[scene.magic]);r(31,-73,1,13,white);r(27,-67,9,1,white);}
-    else {ctx.save();ctx.translate(0,-4);ctx.scale(4,4);weaponArt(ctx,scene.weapon,motion==='attack');ctx.restore();}
+    r(-1,-101,5,1,'#e8aebe');r(17,-101,4,1,'#e8aebe');r(9,-98,4,1,'#ae7f91');
+    // Star ribbon and fine silver hair strands.
+    r(-21,-117,8,6,'#64517e');r(-23,-120,5,5,'#947cae');r(-19,-111,3,15,'#675482');
+    r(-18,-120,2,10,gold);r(-22,-116,10,2,gold);r(-18,-116,2,2,white);
+    // Arms are articulated, not a translation of the entire character.
+    r(-18,-81,7,17,'#d2cddd');r(-17,-65,6,5,skin);
+    ctx.save();ctx.translate(18,-83);
+    if(motion==='cast')ctx.rotate(-1.05);else if(motion==='attack')ctx.rotate(-.7+swing*1.5);
+    r(-2,0,8,20,ink);r(-1,1,6,17,'#ece7f6');r(0,3,2,12,white);r(-1,18,6,7,skin);r(0,18,4,2,'#fff0e8');
+    ctx.restore();
+    if(motion==='cast'){
+      const pulse=Math.floor(t/110)%3;r(31,-105,3,3,colors[scene.magic]);r(28-pulse,-102,9+pulse*2,1,white);r(32,-106-pulse,1,10+pulse*2,white);
+    }else{ctx.save();ctx.translate(6+swing*9,-13-swing*9);ctx.rotate(motion==='attack'?-.7+swing*1.4:0);ctx.scale(2.5,2.5);weaponArt(ctx,scene.weapon,false);ctx.restore();}
     ctx.restore();
   }
   function weaponArt(ctx,type,attack){
@@ -134,21 +113,44 @@
     ctx.restore();
   }
   function monster(ctx,x,y,index,time,dead,hit){
-    const boss=!!s?.encounterSpec?.boss,kind=((scene.foes[index]?.portrait||index)+index)%3;
+    const t=reduced.matches?0:time,phase=Math.floor(t/135+index)%6;
+    const kind=((scene.foes[index]?.portrait||index)+index)%3,boss=!!s?.encounterSpec?.boss;
+    const death=dead?hit:0;
     ctx.save();ctx.translate(Math.round(x),Math.round(y));
-    if(dead){ctx.globalAlpha=Math.max(0,1-hit);ctx.translate(0,hit*14);}
-    const bob=reduced.matches?0:Math.floor(time/350+index)%2;
-    ctx.translate(0,-bob);if(boss)ctx.scale(1.35,1.35);
-    const base=kind===0?'#7c9b91':kind===1?'#9b83bb':'#a29a82';
-    rect(ctx,-18,-2,37,3,'#081016');
-    if(kind===0){ // Slime: stepped silhouette, shining eyes.
-      rect(ctx,-17,-18,34,15,base);rect(ctx,-12,-26,24,11,base);rect(ctx,-6,-30,12,6,base);rect(ctx,-13,-10,26,7,'#4a686a');rect(ctx,-8,-20,4,5,'#edeeac');rect(ctx,5,-20,4,5,'#edeeac');rect(ctx,-7,-19,2,3,'#172737');
-    }else if(kind===1){ // Winged ruin spirit.
-      rect(ctx,-9,-35,18,28,base);rect(ctx,-14,-29,28,13,base);rect(ctx,-29,-34,12,5,'#665b8e');rect(ctx,-23,-30,12,10,'#665b8e');rect(ctx,17,-34,12,5,'#665b8e');rect(ctx,11,-30,12,10,'#665b8e');rect(ctx,-6,-28,4,4,'#ffe1a2');rect(ctx,3,-28,4,4,'#ffe1a2');rect(ctx,-5,-8,4,7,base);rect(ctx,3,-8,4,7,base);
-    }else{ // Stone sentinel.
-      rect(ctx,-14,-29,28,20,base);rect(ctx,-10,-43,20,15,base);rect(ctx,-20,-28,6,22,'#676c70');rect(ctx,14,-28,7,22,'#676c70');rect(ctx,-12,-9,8,8,'#676c70');rect(ctx,4,-9,8,8,'#676c70');rect(ctx,-7,-37,14,3,'#f2c57d');rect(ctx,-4,-24,8,9,'#d0b677');
+    if(dead){ctx.globalAlpha=Math.max(0,1-death);ctx.translate(0,death*12);}
+    if(boss)ctx.scale(1.25,1.25);
+    ctx.scale(.5,.5);
+    const r=(x,y,w,h,c)=>rect(ctx,x,y,w,h,c),ink='#20253e',gold='#f1d797';
+    r(-35,-3,70,5,'#091422');
+    if(kind===0){
+      const squash=[0,2,4,2,0,-2][phase];ctx.translate(0,squash);ctx.scale(1+squash*.012,1-squash*.012);
+      r(-35,-28,70,23,ink);r(-31,-43,62,20,ink);r(-22,-55,44,16,ink);r(-10,-61,22,9,ink);
+      r(-32,-28,64,20,'#3f808a');r(-28,-42,56,20,'#5aabb2');r(-19,-53,38,16,'#81d4cf');r(-8,-58,18,9,'#b0eee0');
+      r(-24,-37,6,14,'#b7f5e5');r(-18,-47,9,5,'#d9fff1');r(-28,-18,56,7,'#326172');
+      for(const ex of [-13,11]){r(ex,-35,7,10,ink);r(ex+1,-34,4,5,gold);r(ex+1,-34,2,2,'#ffffff');}
+      r(-2,-24,6,2,ink);r(-1,-17,5,4,'#8fede0');
+    }else if(kind===1){
+      const flap=[0,4,8,4,0,-4][phase],float=[0,1,3,4,3,1][phase];ctx.translate(0,-float);
+      for(const side of [-1,1]){
+        ctx.save();ctx.scale(side,1);r(19,-65-flap,35,7,ink);r(27,-58-flap,24,12,'#564273');r(20,-50-flap,23,14,'#77559d');r(19,-39-flap,14,11,'#a77ccd');
+        r(36,-65-flap,15,2,'#c79ce6');ctx.restore();
+      }
+      r(-17,-71,34,49,ink);r(-12,-76,24,12,'#8a70aa');r(-21,-54,42,24,'#695189');
+      r(-15,-60,30,22,'#362f54');r(-10,-57,7,5,'#f6d4ff');r(5,-57,7,5,'#f6d4ff');
+      r(-12,-36,25,20,'#8967ad');r(-17,-21,32,11,'#70578f');r(-20+flap,-11,12,6,'#b68fd5');r(9-flap,-11,12,6,'#b68fd5');
+      r(-3,-43,6,8,'#d0a7ed');r(-2,-42,3,4,'#ffffff');
+    }else{
+      const breathe=[0,0,1,2,1,0][phase];ctx.translate(0,-breathe);
+      r(-23,-67,46,45,ink);r(-17,-88,34,22,ink);r(-14,-85,28,17,'#9aa2ad');
+      r(-10,-80,22,5,'#3b4d67');r(-8,-79,6,3,'#a2e6f1');r(5,-79,6,3,'#a2e6f1');
+      r(-20,-63,40,35,'#7d899a');r(-16,-61,8,29,'#b6bdc6');r(12,-60,5,25,'#56667c');
+      r(-31,-62,11,37,ink);r(21,-62,12,37,ink);r(-29,-60,7,28,'#a1abb7');r(23,-60,8,28,'#7d8a9f');
+      r(-22,-24,15,21,ink);r(8,-24,15,21,ink);r(-19,-23,9,17,'#8996a7');r(11,-23,9,17,'#7b899f');
+      r(-6,-55,14,16,'#dbc78b');r(-4,-53,10,12,'#74c6e0');r(-2,-50,6,6,'#d0f5ff');
+      r(-18,-66,36,3,gold);r(-28,-36,6,2,gold);r(24,-36,7,2,gold);
     }
-    if(hit>0&&!dead){ctx.globalAlpha=.45*(1-hit);rect(ctx,-22,-45,44,44,'#fff1c8');}
+    if(hit>0&&!dead&&Math.floor(hit*10)%2===0){ctx.globalAlpha=.5*(1-hit);r(-35,-85,70,78,'#fff3da');}
+    if(dead&&!reduced.matches)for(let j=0;j<14;j++){const q=j*2.4;r(Math.cos(q)*death*60,-35+Math.sin(q)*death*42,2,2,'#dfc6ff');}
     ctx.restore();
   }
   function draw(time){
@@ -160,14 +162,14 @@
     rect(ctx,0,117,480,35,'#28343d');rect(ctx,0,117,480,2,'#69716c');
     const offset=scene.mode==='explore'?Math.floor(t/55)%48:0;
     for(let row=0;row<3;row++)for(let col=-1;col<12;col++){rect(ctx,col*48+row%2*24-offset,121+row*11,44,1,'#46525a');rect(ctx,col*48+row%2*24-offset,121+row*11,1,9,'#1b2932');}
-    const a=action,elapsed=a?time-a.time:10000,p=Math.min(1,elapsed/650),active=p<1;
+    const a=action,elapsed=a?time-a.time:10000,p=Math.min(1,elapsed/(a?.kind==='enemy'?1100:900)),active=p<1;
     let motion=scene.mode==='explore'?'walk':'idle',hx=92;
-    if(active&&a.kind==='attack'){motion='attack';hx+=Math.sin(p*Math.PI)*70;}
+    if(active&&a.kind==='attack'){motion='attack';hx+=reduced.matches?0:Math.sin(p*Math.PI)*90;}
     if(active&&['magic','heal','guard'].includes(a.kind))motion='cast';
-    if(active&&a.kind==='hurt')hx+=Math.sin(p*40)*4;
+    if(active&&(a.kind==='hurt'||a.kind==='enemy'&&a.hits.length)){motion='hurt';hx+=reduced.matches?0:Math.sin(p*40)*4;}
     hero(ctx,hx,120,t,motion);
     const foes=scene.mode==='battle'?scene.foes:[];
-    foes.forEach((e,i)=>{let x=foeX(i,foes.length);if(active&&a.kind==='hurt'&&!reduced.matches)x-=Math.sin(p*Math.PI)*35;const affected=active&&a?.targets?.includes(i);monster(ctx,x,120,i,t,e.hp<=0,affected?p:e.hp<=0?1:0);if(s?.target===i&&e.hp>0){rect(ctx,x-3,57,7,3,'#ead398');rect(ctx,x-1,60,3,3,'#ead398');}});
+    foes.forEach((e,i)=>{let x=foeX(i,foes.length);if(active&&a.kind==='enemy'&&!reduced.matches){const ep=Math.max(0,Math.min(1,p*1.6-i*.28));x-=Math.sin(ep*Math.PI)*48;}const affected=active&&a?.targets?.includes(i);monster(ctx,x,120,i,t,e.hp<=0,affected?p:e.hp<=0?1:0);if(s?.target===i&&e.hp>0){rect(ctx,x-3,57,7,3,'#ead398');rect(ctx,x-1,60,3,3,'#ead398');}});
     if(active&&!reduced.matches){
       const color=colors[a.element]||'#f5dfac';
       if(a.kind==='magic'){for(const i of a.targets){const x=92+(foeX(i,foes.length)-92)*p;magicArt(ctx,x,87,a.element,p);}}
@@ -192,7 +194,7 @@
     perform(card.e.hit?(magics.includes(card.g)?'magic':'attack'):card.e.heal?'heal':'guard',card.n+(s.phase==='reward'?' · 敵を撃破！':''),targets,hits,card.g);
     return result;
   };
-  const originalEnd=endTurn;endTurn=function(...args){const run=s,hp=s?.hp;const result=originalEnd(...args);if(s===run&&s?.phase==='battle')perform(s.hp<hp?'hurt':'guard',s.hp<hp?'敵の攻撃を受けた':'敵の攻撃を防いだ',[],s.hp<hp?[{player:true,text:'−'+(hp-s.hp)}]:[]);return result;};
+  const originalEnd=endTurn;endTurn=function(...args){const run=s,hp=s?.hp;const result=originalEnd(...args);if(s===run&&s?.phase==='battle')perform('enemy',s.hp<hp?'敵の攻撃を受けた':'敵の攻撃を防いだ',[],s.hp<hp?[{player:true,text:'−'+(hp-s.hp)}]:[]);return result;};
   // Initial page may already have a resumed adventure.
   if(s?.phase==='battle')mount('battle');else if(s?.phase==='explore')mount('explore');
 })();
