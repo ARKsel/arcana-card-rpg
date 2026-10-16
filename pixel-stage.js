@@ -221,7 +221,7 @@
     ctx.restore();
   }
   function monster(ctx,x,y,index,time,dead,hit){
-    const kind=((scene.foes[index]?.portrait||index)+index)%3,cell=kind===0?1:kind===1?2:3;
+    const kind=scene.foes[index]?.visualKind??((scene.foes[index]?.portrait||index)+index)%3,cell=kind===0?1:kind===1?2:3;
     const t=reduced.matches?0:time,boss=!!s?.encounterSpec?.boss;
     const bob=Math.sin(t/400+index)*1.5;
     ctx.save();ctx.translate(x,y-bob+(dead?hit*12:0));
@@ -234,7 +234,7 @@
     ctx.restore();
   }
 
-  function ruinsBackground(ctx,width,time){
+  function arcaneRuinsBackground(ctx,width,time){
     // Underground arcane vault: the architecture never depends on an external image.
     const moving=scene.mode==='explore'&&!reduced.matches,seconds=moving?time/1000:0;
     const pulse=reduced.matches?0:time/1000;
@@ -306,6 +306,77 @@
     const vignette=ctx.createLinearGradient(0,0,0,152);
     vignette.addColorStop(0,'#02030cb0');vignette.addColorStop(.3,'#03041000');vignette.addColorStop(.8,'#03041000');vignette.addColorStop(1,'#03051060');
     ctx.fillStyle=vignette;ctx.fillRect(0,0,width,152);
+  }
+  function ruinsBackground(ctx,width,time){
+    const biome=typeof getDungeonBiome==='function'?getDungeonBiome():null;
+    if(!biome||biome.scene==='ruins'){arcaneRuinsBackground(ctx,width,time);return}
+    const moving=scene.mode==='explore'&&!reduced.matches,seconds=moving?time/1000:0;
+    const pulse=reduced.matches?0:time/1000,kind=biome.scene;
+    const path=(points,fill,stroke)=>{ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.7;ctx.stroke()}};
+    const glow=(x,y,r,alpha=.18)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,biome.glow+Math.round(alpha*255).toString(16).padStart(2,'0'));g.addColorStop(1,biome.glow+'00');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)};
+    const bg=ctx.createLinearGradient(0,0,0,152);bg.addColorStop(0,biome.sky);bg.addColorStop(.7,biome.stone);bg.addColorStop(1,'#080e1a');ctx.fillStyle=bg;ctx.fillRect(0,0,width,152);
+    // Distant cavern silhouettes move slower than the near trees, ruins or crystals.
+    for(let x=-180-seconds*5%180;x<width+180;x+=180){
+      path([[x,0],[x+35,22],[x+74,12],[x+105,48],[x+135,20],[x+180,0]],'#050b168a');
+      glow(x+92,65,47,.12);
+    }
+    const spacing=kind==='forest'?100:kind==='temple'?130:115,offset=seconds*15%spacing;
+    for(let n=0,x=-spacing-offset;x<width+spacing;x+=spacing,n++){
+      const top=12+n%3*9;
+      if(kind==='forest'||kind==='swamp'){
+        const mushroom=kind==='swamp';
+        path([[x+17,115],[x+27,69],[x+22,top],[x+39,top-8],[x+43,73],[x+55,115]],'#0b191de6',biome.glow+'28');
+        if(mushroom){
+          ctx.fillStyle=biome.glow+'70';ctx.beginPath();ctx.ellipse(x+36,top+16,27,7,0,Math.PI,Math.PI*2);ctx.fill();
+          ctx.fillStyle=biome.glow+'20';ctx.beginPath();ctx.ellipse(x+36,top+16,27,5,0,0,Math.PI*2);ctx.fill();glow(x+36,top+18,35,.15);
+        }else{
+          path([[x+30,70],[x+7,38],[x-10,30],[x+19,38],[x+34,55],[x+52,19],[x+74,12],[x+53,35],[x+40,77]],'#101f25');
+          for(let k=0;k<4;k++){ctx.fillStyle=biome.glow+'25';ctx.beginPath();ctx.ellipse(x+10+k*17,20+Math.sin(k)*9,21,8,-.2,0,Math.PI*2);ctx.fill()}
+        }
+        path([[x+24,111],[x+2,120],[x+34,116],[x+68,122],[x+47,110]],'#17272c');
+      }else if(kind==='crystal'||kind==='frost'){
+        for(let k=0;k<3;k++){
+          const left=x+10+k*15,h=30+(n*17+k*23)%55;
+          path([[left,112],[left-7,112-h*.7],[left+3,112-h],[left+13,112-h*.65],[left+17,112]],biome.glow+(k===1?'65':'35'),biome.glow+'85');
+          path([[left+3,112-h],[left+5,112],[left+17,112]],biome.glow+'25');
+        }
+        if(kind==='frost')for(let k=0;k<4;k++)path([[x+k*24,0],[x+k*24+7,19+(k*13)%27],[x+k*24+13,0]],biome.glow+'66');
+        glow(x+28,87,45,.14);
+      }else if(kind==='temple'||kind==='crypt'){
+        ctx.fillStyle='#101824';ctx.fillRect(x+12,top,15,111-top);
+        ctx.fillStyle=biome.stone;ctx.fillRect(x+9,top,22,4);ctx.fillRect(x+8,107,24,6);
+        if(kind==='crypt'){
+          path([[x+53,112],[x+53,74],[x+67,64],[x+81,74],[x+81,112]],'#101523',biome.glow+'36');
+          ctx.strokeStyle=biome.glow+'60';ctx.beginPath();ctx.moveTo(x+67,78);ctx.lineTo(x+67,94);ctx.moveTo(x+61,84);ctx.lineTo(x+73,84);ctx.stroke();
+        }else{
+          ctx.strokeStyle=biome.glow+'3c';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+73,57,23,Math.PI,0);ctx.lineTo(x+96,110);ctx.moveTo(x+50,110);ctx.lineTo(x+50,57);ctx.stroke();
+          glow(x+73,64,31,.22);
+        }
+      }else if(kind==='desert'||kind==='canyon'){
+        path([[x-12,114],[x+5,53],[x+23,34],[x+42,48],[x+52,83],[x+76,114]],'#15202cb8',biome.glow+'20');
+        if(kind==='desert'){ctx.fillStyle=biome.stone;ctx.fillRect(x+18,70,12,41);ctx.fillRect(x+15,68,19,4)}
+        else{path([[x+63,0],[x+66,59],[x+86,96],[x+106,112],[x+116,0]],'#091323d9');}
+      }else{
+        path([[x+8,112],[x+13,74],[x+27,61],[x+43,87],[x+60,112]],'#111522',biome.glow+'30');
+        if(kind==='abyss'){
+          path([[x+55,15],[x+48,34],[x+58,53],[x+49,78],[x+55,91],[x+64,64],[x+60,44],[x+68,24]],biome.glow+'66');
+          glow(x+57,55,30,.18);
+        }else{
+          path([[x+58,18],[x+52,50],[x+61,71],[x+55,111],[x+63,111],[x+67,68],[x+59,49],[x+65,18]],biome.glow+'88');glow(x+59,93,36,.2);
+        }
+      }
+    }
+    const floor=ctx.createLinearGradient(0,110,0,152);floor.addColorStop(0,biome.stone);floor.addColorStop(1,biome.sky);ctx.fillStyle=floor;ctx.fillRect(0,110,width,42);
+    ctx.strokeStyle=biome.glow+'28';ctx.lineWidth=.5;
+    for(let x=-70-seconds*25%70;x<width+70;x+=70){ctx.beginPath();ctx.moveTo(x,110);ctx.lineTo(x-29,152);ctx.stroke()}
+    for(const y of [117,129,145]){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}
+    if(kind==='forge'||kind==='water'){
+      ctx.fillStyle=biome.glow+(kind==='forge'?'75':'25');ctx.fillRect(0,140,width,12);
+      ctx.strokeStyle=biome.glow+'80';ctx.beginPath();
+      for(let x=0;x<=width;x+=4){const y=141+Math.sin(x/18+pulse)*1.4;x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();
+    }
+    for(let i=0;i<16;i++){const x=((i*67.31-seconds*7)%(width+20)+width+20)%(width+20)-10,y=15+i*37%94+Math.sin(pulse*.5+i)*2;ctx.fillStyle=biome.glow+'65';ctx.fillRect(x,y,.8,.8)}
+    const shade=ctx.createLinearGradient(0,0,0,152);shade.addColorStop(0,'#03071255');shade.addColorStop(.5,'#03071200');shade.addColorStop(1,'#03071240');ctx.fillStyle=shade;ctx.fillRect(0,0,width,152);
   }
   function draw(time){
     if(!scene)return;const ctx=scene.canvas.getContext('2d');if(!ctx)return;

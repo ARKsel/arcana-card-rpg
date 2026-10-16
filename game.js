@@ -267,8 +267,8 @@ function chooseDungeonRoute(i){if(s.phase!=='explore'||!Number.isInteger(i)||!s.
 
 const endlessStart=start;start=function(){endlessStart();s.layer=1;s.floorSteps=0;s.bossesWon=0;s.awaitingNextLayer=false;exploration()};
 function bossRouteChance(){return Math.min(.6,.2+Math.max(0,(s.floorSteps||0)-8)*.04)}
-exploration=function(message=''){s.layer??=1;s.floorSteps??=0;s.bossesWon??=0;s.phase='explore';s.pending=0;const count=1+Math.floor(Math.random()*3);s.routes=shuffle([...routeTemplates]).slice(0,count).map(t=>({name:t[0],combat:t[1],bonus:t[2]}));if(Math.random()<bossRouteChance())s.routes[Math.floor(Math.random()*count)]={name:'層の守護者の扉',boss:true};document.body.dataset.scene='explore';$('#app').innerHTML=`<section class="reward dungeon-explore"><div class="eyebrow">ENDLESS DUNGEON / LAYER ${s.layer}</div><h1 style="font-size:38px">第${s.layer}層 · 忘れられた遺跡</h1><p>終わりのない深淵へ。守護者を倒し、さらに下の層へ進む。</p>${dungeonHud()}<div class="dungeon-map">${s.encounters.slice(-12).map((e,i)=>`<span class="visited" title="${e}">${e==='ボス'?'♛':e==='戦闘'?'⚔':e==='行商人'?'G':'◇'}</span>`).join('')}<span class="current">?</span></div><div class="explore-scene"><img src="${artAssets.scene}" alt="霧に包まれた遺跡"><div><span class="eyebrow">${s.routes.some(r=>r.boss)?'THE GUARDIAN IS NEAR':'CHOOSE YOUR PATH'}</span><h2>${s.routes.length}本の道が続いている</h2><p>${s.routes.some(r=>r.boss)?'重い扉の奥から、守護者の気配を感じる。':'新しい部屋、魔物、あるいは思いがけない出会い。'}</p></div></div><p aria-live="polite">${message||'探索 → 戦闘・イベント → 探索。ボス勝利後は必ず次の層へ。'}</p><div class="explore-actions">${s.routes.map((r,i)=>`<button class="${r.boss?'primary':''}" onclick="chooseDungeonRoute(${i})"><b>${r.name}</b><span>${r.boss?'ボス戦 / 勝利後に次の層へ':`戦闘率${Math.round(r.combat*100)}％ / 戦闘報酬＋${r.bonus} G`}</span></button>`).join('')}</div><p class="small">この層の探索 ${s.floorSteps}回 ／ 累計探索 ${s.depth}回 ／ 戦闘勝利 ${s.battlesWon}回 ／ ボス撃破 ${s.bossesWon}体<br>ボスルート出現率 ${Math.round(bossRouteChance()*100)}％。長く探索すると出現率が上がります。<br>HP・ゴールド・デッキ・装備は次の層へ引き継ぎます。</p></section>`};
-chooseDungeonRoute=function(i){if(s.phase!=='explore'||!Number.isInteger(i)||!s.routes[i])return;const r=s.routes[i];s.phase='travel';s.depth++;s.floorSteps++;s.dangerBonus=r.bonus||0;s.encounters=s.encounters.slice(-99);if(r.boss){s.stage=3;s.encounters.push('ボス');s.nextBattleSpec=shuffle(battleCatalog.filter(b=>b.boss))[0];battle();return}if(s.floorSteps%6===0){s.encounters.push('行商人');openDungeonShop();return}if(Math.random()<r.combat){s.stage=Math.min(2,Math.floor(s.floorSteps/4));s.encounters.push('戦闘');s.nextBattleSpec=shuffle(battleCatalog.filter(b=>!b.boss))[0];battle()}else{s.event=Math.floor(Math.random()*100);s.encounters.push('イベント');dungeonEvent()}};
+exploration=function(message=''){s.layer??=1;s.floorSteps??=0;s.bossesWon??=0;s.phase='explore';s.pending=0;const count=1+Math.floor(Math.random()*3);s.routes=shuffle([...routeTemplates]).slice(0,count).map(t=>({name:t[0],combat:t[1],bonus:t[2]}));if(Math.random()<bossRouteChance())s.routes[Math.floor(Math.random()*count)]={name:'層の守護者の扉',boss:true};document.body.dataset.scene='explore';$('#app').innerHTML=`<section class="reward dungeon-explore"><div class="eyebrow">ENDLESS DUNGEON / LAYER ${s.layer}</div><h1 style="font-size:38px">第${s.layer}層 · ${getDungeonBiome().name}</h1><p>${getDungeonBiome().description}</p>${dungeonHud()}<div class="dungeon-map">${s.encounters.slice(-12).map((e,i)=>`<span class="visited" title="${e}">${e==='ボス'?'♛':e==='戦闘'?'⚔':e==='行商人'?'G':'◇'}</span>`).join('')}<span class="current">?</span></div><div class="explore-scene"><img src="${artAssets.scene}" alt="霧に包まれた遺跡"><div><span class="eyebrow">${s.routes.some(r=>r.boss)?'THE GUARDIAN IS NEAR':'CHOOSE YOUR PATH'}</span><h2>${s.routes.length}本の道が続いている</h2><p>${s.routes.some(r=>r.boss)?'重い扉の奥から、守護者の気配を感じる。':'新しい部屋、魔物、あるいは思いがけない出会い。'}</p></div></div><p aria-live="polite">${message||'探索 → 戦闘・イベント → 探索。ボス勝利後は必ず次の層へ。'}</p><div class="explore-actions">${s.routes.map((r,i)=>`<button class="${r.boss?'primary':''}" onclick="chooseDungeonRoute(${i})"><b>${r.name}</b><span>${r.boss?'ボス戦 / 勝利後に次の層へ':`戦闘率${Math.round(r.combat*100)}％ / 戦闘報酬＋${r.bonus} G`}</span></button>`).join('')}</div><p class="small">この層の探索 ${s.floorSteps}回 ／ 累計探索 ${s.depth}回 ／ 戦闘勝利 ${s.battlesWon}回 ／ ボス撃破 ${s.bossesWon}体<br>ボスルート出現率 ${Math.round(bossRouteChance()*100)}％。長く探索すると出現率が上がります。<br>HP・ゴールド・デッキ・装備は次の層へ引き継ぎます。</p></section>`};
+chooseDungeonRoute=function(i){if(s.phase!=='explore'||!Number.isInteger(i)||!s.routes[i])return;const r=s.routes[i];s.phase='travel';s.depth++;s.floorSteps++;s.dangerBonus=r.bonus||0;s.encounters=s.encounters.slice(-99);if(r.boss){s.stage=3;s.encounters.push('ボス');s.nextBattleSpec=chooseBiomeEncounter(true);battle();return}if(s.floorSteps%6===0){s.encounters.push('行商人');openDungeonShop();return}if(Math.random()<r.combat){s.stage=Math.min(2,Math.floor(s.floorSteps/4));s.encounters.push('戦闘');s.nextBattleSpec=chooseBiomeEncounter(false);battle()}else{s.event=Math.floor(Math.random()*100);s.encounters.push('イベント');dungeonEvent()}};
 const baseEndlessEnemies=encounterEnemies;encounterEnemies=function(spec){const originalDepth=s.depth;s.depth=1;const enemies=baseEndlessEnemies(spec);s.depth=originalDepth;const scaling=1+Math.max(0,(s.layer||1)-1)*.12;for(const e of enemies){e.hp=e.max=Math.round(e.hp*scaling);e.baseAttack=Math.max(1,Math.round(e.baseAttack*(1+Math.max(0,(s.layer||1)-1)*.08)))}return enemies};
 winCheck=function(){if(s.phase!=='battle'||!s.enemies.every(e=>e.hp<=0))return false;const boss=!!s.encounterSpec?.boss;s.battlesWon++;if(boss)s.bossesWon++;s.phase='reward';s.pending=0;s.lastBounty=(boss?55:25+s.stage*10)+Math.max(0,s.layer-1)*5+(s.dangerBonus||0);s.dangerBonus=0;s.gold+=s.lastBounty;s.earned+=s.lastBounty;s.lastCrystals=(boss?15:3)+Math.floor(Math.max(0,s.layer-1)/3);queueCrystals(s.lastCrystals,'battle');s.hp=Math.min(s.max,s.hp+10);s.awaitingNextLayer=boss;s.reward=shuffle(all.filter(c=>['汎用',weapon,magic].includes(c.g)&&owned(c))).slice(0,3).map(c=>c.id);reward();if(boss){$('#app').innerHTML=$('#app').innerHTML.replace('新たな力を、手に。','第'+s.layer+'層の守護者を撃破！').replace('カードを取らずに進む →','カードを取らず第'+(s.layer+1)+'層へ →').replace('デッキに加えるカードを1枚選んでください。','カードを選ぶと、必ず第'+(s.layer+1)+'層へ進みます。')}return true};
 next=function(id){if(s.phase!=='reward')return;if(id>=0){if(!s.reward.includes(id))return;s.deck.push(id)}if(s.awaitingNextLayer){s.layer++;s.floorSteps=0;s.awaitingNextLayer=false;s.eventSpec=null;openLayerMagicSelection()}else exploration('戦闘を終え、同じ層の探索に戻った。')};
@@ -621,3 +621,82 @@ catalogItems=function(){
 };
 
 if(!s&&document.body.dataset.scene==='setup')setup();
+
+
+// Twenty stable floor environments; the encounter weights are independent of floor scaling.
+const dungeonBiomes=[{"id":"rootwoods","name":"根絡みの地下樹海","primarySpecies":"獣","secondarySpecies":"植物","primaryElement":"風","secondaryElement":"土","scene":"forest","sky":"#081b1b","stone":"#29463a","glow":"#8ed4ad","boss":"樹冠の獣王","description":"巨根の隙間に獣道が続く、地下に育った樹海。"},{"id":"clockruins","name":"蒸気機巧遺跡","primarySpecies":"機械","secondarySpecies":"人型","primaryElement":"雷","secondaryElement":"火","scene":"ruins","sky":"#091522","stone":"#303b51","glow":"#76dcec","boss":"零式遺跡管理機","description":"止まったはずの歯車と巡回機械が動く古代遺跡。"},{"id":"lavacaves","name":"灼熱の溶岩洞","primarySpecies":"竜族","secondarySpecies":"精霊","primaryElement":"火","secondaryElement":"土","scene":"forge","sky":"#240d17","stone":"#54312b","glow":"#ff9c56","boss":"熔冠の古竜","description":"熔岩が石畳の割れ目を照らす灼熱の洞窟。"},{"id":"frozenhollow","name":"氷封の大空洞","primarySpecies":"獣","secondarySpecies":"精霊","primaryElement":"氷","secondaryElement":"風","scene":"frost","sky":"#091e32","stone":"#304e64","glow":"#b5ecff","boss":"永久凍土の白獣","description":"巨大な氷柱と凍りついた地下湖が広がる。"},{"id":"sporemarsh","name":"毒霧の菌床","primarySpecies":"昆虫","secondarySpecies":"植物","primaryElement":"闇","secondaryElement":"土","scene":"swamp","sky":"#141c1b","stone":"#394239","glow":"#b7d56d","boss":"胞子喰らいの蟲母","description":"発光する茸と毒霧が古い水路を覆う。"},{"id":"stormmine","name":"雷鳴の鉱山","primarySpecies":"精霊","secondarySpecies":"機械","primaryElement":"雷","secondaryElement":"土","scene":"crystal","sky":"#15152c","stone":"#40344c","glow":"#e0d487","boss":"雷晶核の巨人","description":"帯電した鉱脈を古い採掘機械が掘り続ける。"},{"id":"eclipsegrave","name":"月蝕の墓苑","primarySpecies":"不死","secondarySpecies":"魔族","primaryElement":"闇","secondaryElement":"氷","scene":"crypt","sky":"#171124","stone":"#373142","glow":"#c1a0e3","boss":"月蝕の墓守王","description":"月光に似た魔力が石棺を青白く照らす墓所。"},{"id":"dawncathedral","name":"白光の聖堂","primarySpecies":"人型","secondarySpecies":"精霊","primaryElement":"光","secondaryElement":"火","scene":"temple","sky":"#1c2028","stone":"#555650","glow":"#ffe9b5","boss":"黎明の審判者","description":"光の結晶と聖印が並ぶ、地下の大聖堂。"},{"id":"buriedcity","name":"砂塵の埋没都市","primarySpecies":"機械","secondarySpecies":"不死","primaryElement":"土","secondaryElement":"風","scene":"desert","sky":"#211c18","stone":"#5b4b35","glow":"#e6ca8b","boss":"砂海の機巧王","description":"砂に呑まれた街路に古代機械と亡者が潜む。"},{"id":"windchasm","name":"風鳴りの地下渓谷","primarySpecies":"幻獣","secondarySpecies":"獣","primaryElement":"風","secondaryElement":"雷","scene":"canyon","sky":"#0d2029","stone":"#3b5259","glow":"#a0e5d9","boss":"風穴の幻獣王","description":"深い裂け目を風が抜け、幻獣の声が響く。"},{"id":"mirrorpalace","name":"水鏡の沈没宮","primarySpecies":"精霊","secondarySpecies":"幻獣","primaryElement":"氷","secondaryElement":"光","scene":"water","sky":"#091f2b","stone":"#244953","glow":"#a3dce8","boss":"水鏡の宮廷主","description":"透き通る水が柱と封印扉を映す沈没宮。"},{"id":"dragoncrater","name":"竜骨の火口","primarySpecies":"竜族","secondarySpecies":"不死","primaryElement":"火","secondaryElement":"闇","scene":"forge","sky":"#210f16","stone":"#4d302f","glow":"#ffac75","boss":"灰燼の骨竜","description":"古竜の骨と噴気孔が連なる、赤熱した空洞。"},{"id":"starcrystal","name":"星晶の洞窟","primarySpecies":"幻獣","secondarySpecies":"精霊","primaryElement":"光","secondaryElement":"雷","scene":"crystal","sky":"#101730","stone":"#3b3e5b","glow":"#dfceff","boss":"星角の麒麟王","description":"星空のような鉱石が天井を埋める静かな洞窟。"},{"id":"obsidianprison","name":"黒曜の監獄","primarySpecies":"魔族","secondarySpecies":"機械","primaryElement":"闇","secondaryElement":"火","scene":"abyss","sky":"#150f22","stone":"#382a43","glow":"#d68ce4","boss":"黒鎖の獄長","description":"黒曜石の檻と古い拘束機械が並ぶ監獄。"},{"id":"rootgarden","name":"巨根の植物園","primarySpecies":"植物","secondarySpecies":"昆虫","primaryElement":"土","secondaryElement":"光","scene":"forest","sky":"#0c2118","stone":"#35543c","glow":"#c2d98b","boss":"千年樹の心臓","description":"巨大な根と食人植物が古い実験庭園を覆う。"},{"id":"oldbattlefield","name":"忘却の古戦場","primarySpecies":"不死","secondarySpecies":"人型","primaryElement":"土","secondaryElement":"闇","scene":"crypt","sky":"#191c21","stone":"#46463f","glow":"#c6c2a4","boss":"名もなき軍団長","description":"朽ちた旗と兵器の間を亡霊の軍勢が巡る。"},{"id":"machinesanctum","name":"機械仕掛けの聖域","primarySpecies":"機械","secondarySpecies":"精霊","primaryElement":"光","secondaryElement":"雷","scene":"temple","sky":"#15202a","stone":"#4b555d","glow":"#d5edee","boss":"天輪の自律聖機","description":"聖堂の光と古代の演算装置が融合した聖域。"},{"id":"beastnest","name":"暴風の獣巣","primarySpecies":"獣","secondarySpecies":"竜族","primaryElement":"風","secondaryElement":"氷","scene":"canyon","sky":"#0c1b27","stone":"#344757","glow":"#bbdfe9","boss":"嵐牙の獣竜","description":"強風が吹き抜ける崖に獣と翼竜が巣を作る。"},{"id":"crimsonhive","name":"深紅の蟲窟","primarySpecies":"昆虫","secondarySpecies":"魔族","primaryElement":"火","secondaryElement":"闇","scene":"swamp","sky":"#24121b","stone":"#4c343a","glow":"#ee9b91","boss":"紅殻の女王蟲","description":"赤い繭と巨大な甲殻が壁を覆う熱い巣穴。"},{"id":"voidaltar","name":"虚無の祭壇","primarySpecies":"魔族","secondarySpecies":"幻獣","primaryElement":"闇","secondaryElement":"雷","scene":"abyss","sky":"#100c20","stone":"#2c2346","glow":"#bf9fe9","boss":"虚空を織るもの","description":"紫の裂け目が浮かぶ、最奥の忘れられた祭壇。"}];
+const monsterSpecies=['獣','植物','機械','人型','竜族','精霊','昆虫','不死','魔族','幻獣'];
+const factionSpecies=['植物','不死','魔族','獣','精霊','精霊','機械','魔族','人型','機械'];
+for(const spec of battleCatalog)spec.species=factionSpecies[spec.faction];
+const biomeMonsterBases=[
+ ['森牙の狼','獣',3],['角冠の大鹿','獣',3],['洞窟熊','獣',3],
+ ['遺跡の自動兵','機械',6],['巡回ドローン','機械',6],['古式戦闘機','機械',6],
+ ['甲殻の大蟲','昆虫',0],['洞窟の毒蜘蛛','昆虫',0],
+ ['歩く古樹','植物',0],['喰らい蔓','植物',0],
+ ['幼き地竜','竜族',4],['翼蛇','竜族',4],
+ ['霧の幻狼','幻獣',2],['星角の麒麟','幻獣',2]
+];
+for(const [name,species,faction] of biomeMonsterBases)for(let tactic=0;tactic<10;tactic++){
+ battleCatalog.push({id:battleCatalog.length,name:name+'・'+battleTactics[tactic],faction,tactic,boss:false,species});
+}
+for(const [index,biome] of dungeonBiomes.entries()){
+ biome.bossId=battleCatalog.length;
+ battleCatalog.push({id:battleCatalog.length,name:biome.boss,faction:9,tactic:index%10,boss:true,species:biome.primarySpecies,biomeId:biome.id});
+}
+function getDungeonBiome(){
+ if(!s)return dungeonBiomes[0];
+ const layer=Math.max(1,s.layer||1),cycle=Math.floor((layer-1)/20);
+ if(!Array.isArray(s.biomeOrder)||s.biomeOrder.length!==20||s.biomeCycle!==cycle){
+  const previous=s.biomeId;s.biomeOrder=shuffle(dungeonBiomes.map(b=>b.id));s.biomeCycle=cycle;
+  if(s.biomeOrder[0]===previous)[s.biomeOrder[0],s.biomeOrder[1]]=[s.biomeOrder[1],s.biomeOrder[0]];
+ }
+ if(s.biomeLayer!==layer){s.biomeLayer=layer;s.biomeId=s.biomeOrder[(layer-1)%20];}
+ return dungeonBiomes.find(b=>b.id===s.biomeId)||dungeonBiomes[0];
+}
+function biomeWeighted(primary,secondary,values,primaryChance,secondaryChance){
+ const chance=Math.random();
+ if(chance<primaryChance)return primary;
+ if(chance<primaryChance+secondaryChance)return secondary;
+ const others=values.filter(value=>value!==primary&&value!==secondary);
+ return others[Math.floor(Math.random()*others.length)];
+}
+function chooseBiomeEncounter(boss=false){
+ const biome=getDungeonBiome();
+ const species=biomeWeighted(biome.primarySpecies,biome.secondarySpecies,monsterSpecies,.6,.25);
+ const element=biomeWeighted(biome.primaryElement,biome.secondaryElement,magics,.7,.2);
+ let candidates;
+ if(boss)candidates=Math.random()<.7?[battleCatalog[biome.bossId]]:battleCatalog.filter(b=>b.boss&&!b.biomeId);
+ else candidates=battleCatalog.filter(b=>!b.boss&&b.species===species);
+ return {...candidates[Math.floor(Math.random()*candidates.length)],element,environment:biome.id};
+}
+const enemiesBeforeBiomes=encounterEnemies;
+encounterEnemies=function(spec){
+ const enemies=enemiesBeforeBiomes(spec),biome=getDungeonBiome();
+ const element=spec.element||biomeWeighted(biome.primaryElement,biome.secondaryElement,magics,.7,.2);
+ for(const enemy of enemies){enemy.species=spec.species||factionSpecies[spec.faction];enemy.element=element;enemy.environment=biome.id;enemy.visualKind=({獣:2,植物:0,機械:1,人型:1,竜族:2,精霊:0,昆虫:2,不死:1,魔族:2,幻獣:2})[enemy.species]??0;}
+ return enemies;
+};
+const intentBeforeBiomes=prepareEnemyIntent;
+prepareEnemyIntent=function(enemy){
+ intentBeforeBiomes(enemy);
+ if(enemy.element&&!enemy.healIntent)enemy.intent=enemy.element+'属性攻撃 '+enemy.attack;
+};
+const battleBeforeBiomes=battle;
+battle=function(){if(s&&!s.nextBattleSpec)s.nextBattleSpec=chooseBiomeEncounter(s.stage===3);battleBeforeBiomes();};
+const hudBeforeBiomes=dungeonHud;
+dungeonHud=function(){
+ const biome=getDungeonBiome();
+ return hudBeforeBiomes()+'<section class="biome-summary" aria-label="階層の特徴"><b>'+biome.name+'</b><span>出現系統：'+biome.primarySpecies+'系 60％ ／ '+biome.secondarySpecies+'系 25％ ／ その他15％</span><span>出現属性：'+biome.primaryElement+' 70％ ／ '+biome.secondaryElement+' 20％ ／ その他10％</span><button onclick="openBiomeGuide()">20種類の階層を見る</button></section>';
+};
+const renderBeforeBiomeTraits=render;
+render=function(){
+ renderBeforeBiomeTraits();
+ if(s?.phase!=='battle')return;
+ for(const enemy of s.enemies)$('#app').innerHTML=$('#app').innerHTML.replace('HP '+enemy.hp+' / '+enemy.max+'　防御 '+enemy.block+'</div>','HP '+enemy.hp+' / '+enemy.max+'　防御 '+enemy.block+'<br>'+enemy.species+'系 ／ '+enemy.element+'属性</div>');
+};
+function openBiomeGuide(){
+ let dialog=document.getElementById('biome-guide');
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='biome-guide';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','20種類の階層');document.body.append(dialog);}
+ dialog.innerHTML='<div class="weapon-art-titlebar"><h2>20種類の階層</h2><button onclick="document.getElementById(\'biome-guide\').close()">閉じる ×</button></div><p>20階層ごとに全20種類を一巡。次の周回では順番を再抽選します。階層内ではテーマが固定されます。</p><div class="biome-guide-list">'+dungeonBiomes.map(b=>'<article><h3>'+b.name+'</h3><p>'+b.description+'</p><p>系統：'+b.primarySpecies+' ／ '+b.secondarySpecies+'<br>属性：'+b.primaryElement+' ／ '+b.secondaryElement+'<br>主な守護者：'+b.boss+'</p></article>').join('')+'</div><p class="small">通常敵の系統：主60％・副25％・その他15％。出現属性：主70％・副20％・その他10％。守護者は70％で階層固有、30％で従来の封印の守護者から抽選します。</p>';
+ dialog.showModal();
+}
