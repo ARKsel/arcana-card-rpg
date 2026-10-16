@@ -332,20 +332,26 @@
       if(a.kind==='magic'){for(const i of a.targets){const origin=(scene.width||480)*.2;const x=origin+(foeX(i,foes.length)-origin)*p;magicArt(ctx,x,87,a.element,p);}}
       if(a.kind==='attack')for(const i of a.targets.length?a.targets:[s?.target??0])weaponEffects(ctx,a.weapon,hx,foeX(i,foes.length),p);
       if(a.kind==='heal'||a.kind==='guard'){for(let j=0;j<9;j++)rect(ctx,(scene.width||480)*.2-22+j*5,108-(p*35+j*7)%45,3,4,a.kind==='heal'?'#9ef0bf':color);}
-      if(p>=impact)for(const hit of a.hits||[]){const rise=(p-impact)/(1-impact);ctx.save();ctx.globalAlpha=Math.min(1,(1-rise)*3);ctx.fillStyle=hit.player?'#ffb6a0':'#fff1c4';ctx.strokeStyle='#131923';ctx.lineWidth=2;ctx.font='bold 11px monospace';ctx.textAlign='center';const tx=hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),ty=67-rise*18;ctx.strokeText(hit.text,tx,ty);ctx.fillText(hit.text,tx,ty);ctx.restore();}
+      if(p>=impact)for(const hit of a.hits||[]){const rise=(p-impact)/(1-impact);ctx.save();ctx.globalAlpha=Math.min(1,(1-rise)*3);ctx.fillStyle=hit.kind==='block'?'#79e5ff':hit.player?'#ffb6a0':'#fff1c4';ctx.strokeStyle='#131923';ctx.lineWidth=2;ctx.font='bold 11px monospace';ctx.textAlign='center';const tx=hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),ty=67-rise*18+(hit.offset||0);ctx.strokeText(hit.text,tx,ty);ctx.fillText(hit.text,tx,ty);ctx.restore();}
     }
   }
   function foeX(i,count){const w=scene?.width||480;return count<=1?w*.74:w*.58+i*Math.min(100,w*.3/Math.max(1,count-1));}
-  function perform(kind,label,targets=[],hits=[],element=magic){const type=scene?.weapon||weapon;action={kind,targets,hits,element,weapon:type,duration:kind==='attack'?(attacks[type]?.duration||900):kind==='enemy'?1100:900,time:performance.now()};if(scene){scene.foes=(s?.enemies||[]).map(e=>({...e}));scene.box.querySelector('.pixel-caption').textContent=label;draw(action.time);}}
+  function perform(kind,label,targets=[],hits=[],element=magic){const type=scene?.weapon||weapon;action={kind,targets,hits,element,weapon:type,duration:kind==='attack'?(attacks[type]?.duration||900):kind==='enemy'?1100:900,time:performance.now()};if(scene){scene.foes=(s?.enemies||[]).map(e=>({...e}));scene.box.querySelector('.pixel-caption').textContent=label+(hits.some(h=>h.kind==='block')?' ／ 水色：防御ダメージ・金色：HPダメージ':'');draw(action.time);}}
   const originalRender=render;render=function(...args){const result=originalRender(...args);mount('battle');return result;};
   const originalExplore=exploration;exploration=function(...args){const result=originalExplore(...args);mount('explore');return result;};
   const originalPlay=play;play=function(i){
     const card=s?.phase==='battle'&&!s.pending?all[s.hand[i]]:null;
     if(!card||!can(card))return originalPlay(i);
-    const run=s,before=s.enemies.map(e=>e.hp),hp=s.hp,played=s.played;
+    const run=s,before=s.enemies.map(e=>e.hp),beforeBlock=s.enemies.map(e=>e.block||0),hp=s.hp,played=s.played;
     const result=originalPlay(i);if(s!==run||s.played===played)return result;
-    const targets=before.map((h,i)=>h>s.enemies[i].hp?i:-1).filter(i=>i>=0);
-    const hits=targets.map(index=>({index,text:'−'+(before[index]-s.enemies[index].hp)}));
+    const targets=before.map((h,i)=>h>s.enemies[i].hp||beforeBlock[i]>(s.enemies[i].block||0)?i:-1).filter(i=>i>=0);
+    const hits=targets.flatMap(index=>{
+      const hpDamage=before[index]-s.enemies[index].hp;
+      const blockDamage=beforeBlock[index]-(s.enemies[index].block||0),numbers=[];
+      if(blockDamage>0)numbers.push({index,kind:'block',text:'防御 −'+blockDamage,offset:hpDamage>0?-17:0});
+      if(hpDamage>0)numbers.push({index,kind:'hp',text:'−'+hpDamage});
+      return numbers;
+    });
     if(s.hp>hp)hits.push({player:true,text:'＋'+(s.hp-hp)});
     if(s.phase==='reward'){const anchor=document.querySelector('#app > *');if(anchor){const holder=document.createElement('div');holder.className='arena';anchor.before(holder);mount('battle');holder.remove();}}
     perform(card.e.hit?(magics.includes(card.g)?'magic':'attack'):card.e.heal?'heal':'guard',card.n+(s.phase==='reward'?' · 敵を撃破！':''),targets,hits,card.g);
