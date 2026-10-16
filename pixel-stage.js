@@ -20,6 +20,7 @@
   const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
   function attackTravel(type,p){
     if(type==='弓')return 0;
+    if(type==='片手剣'||type==='大剣')return ease((p-.04)/.27)*(1-ease((p-.78)/.22));
     const impact=(attacks[type]||attacks['片手剣']).impact;
     return ease((p-.08)/(impact-.1))*(1-ease((p-.64)/.36));
   }
@@ -28,11 +29,18 @@
     const times=type==='弓'?[0,.07,.17,.25,.34,a.release,.62,.89]:[0,.07,.17,a.impact-.14,a.impact-.025,a.impact+.10,a.impact+.24,.9];
     let cell=0;for(let i=1;i<8;i++)if(p>=times[i])cell=i;return cell;
   }
+  function poseFrame(type,cell){
+    // The sword's old contact cells were a thrust, incompatible with its raised blade.
+    // Greatsword begins and ends in the same lifted two-handed guard.
+    if(type==='片手剣')return [0,1,2,2,6,6,0,0][cell];
+    if(type==='大剣')return [1,1,2,2,4,5,6,1][cell];
+    return cell===7?0:cell;
+  }
+  function motionScale(type,height=103){const d=motionGeometry[motionIds[type]];return Math.min(height/(d.ch*.64),110/Math.max(...d.frames.map(g=>g.foot-g.top)));}
   function motionSprite(ctx,type,x,y,cell,height=103,lean=0){
-    const image=motionImage(type),data=motionGeometry[motionIds[type]],f=data?.frames[cell===7?0:cell];
+    const image=motionImage(type),data=motionGeometry[motionIds[type]],f=data?.frames[poseFrame(type,cell)];
     if(!f||!image.complete||!image.naturalWidth)return false;
-    const maxUp=Math.max(...data.frames.map(g=>g.foot-g.top));
-    const scale=Math.min(height/(data.ch*.64),110/maxUp);
+    const scale=motionScale(type,height);
     ctx.save();ctx.translate(x,y);ctx.transform(1,0,lean,1,0,0);
     ctx.drawImage(image,f.x,f.y,f.w,f.h,(f.left-f.anchor)*scale,(f.top-f.foot)*scale,f.w*scale,f.h*scale);ctx.restore();return true;
   }
@@ -43,8 +51,17 @@
   function attackHero(ctx,type,x,y,p,height=103){
     const a=attacks[type]||attacks['片手剣'],drive=ease((p-.12)/(a.impact-.12))*(1-ease((p-.62)/.38));
     // A single opaque pose plus continuous torso shear and planted feet, never a crossfade.
-    const lean=type==='弓'?.012*Math.sin(p*Math.PI):-.045*drive;
+    const lean=type==='弓'?.012*Math.sin(p*Math.PI):type==='片手剣'||type==='大剣'?0:-.045*drive;
     if(!motionSprite(ctx,type,x,y,motionFrame(type,p),height,lean))groundedSprite(ctx,armedSheet,3,2,Math.max(0,weaponOrder.indexOf(type)),x,y+2,height,spriteGeometry.armed);
+  }
+  function arrowShot(origin,target,p,baseline=120){
+    const a=attacks['弓'],flight=(p-a.release)/(a.impact-a.release);
+    if(flight<0||flight>1)return null;
+    // Authored tip/nock points in the padded bow aiming cell, including its torso shear.
+    const scale=motionScale('弓'),lean=.012*Math.sin(a.release*Math.PI);
+    const sx=origin+((535-320)+lean*(150-450))*scale,sy=baseline+(150-450)*scale;
+    const dx=target-sx,dy=baseline-38-sy;
+    return{x:sx+dx*flight,y:sy+dy*flight*flight,angle:Math.atan2(2*dy*flight,dx),shaft:70*scale,trail:Math.min(38,Math.max(0,Math.abs(dx)*flight-70*scale)),flight,sx,sy};
   }
   function glow(ctx,x,y,r,color,alpha=1){
     ctx.save();ctx.globalAlpha*=alpha;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'#fffce9');g.addColorStop(.18,color);g.addColorStop(1,color+'00');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);ctx.restore();
@@ -62,15 +79,14 @@
     const a=attacks[type]||attacks['片手剣'],q=(p-a.impact)/.36,y=baseline-38;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.globalCompositeOperation='lighter';
     const line=(x1,y1,x2,y2,color,width)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();};
-    if(type==='片手剣')ribbon(ctx,target-3,y,-.24,(p-a.impact+.13)/.43,a.color,1.05);
+    if(type==='片手剣')ribbon(ctx,target-3,y,.62,(p-a.impact+.13)/.43,a.color,1.05);
     if(type==='大剣')ribbon(ctx,target-4,y,.86,(p-a.impact+.14)/.47,a.color,1.35);
     if(type==='短剣'){ribbon(ctx,target-2,y,-.7,(p-a.impact+.12)/.32,a.color,.8);ribbon(ctx,target+2,y,.7,(p-a.impact-.015)/.31,'#e7c9ff',.8);}
     if(type==='弓'){
-      const flight=(p-a.release)/(a.impact-a.release);
-      if(flight>=0&&flight<=1){const x=origin+24+(target-origin-24)*flight,yy=y-Math.sin(flight*Math.PI)*7;
-        const g=ctx.createLinearGradient(x-44,yy,x,yy);g.addColorStop(0,a.color+'00');g.addColorStop(1,a.color);line(x-44,yy+2,x,yy,g,2);
-        line(x-12,yy,x+6,yy,'#f8ffe5',1.3);line(x+1,yy-3,x+6,yy,'#f8ffe5',1);line(x+1,yy+3,x+6,yy,'#f8ffe5',1);glow(ctx,x,yy,7,a.color,.5);
-        for(let j=0;j<3;j++){const z=x-15-j*10;line(z,yy+7+j,z+8,yy+5+j,a.color+'66',.6);}
+      const shot=arrowShot(origin,target,p,baseline);
+      if(shot){ctx.save();ctx.translate(shot.x,shot.y);ctx.rotate(shot.angle);
+        if(shot.trail>0){const end=-shot.shaft,start=end-shot.trail,g=ctx.createLinearGradient(start,0,end,0);g.addColorStop(0,a.color+'00');g.addColorStop(1,a.color+'bb');line(start,0,end,0,g,1.5);}
+        line(-shot.shaft,0,-1,0,'#f8ffe5',1.2);line(-4,-2.5,0,0,'#f8ffe5',1);line(-4,2.5,0,0,'#f8ffe5',1);glow(ctx,0,0,4,a.color,.35);ctx.restore();
       }
     }
     if(type==='槍'&&q>-.22&&q<.55){const f=ease((q+.22)/.77);ctx.globalAlpha=1-f;
@@ -276,7 +292,7 @@
     if(active&&!reduced.matches){
       const color=colors[a.element]||'#f5dfac';
       if(a.kind==='magic'){for(const i of a.targets){const origin=(scene.width||480)*.2;const x=origin+(foeX(i,foes.length)-origin)*p;magicArt(ctx,x,87,a.element,p);}}
-      if(a.kind==='attack')for(const i of a.targets.length?a.targets:[s?.target??0])weaponEffects(ctx,a.weapon,(scene.width||480)*.2,foeX(i,foes.length),p);
+      if(a.kind==='attack')for(const i of a.targets.length?a.targets:[s?.target??0])weaponEffects(ctx,a.weapon,hx,foeX(i,foes.length),p);
       if(a.kind==='heal'||a.kind==='guard'){for(let j=0;j<9;j++)rect(ctx,(scene.width||480)*.2-22+j*5,108-(p*35+j*7)%45,3,4,a.kind==='heal'?'#9ef0bf':color);}
       if(p>=impact)for(const hit of a.hits||[]){const rise=(p-impact)/(1-impact);ctx.save();ctx.globalAlpha=Math.min(1,(1-rise)*3);ctx.fillStyle=hit.player?'#ffb6a0':'#fff1c4';ctx.strokeStyle='#131923';ctx.lineWidth=2;ctx.font='bold 11px monospace';ctx.textAlign='center';const tx=hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),ty=67-rise*18;ctx.strokeText(hit.text,tx,ty);ctx.fillText(hit.text,tx,ty);ctx.restore();}
     }
