@@ -195,7 +195,7 @@
     }
     fitCanvas();if(!animation)animation=requestAnimationFrame(tick);
   }
-  function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;return;}if(!document.hidden&&time-lastPaint>=15){lastPaint=time;draw(time);}animation=requestAnimationFrame(tick);}
+  function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;if(s?.phase==='explore'&&document.querySelector('.explore-scene'))mount('explore');else if(s?.phase==='battle'&&document.querySelector('.arena'))mount('battle');return;}if(!document.hidden&&time-lastPaint>=15){lastPaint=time;draw(time);}animation=requestAnimationFrame(tick);}
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
   function atlasSprite(ctx,image,cols,rows,cell,x,y,w,h,alpha=1){
     if(!image.complete||!image.naturalWidth)return;

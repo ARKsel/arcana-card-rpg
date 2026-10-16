@@ -110,7 +110,12 @@ const ArcanaAdventure = (() => {
     a.notice=spec.name+'を達成！ 50 G獲得。魔晶石2個は終了時に精算。';
     playSE('win');
     if(s.phase==='explore'){
-      const app=$('#app');app.innerHTML=app.innerHTML.replace('◈ '+oldGold+' G','◈ '+s.gold+' G').replace('未精算の魔晶石：'+oldPending+'個','未精算の魔晶石：'+pendingCrystals()+'個');
+      const hud=document.querySelector('.dungeon-hud');
+      if(hud)hud.innerHTML=hud.innerHTML.replace('◈ '+oldGold+' G','◈ '+s.gold+' G');
+      document.querySelectorAll('.hint').forEach(hint=>{
+        const before='未精算の魔晶石：'+oldPending+'個';
+        if(hint.textContent.includes(before))hint.innerHTML=hint.innerHTML.replace(before,'未精算の魔晶石：'+pendingCrystals()+'個');
+      });
       refreshCamp();
     }else if(s.phase==='reward')reward();else shop();
   }
