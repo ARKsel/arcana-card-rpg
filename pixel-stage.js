@@ -29,7 +29,7 @@
     let cell=0;for(let i=1;i<8;i++)if(p>=times[i])cell=i;return cell;
   }
   function motionSprite(ctx,type,x,y,cell,height=103,lean=0){
-    const image=motionImage(type),data=motionGeometry[motionIds[type]],f=data?.frames[cell];
+    const image=motionImage(type),data=motionGeometry[motionIds[type]],f=data?.frames[cell===7?0:cell];
     if(!f||!image.complete||!image.naturalWidth)return false;
     const maxUp=Math.max(...data.frames.map(g=>g.foot-g.top));
     const scale=Math.min(height/(data.ch*.64),110/maxUp);
