@@ -173,7 +173,7 @@
     if(!anchor)return;
     const box=document.createElement('section');box.className='pixel-theatre';
     box.innerHTML=`<div class="pixel-heading"><span>${mode==='battle'?'BATTLE / CARD COMMAND':'EXPLORATION / THE FORGOTTEN SANCTUM'}</span><span>${esc(weapon)} × ${esc(magic)}</span><button type="button" onclick="arcanaOpenWeaponArt()" aria-label="装備中の武器イラストを見る">装備イラスト</button></div><canvas width="960" height="304" role="img" aria-label="${mode==='battle'?'主人公と敵のアニメーション。敵は下のカードで選択できます。':'白と赤の衣装で歩く白髪の冒険者'}"></canvas><div class="pixel-caption" aria-live="polite">${mode==='battle'?'カードを使って技を繰り出す':'遺跡の奥へ。進む道を選んでください。'}</div>`;
-    const previewButton=document.createElement('button');previewButton.type='button';previewButton.textContent='攻撃モーション';previewButton.onclick=()=>globalThis.arcanaPreviewAttack(scene?.weapon||weapon);box.querySelector('.pixel-heading').append(previewButton);
+    const previewButton=document.createElement('button');previewButton.type='button';previewButton.textContent='モーション確認';previewButton.onclick=()=>globalThis.arcanaPreviewAttack(scene?.weapon||weapon);box.querySelector('.pixel-heading').append(previewButton);
     anchor.before(box);if(mode==='battle')anchor.classList.add('pixel-targets');
     const canvas=box.querySelector('canvas');
     const bounds=canvas.getBoundingClientRect?.();
@@ -634,15 +634,34 @@
     return result;
   };
 
+
+  function motionPreviewControls(selectedWeapon='',selectedCard=-1){
+    const examples=magics.map(element=>all.find(c=>c.g===element&&c.e.hit)).concat([
+      all.find(c=>cardMotionKind(c)==='heal'),all.find(c=>cardMotionKind(c)==='guard'),
+      all.find(c=>cardMotionKind(c)==='evade'),all.find(c=>cardMotionKind(c)==='recharge'),
+      all.find(c=>cardMotionKind(c)==='draw'),all.find(c=>cardMotionKind(c)==='focus'),
+      all.find(c=>cardMotionKind(c)==='cleanse')
+    ]).filter(Boolean);
+    const labels={heal:'回復',guard:'防御',evade:'回避',recharge:'コスト回復',draw:'ドロー',focus:'集中・強化',cleanse:'浄化'};
+    return '<p class="small">武器の攻撃</p><div class="choices" role="group" aria-label="武器のモーション">'+weaponOrder.map(w=>`<button type="button" class="${w===selectedWeapon?'chosen':''}" onclick="arcanaOpenMotionPreview('weapon','${w}')">${esc(w)}</button>`).join('')+'</div><p class="small">属性魔法・補助動作</p><div class="choices" role="group" aria-label="魔法と補助のモーション">'+examples.map(c=>`<button type="button" class="${c.id===selectedCard?'chosen':''}" onclick="arcanaOpenMotionPreview('card',${c.id})">${esc(magics.includes(c.g)&&c.e.hit?c.g:labels[cardMotionKind(c)])}</button>`).join('')+'</div>';
+  }
+  globalThis.arcanaOpenMotionPreview=function(kind,value){
+    if(kind==='weapon'&&weaponOrder.includes(value)){
+      const other=document.getElementById('card-motion-preview');if(other?.open)other.close();
+      globalThis.arcanaPreviewAttack(value);
+    }else if(kind==='card'&&Number.isInteger(value)&&all[value]){
+      const other=document.getElementById('attack-motion-preview');if(other?.open)other.close();
+      globalThis.arcanaPreviewCard(value);
+    }
+  };
+
   let cardPreviewAnimation=0;
   globalThis.arcanaPreviewCard=function(id=0){
     const card=all[id];if(!card)return;
     cancelAnimationFrame(cardPreviewAnimation);
     let dialog=document.getElementById('card-motion-preview');
     if(!dialog){dialog=document.createElement('dialog');dialog.id='card-motion-preview';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','カード演出');document.body.append(dialog);dialog.addEventListener('close',()=>cancelAnimationFrame(cardPreviewAnimation));}
-    const examples=magics.map(element=>all.find(c=>c.g===element&&c.e.hit)).concat([all.find(c=>c.e.heal&&!c.e.hit),all.find(c=>c.e.block&&!c.e.hit),all.find(c=>c.e.evade&&!c.e.block),all.find(c=>c.e.recoverEnergy),all.find(c=>c.e.draw&&!c.e.hit),all.find(c=>cardMotionKind(c)==='focus'),all.find(c=>cardMotionKind(c)==='cleanse')]);
-    const previewMotionLabels={heal:'回復',guard:'防御',evade:'回避',recharge:'コスト回復',draw:'ドロー',focus:'集中・強化',cleanse:'浄化'};
-    dialog.innerHTML='<div class="weapon-art-titlebar"><h2>'+esc(card.n)+'</h2><button onclick="document.getElementById(\'card-motion-preview\').close()">閉じる ×</button></div><p>'+esc(card.d)+'<br>演出のプレビューです。カード・HP・コストは消費しません。</p><div class="choices">'+examples.map(c=>'<button onclick="arcanaPreviewCard('+c.id+')">'+esc(magics.includes(c.g)&&c.e.hit?c.g:previewMotionLabels[cardMotionKind(c)]||c.g)+'</button>').join('')+'</div><canvas width="960" height="304" role="img" aria-label="'+esc(card.n)+'のカード演出"></canvas>';
+    dialog.innerHTML='<div class="weapon-art-titlebar"><h2>'+esc(card.n)+'</h2><button onclick="document.getElementById(\'card-motion-preview\').close()">閉じる ×</button></div><p>'+esc(card.d)+'<br>演出のプレビューです。カード・HP・コストは消費しません。</p>'+motionPreviewControls('',card.id)+'<canvas width="960" height="304" role="img" aria-label="'+esc(card.n)+'のカード演出"></canvas>';
     const canvas=dialog.querySelector('canvas'),kind=cardMotionKind(card),duration=kind==='attack'?(attacks[weapons.includes(card.g)?card.g:weapon]?.duration||1100):1400,start=performance.now();
     const hits=card.e.hit?[{index:0,kind:'hp',text:'−'+card.e.hit}]:card.e.heal?[{player:true,kind:'heal',text:'HP＋'+card.e.heal}]:card.e.block?[{player:true,kind:'guard',text:'防御＋'+card.e.block}]:[];
     function paint(now){
@@ -663,8 +682,8 @@
     if(!weaponOrder.includes(type))return;
     cancelAnimationFrame(previewAnimation);
     let dialog=document.getElementById('attack-motion-preview');
-    if(!dialog){dialog=document.createElement('dialog');dialog.id='attack-motion-preview';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','武器別の攻撃モーション');document.body.append(dialog);dialog.addEventListener('close',()=>cancelAnimationFrame(previewAnimation));}
-    dialog.innerHTML='<div class="weapon-art-titlebar"><h2>'+esc(type)+' · '+attacks[type].name+'</h2><button type="button" onclick="document.getElementById(\'attack-motion-preview\').close()">閉じる ×</button></div><div class="choices">'+weaponOrder.map(w=>'<button type="button" class="'+(w===type?'chosen':'')+'" onclick="arcanaPreviewAttack(\''+w+'\')">'+esc(w)+'</button>').join('')+'</div><p>溜め → 攻撃 → 振り抜き。武器を切り替えて演出を確認できます。</p><canvas width="960" height="304" role="img" aria-label="'+esc(type)+'の攻撃モーション"></canvas>';
+    if(!dialog){dialog=document.createElement('dialog');dialog.id='attack-motion-preview';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','モーション確認');document.body.append(dialog);dialog.addEventListener('close',()=>cancelAnimationFrame(previewAnimation));}
+    dialog.innerHTML='<div class="weapon-art-titlebar"><h2>'+esc(type)+' · '+attacks[type].name+'</h2><button type="button" onclick="document.getElementById(\'attack-motion-preview\').close()">閉じる ×</button></div>'+motionPreviewControls(type)+'<p>武器攻撃・属性魔法・回復や防御などの補助動作を切り替えて確認できます。HP・カード・コストは消費しません。</p><canvas width="960" height="304" role="img" aria-label="'+esc(type)+'の攻撃モーション"></canvas>';
     const canvas=dialog.querySelector('canvas'),ctx=canvas.getContext('2d'),start=performance.now(),spec=attacks[type];
     function paint(now){
       if(!dialog.open||!canvas.isConnected)return;
