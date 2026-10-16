@@ -109,7 +109,6 @@
   const weaponOrder=['片手剣','大剣','短剣','弓','槍','戦槌'];
   const spriteGeometry={"armed":{"width":1536,"height":1024,"cols":3,"rows":2,"referenceHeight":502,"frames":[{"left":87,"top":10,"right":467,"bottom":512,"anchorX":270,"sourceX":0,"sourceY":0},{"left":84,"top":10,"right":407,"bottom":512,"anchorX":264,"sourceX":512,"sourceY":0},{"left":55,"top":10,"right":380,"bottom":512,"anchorX":242,"sourceX":1024,"sourceY":0},{"left":102,"top":0,"right":531,"bottom":486,"anchorX":287,"sourceX":0,"sourceY":512,"clips":[[0,0,512,512],[512,120,19,40]]},{"left":63,"top":-14,"right":504,"bottom":486,"anchorX":271,"sourceX":512,"sourceY":512,"clips":[[45,0,467,512],[467,-14,45,14]]},{"left":69,"top":2,"right":493,"bottom":486,"anchorX":279,"sourceX":1024,"sourceY":512}],"rowReferenceHeights":[502,490]},"walk":{"width":1774,"height":887,"cols":4,"rows":2,"referenceHeight":436,"frames":[{"left":59,"top":8,"right":437,"bottom":444,"anchorX":280,"hand":[395.96,207.33],"sourceX":0,"sourceY":0},{"left":74,"top":8,"right":306,"bottom":444,"anchorX":259,"hand":[294.27,213.96],"sourceX":444,"sourceY":0},{"left":50,"top":7,"right":305,"bottom":444,"anchorX":246,"hand":[288.78,219.13],"sourceX":887,"sourceY":0},{"left":38,"top":8,"right":389,"bottom":444,"anchorX":233,"hand":[331.61,203.88],"sourceX":1330,"sourceY":0},{"left":60,"top":19,"right":444,"bottom":427,"anchorX":247,"hand":[128.16,193.95],"sourceX":0,"sourceY":444},{"left":154,"top":10,"right":405,"bottom":426,"anchorX":214,"hand":[165.21,207.24],"sourceX":444,"sourceY":444},{"left":128,"top":10,"right":386,"bottom":430,"anchorX":190,"hand":[146.64,212.86],"sourceX":887,"sourceY":444},{"left":56,"top":13,"right":382,"bottom":429,"anchorX":209,"hand":[108.85,197.83],"sourceX":1330,"sourceY":444}],"rowReferenceHeights":[436,415]}};
   const enemySheet=new Image();enemySheet.src='character-art-v1.png';
-  const stageBackground=new Image();stageBackground.src='assets/sanctum.png';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let scene=null, action=null, frame=0, animation=0, lastPaint=-Infinity;
   const esc = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -222,52 +221,77 @@
   }
 
   function ruinsBackground(ctx,width,time){
-    const moving=scene.mode==='explore'&&!reduced.matches;
-    const seconds=moving?time/1000:0;
-    ctx.fillStyle='#101d2a';ctx.fillRect(0,0,width,152);
-    if(stageBackground.complete&&stageBackground.naturalWidth){
-      const iw=stageBackground.naturalWidth,ih=stageBackground.naturalHeight;
-      const tileWidth=moving?Math.max(width*1.2,520):width;
-      const sh=Math.min(ih,iw/(tileWidth/152));
-      const distance=seconds*9,first=Math.floor(distance/tileWidth),offset=distance%tileWidth;
-      for(let i=0;i<(moving?2:1);i++){
-        const x=i*tileWidth-offset;
-        ctx.save();ctx.translate(x,0);
-        if((first+i)%2){ctx.translate(tileWidth,0);ctx.scale(-1,1);}
-        ctx.drawImage(stageBackground,0,(ih-sh)*.65,iw,sh,0,0,tileWidth+.5,152);ctx.restore();
-      }
+    // Underground arcane vault: the architecture never depends on an external image.
+    const moving=scene.mode==='explore'&&!reduced.matches,seconds=moving?time/1000:0;
+    const pulse=reduced.matches?0:time/1000;
+    const battle=scene.mode==='battle',floor=110;
+    const wall=ctx.createLinearGradient(0,0,0,152);
+    wall.addColorStop(0,'#070815');wall.addColorStop(.65,'#182039');wall.addColorStop(1,'#070e1c');
+    ctx.fillStyle=wall;ctx.fillRect(0,0,width,152);
+    const line=(points,color,w=.6)=>{ctx.strokeStyle=color;ctx.lineWidth=w;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()};
+    const glow=(x,y,r,color)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'#00000000');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)};
+    const rune=(x,y,size,color)=>{
+      line([[x-size,y-size],[x,y-size*1.7],[x+size,y-size],[x,y+size],[x-size,y-size]],color,.8);
+      line([[x,y-size*1.7],[x,y+size*1.4],[x+size,y]],color,.7);
+    };
+    // Small joints stay in the distance; large pillars pass closer to the viewer.
+    const brick=seconds*5%56;
+    for(let row=0;row<7;row++){
+      const y=6+row*15;line([[0,y],[width,y]],'#66708a16');
+      for(let x=-56-brick+(row%2)*28;x<width;x+=56)line([[x,y],[x,y+15]],'#67728f18');
     }
-    if(scene.mode!=='explore')return;
-    // Nearby broken columns and floor joints pass faster than the distant ruins.
-    const ground=ctx.createLinearGradient(0,113,0,152);
-    ground.addColorStop(0,'#15253600');ground.addColorStop(1,'#07111bd9');
-    ctx.fillStyle=ground;ctx.fillRect(0,113,width,39);
-    const stoneOffset=(seconds*22)%84;
-    ctx.strokeStyle='#8ba5ac20';ctx.lineWidth=.6;
-    for(let x=-84-stoneOffset;x<width+84;x+=84){
-      ctx.beginPath();ctx.moveTo(x,124);ctx.lineTo(x-22,152);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(x,137);ctx.lineTo(x+84,137);ctx.stroke();
+    const spacing=battle?190:154,offset=seconds*8%spacing;
+    for(let x=-spacing-offset;x<width+spacing;x+=spacing){
+      ctx.fillStyle='#080d1e';ctx.beginPath();ctx.moveTo(x+18,floor);
+      ctx.lineTo(x+18,64);ctx.bezierCurveTo(x+18,13,x+104,13,x+104,64);ctx.lineTo(x+104,floor);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#5a64844d';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x+13,111);ctx.lineTo(x+13,61);ctx.bezierCurveTo(x+13,6,x+109,6,x+109,61);ctx.lineTo(x+109,111);ctx.stroke();
+      // An inner arch and sealed doorway suggest chambers beyond the passage.
+      ctx.strokeStyle='#353c6060';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+36,109);ctx.lineTo(x+36,67);ctx.bezierCurveTo(x+36,37,x+86,37,x+86,67);ctx.lineTo(x+86,109);ctx.stroke();
+      glow(x+61,74,32,'#6350c025');rune(x+61,73,5,'#a89be78c');
     }
-    const period=360,distance=seconds*18,start=Math.floor(distance/period),offset=distance%period;
-    for(let i=0;i<Math.ceil(width/period)+1;i++){
-      const x=i*period-offset+300,k=(start+i)%3;
-      const height=[52,34,65][k],base=128;
-      const stone=ctx.createLinearGradient(x-12,0,x+12,0);
-      stone.addColorStop(0,'#0b1522');stone.addColorStop(.5,'#30434b');stone.addColorStop(1,'#111e2a');
-      ctx.fillStyle=stone;ctx.fillRect(x-7,base-height,14,height);
-      ctx.fillStyle='#3d5054';ctx.fillRect(x-10,base-height,20,4);
-      ctx.fillStyle='#17232c';ctx.fillRect(x-12,base-3,25,6);
-      ctx.strokeStyle='#92a09b44';ctx.beginPath();ctx.moveTo(x+1,base-height+8);ctx.lineTo(x-2,base-height+16);ctx.lineTo(x+2,base-height+23);ctx.stroke();
-      ctx.fillStyle='#52604b55';ctx.fillRect(x-6,base-height+3,7,3);
-      ctx.fillStyle='#24333c';ctx.fillRect(x+19,base+2,10,4);ctx.fillRect(x-24,base+4,8,3);
+    // Thick stone piers, cyan wards and violet sconces.
+    const nearOffset=seconds*17%spacing;
+    for(let x=-spacing-nearOffset;x<width+spacing;x+=spacing){
+      const stone=ctx.createLinearGradient(x,0,x+19,0);
+      stone.addColorStop(0,'#080f20');stone.addColorStop(.45,'#303951');stone.addColorStop(1,'#11182b');
+      ctx.fillStyle=stone;ctx.fillRect(x,0,19,114);
+      ctx.fillStyle='#48516b';ctx.fillRect(x-3,14,25,4);ctx.fillRect(x-3,102,25,5);
+      ctx.fillStyle='#171f33';ctx.fillRect(x-5,108,29,7);
+      line([[x+3,22],[x+13,36],[x+8,50],[x+12,60]],'#8191b230');
+      glow(x+9,62,27,'#40d3ef28');rune(x+9,62,3,'#91eef3b0');
+      ctx.fillStyle='#302644';ctx.fillRect(x+5,83,8,5);
+      glow(x+9,80,20,'#ad63ed32');ctx.fillStyle='#d1a6ff';ctx.fillRect(x+8,77,2,5);
     }
-    // A slow translucent mist layer adds depth without obscuring the heroine.
-    for(let i=0;i<3;i++){
-      const x=((i*width/2+seconds*4)%(width+140))-70;
-      const mist=ctx.createRadialGradient(x,108,2,x,108,75);
-      mist.addColorStop(0,'#b2d6e612');mist.addColorStop(1,'#b2d6e600');
-      ctx.fillStyle=mist;ctx.fillRect(x-75,68,150,80);
+    // A side-view floor keeps the actor's feet grounded at y=120.
+    const ground=ctx.createLinearGradient(0,floor,0,152);
+    ground.addColorStop(0,'#2b3450');ground.addColorStop(1,'#080f20');
+    ctx.fillStyle=ground;ctx.fillRect(0,floor,width,42);
+    line([[0,floor],[width,floor]],'#8599bd50');
+    for(const y of [116,126,142])line([[0,y],[width,y]],'#7487a129');
+    const tiles=seconds*25%64;
+    for(let x=-64-tiles;x<width+64;x+=64){
+      line([[x,110],[x-28,152]],'#99a8bd29');
+      line([[x+5,129],[x+12,133],[x+8,141]],'#030a15aa');
     }
+    const seal=(x,y,r,alpha)=>{
+      ctx.save();ctx.translate(x,y);ctx.scale(1,.23);ctx.globalAlpha=alpha;
+      ctx.strokeStyle='#8edee8';ctx.lineWidth=.8;
+      for(const radius of [r,r*.82,r*.37]){ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.stroke()}
+      for(let n=0;n<8;n++){const q=n*Math.PI/4;line([[Math.cos(q)*r*.37,Math.sin(q)*r*.37],[Math.cos(q+Math.PI/2)*r*.82,Math.sin(q+Math.PI/2)*r*.82]],'#8edee8');rune(Math.cos(q)*r*.92,Math.sin(q)*r*.92,2,'#d1a6ff')}
+      ctx.restore();
+    };
+    if(battle){glow(width*.59,118,76,'#7163e52a');seal(width*.59,124,Math.min(width*.28,110),.36+.04*Math.sin(pulse*1.5))}
+    else for(let x=160-seconds*25%320;x<width+100;x+=320)seal(x,132,42,.26);
+    // Low mist and a few suspended motes; reduced-motion mode is entirely still.
+    for(let i=0;i<4;i++)glow((i*173+seconds*3)%(width+100)-30,104+Math.sin(i*2)*4,66,'#829aca0b');
+    for(let i=0;i<15;i++){
+      const x=((i*83.71-seconds*10)%(width+20)+width+20)%(width+20)-10;
+      const y=24+(i*31%79)+Math.sin(pulse*.65+i)*2;
+      ctx.fillStyle=i%3?'#a3a9e347':'#9de9ef87';ctx.fillRect(x,y,.7,.7);
+    }
+    const vignette=ctx.createLinearGradient(0,0,0,152);
+    vignette.addColorStop(0,'#02030cb0');vignette.addColorStop(.3,'#03041000');vignette.addColorStop(.8,'#03041000');vignette.addColorStop(1,'#03051060');
+    ctx.fillStyle=vignette;ctx.fillRect(0,0,width,152);
   }
   function draw(time){
     if(!scene)return;const ctx=scene.canvas.getContext('2d');if(!ctx)return;
