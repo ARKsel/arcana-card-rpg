@@ -271,7 +271,7 @@ exploration=function(message=''){s.layer??=1;s.floorSteps??=0;s.bossesWon??=0;s.
 chooseDungeonRoute=function(i){if(s.phase!=='explore'||!Number.isInteger(i)||!s.routes[i])return;const r=s.routes[i];s.phase='travel';s.depth++;s.floorSteps++;s.dangerBonus=r.bonus||0;s.encounters=s.encounters.slice(-99);if(r.boss){s.stage=3;s.encounters.push('ボス');s.nextBattleSpec=shuffle(battleCatalog.filter(b=>b.boss))[0];battle();return}if(s.floorSteps%6===0){s.encounters.push('行商人');openDungeonShop();return}if(Math.random()<r.combat){s.stage=Math.min(2,Math.floor(s.floorSteps/4));s.encounters.push('戦闘');s.nextBattleSpec=shuffle(battleCatalog.filter(b=>!b.boss))[0];battle()}else{s.event=Math.floor(Math.random()*100);s.encounters.push('イベント');dungeonEvent()}};
 const baseEndlessEnemies=encounterEnemies;encounterEnemies=function(spec){const originalDepth=s.depth;s.depth=1;const enemies=baseEndlessEnemies(spec);s.depth=originalDepth;const scaling=1+Math.max(0,(s.layer||1)-1)*.12;for(const e of enemies){e.hp=e.max=Math.round(e.hp*scaling);e.baseAttack=Math.max(1,Math.round(e.baseAttack*(1+Math.max(0,(s.layer||1)-1)*.08)))}return enemies};
 winCheck=function(){if(s.phase!=='battle'||!s.enemies.every(e=>e.hp<=0))return false;const boss=!!s.encounterSpec?.boss;s.battlesWon++;if(boss)s.bossesWon++;s.phase='reward';s.pending=0;s.lastBounty=(boss?55:25+s.stage*10)+Math.max(0,s.layer-1)*5+(s.dangerBonus||0);s.dangerBonus=0;s.gold+=s.lastBounty;s.earned+=s.lastBounty;s.lastCrystals=(boss?15:3)+Math.floor(Math.max(0,s.layer-1)/3);queueCrystals(s.lastCrystals,'battle');s.hp=Math.min(s.max,s.hp+10);s.awaitingNextLayer=boss;s.reward=shuffle(all.filter(c=>['汎用',weapon,magic].includes(c.g)&&owned(c))).slice(0,3).map(c=>c.id);reward();if(boss){$('#app').innerHTML=$('#app').innerHTML.replace('新たな力を、手に。','第'+s.layer+'層の守護者を撃破！').replace('カードを取らずに進む →','カードを取らず第'+(s.layer+1)+'層へ →').replace('デッキに加えるカードを1枚選んでください。','カードを選ぶと、必ず第'+(s.layer+1)+'層へ進みます。')}return true};
-next=function(id){if(s.phase!=='reward')return;if(id>=0){if(!s.reward.includes(id))return;s.deck.push(id)}if(s.awaitingNextLayer){s.layer++;s.floorSteps=0;s.awaitingNextLayer=false;s.eventSpec=null;exploration('守護者の扉を抜け、第'+s.layer+'層へ到達した。')}else exploration('戦闘を終え、同じ層の探索に戻った。')};
+next=function(id){if(s.phase!=='reward')return;if(id>=0){if(!s.reward.includes(id))return;s.deck.push(id)}if(s.awaitingNextLayer){s.layer++;s.floorSteps=0;s.awaitingNextLayer=false;s.eventSpec=null;openLayerMagicSelection()}else exploration('戦闘を終え、同じ層の探索に戻った。')};
 const endlessRender=render;render=function(){endlessRender();$('#app').innerHTML=$('#app').innerHTML.replace('DUNGEON '+s.depth+' / '+dungeonLength,'LAYER '+s.layer+' / 探索 '+s.floorSteps)};
 const endlessFinish=finish;finish=function(won){endlessFinish(won);$('#app').innerHTML=$('#app').innerHTML.replace('到達区画 '+s.depth+' / '+dungeonLength,'到達 第'+s.layer+'層 ／ 累計探索 '+s.depth+'回').replace('THE RUINS ARE LIBERATED','ENDLESS JOURNEY')};
 
@@ -473,3 +473,30 @@ renderDiscardManager=function(){inventoryDeckManager();if(s)$('#app').innerHTML+
 const catalogBeforeClearFilters=fullCatalog;
 function clearCatalogFilters(){catalogType='all';catalogSearch='';catalogPage=0;fullCatalog();}
 fullCatalog=function(){catalogBeforeClearFilters();const labels=[['all','全カード'],['武器技','武器技'],['魔法','魔法'],['汎用','汎用'],['武器','武器'],['装備','装備'],['アクセサリー','アクセサリー']];const controls=`<section class="catalog-filter-panel" aria-label="カードの絞り込み"><div class="catalog-filter-heading"><b>カードを絞り込む</b><button onclick="clearCatalogFilters()">条件をリセット</button></div><span class="filter-label">カードの種類</span><div class="catalog-filter-tabs">${labels.map(([key,label])=>`<button aria-pressed="${catalogType===key}" class="${catalogType===key?'chosen':''}" onclick="setCatalogType('${key}')">${label}</button>`).join('')}</div><label class="catalog-search-label">名前・武器種・属性で検索<input aria-label="図鑑検索" placeholder="例：片手剣、火、代償" value="${profileEscape(catalogSearch)}" onchange="setCatalogSearch(this.value)"></label><p class="catalog-filter-result" aria-live="polite">${labels.find(([key])=>key===catalogType)?.[1]||'全カード'}${catalogSearch?' ／ 検索「'+profileEscape(catalogSearch)+'」':''} · ${catalogItems().length}枚</p></section>`;$('#catalog').innerHTML=$('#catalog').innerHTML.replace(/<div class="market-controls">[\s\S]*?<\/div>/,controls);};
+
+
+// Choose the attuned element once, after receiving the guardian reward.
+function openLayerMagicSelection(){
+  if(!s)return;
+  s.phase='layer-magic';s.layerMagicChoice=magic;
+  renderLayerMagicSelection();
+}
+function renderLayerMagicSelection(){
+  if(s?.phase!=='layer-magic')return;
+  document.body.dataset.scene='layer-magic';
+  const chosen=s.layerMagicChoice,mastery=magicMastery(chosen);
+  $('#app').innerHTML=`<section class="reward"><div class="eyebrow">NEXT LAYER / ELEMENT ATTUNEMENT</div><h1 style="font-size:clamp(28px,5vw,42px)">第${s.layer}層へ · 魔法を選ぶ</h1><p>新しい階層で使う魔法属性を選んでください。<br>現在の「${magic}」を維持することもできます。変更は無料です。</p><div class="choices" role="group" aria-label="次の階層の魔法属性">${magics.map(m=>`<button class="${chosen===m?'chosen':''}" aria-pressed="${chosen===m}" onclick="selectLayerMagic('${m}')" style="--accent:${colors[artGroups.indexOf(m)]};min-width:76px;padding:16px">${icon(m)}<span>${m}</span></button>`).join('')}</div><div class="panel" style="max-width:560px;margin:24px auto;padding:20px"><h2>${chosen}属性${chosen===magic?' · 現在の属性':''}</h2><p>${groups[chosen][1]}</p><p>属性熟練度 ${mastery} ／ 熟練度による魔力＋${Math.min(20,Math.floor(mastery/50))}</p></div><p class="small">所持カード・装備・Lv・HP・ゴールドは引き継ぎます。<br>属性に応じた熟練度補正・スキル・武器との属性一致補正を再計算します。<br>以後の戦闘報酬などの魔法候補は、選んだ属性になります。</p><button class="primary" onclick="confirmLayerMagic()">${chosen===magic?chosen+'属性を維持して進む':chosen+'属性に変更して進む'} →</button></section>`;
+}
+function selectLayerMagic(element){
+  if(s?.phase!=='layer-magic'||!magics.includes(element))return;
+  s.layerMagicChoice=element;renderLayerMagicSelection();
+}
+function confirmLayerMagic(){
+  if(s?.phase!=='layer-magic'||!magics.includes(s.layerMagicChoice))return;
+  const previous=magic;
+  magic=s.layerMagicChoice;delete s.layerMagicChoice;
+  refreshGearStats();
+  exploration('第'+s.layer+'層へ到達。'+(previous===magic?magic+'属性を維持した。':previous+'から'+magic+'属性に変更した。'));
+}
+const returnBeforeLayerMagic=returnFromLevel;
+returnFromLevel=function(){if(s?.phase==='layer-magic')renderLayerMagicSelection();else returnBeforeLayerMagic();};
