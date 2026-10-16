@@ -30,9 +30,10 @@ const ArcanaAdventure = (() => {
       s.adventure={relics:[],offer:[],draftKeys:[],draftQueue:[],contract:null,contractLayer:0,contractOffer:[],totals:{wins:0,magic:0,weapon:0,links:0,guards:0,healed:0},claims:0,momentum:0,lastKind:null,burstUsed:false,turnFlags:{},links:0,bursts:0,notice:''};
       draft('arrival');
     }
+    if(s.adventure.relics.length>1)s.adventure.relics=s.adventure.relics.slice(0,1);
     return s.adventure;
   }
-  const has = id => !!s?.adventure?.relics.includes(id);
+  const has = id => !!state()?.relics.includes(id);
   function draft(key){
     const a=s.adventure;
     if(a.draftKeys.includes(key))return;
@@ -55,7 +56,7 @@ const ArcanaAdventure = (() => {
   function relicPanel(){
     const a=state();
     if(!a.offer.length)return '';
-    return `<section class="adventure-draft" aria-label="遺物の発見"><div class="adventure-kicker">RELIC DISCOVERY</div><h2>遺跡が、あなたに応える。</h2><p>3つから1つを選択。デッキ枠は使わず、今回の冒険中ずっと効果が続きます。</p><div class="adventure-choice-grid">${a.offer.map(id=>{const r=findRelic(id);return `<button onclick="chooseAdventureRelic('${r.id}')" aria-label="遺物 ${r.name}を選ぶ"><span class="relic-sigil" aria-hidden="true">${r.mark}</span><strong>${r.name}</strong><span>${r.text}</span><small>この遺物を手に取る →</small></button>`}).join('')}</div><button class="adventure-skip" onclick="skipAdventureRelic()">今回は受け取らない</button></section>`;
+    return `<section class="adventure-draft" aria-label="遺物の発見"><div class="adventure-kicker">RELIC DISCOVERY</div><h2>遺跡が、あなたに応える。</h2><p>所持できる遺物は1つまで。新しい遺物を選ぶと入れ替わり、以前の効果は失われます。デッキ枠は使いません。${a.relics.length?'<br>現在の遺物：'+findRelic(a.relics[0]).name:''}</p><div class="adventure-choice-grid">${a.offer.map(id=>{const r=findRelic(id);return `<button onclick="chooseAdventureRelic('${r.id}')" aria-label="遺物 ${r.name}${a.relics.length?'に入れ替える':'を選ぶ'}"><span class="relic-sigil" aria-hidden="true">${r.mark}</span><strong>${r.name}</strong><span>${r.text}</span><small>${a.relics.length?'この遺物に入れ替える →':'この遺物を手に取る →'}</small></button>`}).join('')}</div><button class="adventure-skip" onclick="skipAdventureRelic()">${a.relics.length?'現在の遺物を維持する':'今回は受け取らない'}</button></section>`;
   }
   function questPanel(){
     const a=state(),c=a.contract;
@@ -68,7 +69,7 @@ const ArcanaAdventure = (() => {
   }
   function collectionPanel(){
     const a=state();
-    return `<div class="adventure-relic-bar"><span>冒険の遺物 <b>${a.relics.length} / ${relics.length}</b></span>${a.relics.map(id=>{const r=findRelic(id);return `<span class="adventure-relic" title="${r.text}">${r.mark} ${r.name}</span>`}).join('')}<button onclick="openAdventureGuide()">効果・遊び方</button></div>`;
+    return `<div class="adventure-relic-bar"><span>冒険の遺物 <b>${a.relics.length} / 1</b></span>${a.relics.map(id=>{const r=findRelic(id);return `<span class="adventure-relic" title="${r.text}">${r.mark} ${r.name}</span>`}).join('')}<button onclick="openAdventureGuide()">効果・遊び方</button></div>`;
   }
   function attachCamp(){
     if(!s||!['explore','reward','shop'].includes(s.phase))return;
@@ -89,7 +90,7 @@ const ArcanaAdventure = (() => {
   function chooseRelic(id){
     if(!s||!['explore','reward','shop'].includes(s.phase))return;
     const a=state();if(!a.offer.includes(id)||a.relics.includes(id))return;
-    a.relics.push(id);nextDraft();a.notice=findRelic(id).name+'を手に入れた。';
+    const previous=a.relics[0];a.relics=[id];nextDraft();a.notice=previous?findRelic(previous).name+'を手放し、'+findRelic(id).name+'に入れ替えた。':findRelic(id).name+'を手に入れた。';
     playSE('buy');refreshCamp();
   }
   function skipRelic(){if(!s||!['explore','reward','shop'].includes(s.phase))return;nextDraft();refreshCamp();}
@@ -115,7 +116,7 @@ const ArcanaAdventure = (() => {
   }
   function battlePanel(){
     const a=state(),ready=a.momentum>=6&&!a.burstUsed&&!s.pending;
-    return `<section class="adventure-resonance ${ready?'resonance-ready':''}" aria-label="共鳴と連携"><div class="resonance-heading"><div><span class="adventure-kicker">RESONANCE</span><h3>${a.burstUsed?'共鳴奥義 発動済み':ready?'共鳴解放 — 奥義を選べる':'共鳴を繋ぐ'}</h3></div><span class="resonance-count">${a.momentum}<small> / 6</small></span></div><div class="resonance-track" role="progressbar" aria-label="共鳴ゲージ" aria-valuemin="0" aria-valuemax="6" aria-valuenow="${a.momentum}">${Array.from({length:6},(_,i)=>`<i class="${i<a.momentum?'lit':''}"></i>`).join('')}</div><p>カード使用で＋1。武器技⇄魔法を続けると＋2、攻撃なら最初の命中＋2。連携はターン内、共鳴は戦闘中持続。</p><div class="resonance-actions"><button onclick="useAdventureBurst('strike')" ${!ready?'disabled':''}><b>星砕き</b><span>敵全体に${burstDamage()}ダメージ</span></button><button onclick="useAdventureBurst('guard')" ${!ready?'disabled':''}><b>不落の結界</b><span>防御${14+Math.min(20,s.layer||1)*2}を得る</span></button><button onclick="useAdventureBurst('renew')" ${!ready?'disabled':''}><b>再起の光</b><span>HP${has('lantern')?11:6}・行動1・マナ1回復</span></button></div><div class="resonance-foot"><span>${a.notice||'6で奥義解放 · 各戦闘1回 · 行動/マナ消費なし'}</span><button onclick="openAdventureGuide()">遺物・連携の説明</button></div></section>`;
+    return `<section class="adventure-resonance ${ready?'resonance-ready':''}" aria-label="共鳴と連携"><div class="resonance-heading"><div><span class="adventure-kicker">RESONANCE</span><h3>${a.burstUsed?'共鳴奥義 発動済み':ready?'共鳴解放 — 奥義を選べる':'共鳴を繋ぐ'}</h3></div><span class="resonance-count">${a.momentum}<small> / 6</small></span></div><div class="resonance-track" role="progressbar" aria-label="共鳴ゲージ" aria-valuemin="0" aria-valuemax="6" aria-valuenow="${a.momentum}">${Array.from({length:6},(_,i)=>`<i class="${i<a.momentum?'lit':''}"></i>`).join('')}</div><p>カード使用で＋1。武器技⇄魔法を続けると＋2、攻撃なら最初の命中＋2。連携・共鳴ゲージはターン更新時にリセット。</p><div class="resonance-actions"><button onclick="useAdventureBurst('strike')" ${!ready?'disabled':''}><b>星砕き</b><span>敵全体に${burstDamage()}ダメージ</span></button><button onclick="useAdventureBurst('guard')" ${!ready?'disabled':''}><b>不落の結界</b><span>防御${14+Math.min(20,s.layer||1)*2}を得る</span></button><button onclick="useAdventureBurst('renew')" ${!ready?'disabled':''}><b>再起の光</b><span>HP${has('lantern')?11:6}・行動1・マナ1回復</span></button></div><div class="resonance-foot"><span>${a.notice||'6で奥義解放 · 各戦闘1回 · 行動/マナ消費なし'}</span><button onclick="openAdventureGuide()">遺物・連携の説明</button></div></section>`;
   }
   function burstDamage(){return 12+Math.min(20,s?.layer||1)*2+(has('crown')?8:0);}
   function burst(kind){
@@ -130,7 +131,7 @@ const ArcanaAdventure = (() => {
   function openGuide(){
     let dialog=document.getElementById('adventure-guide');
     if(!dialog){dialog=document.createElement('dialog');dialog.id='adventure-guide';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','遺物と共鳴の遊び方');document.body.append(dialog);}
-    dialog.innerHTML=`<div class="weapon-art-titlebar"><h2>遺物と共鳴</h2><button onclick="document.getElementById('adventure-guide').close()">閉じる ×</button></div><p>武器技と魔法を交互に使い、共鳴6で奥義を選択。奥義は各戦闘1回、3種から1つ使えます。汎用カードやターン終了で連携は途切れますが、共鳴は残ります。</p><p>遺物は出発時・戦闘3勝ごと・ボス撃破で3択。受け取るまで候補は固定。重複せず、デッキ枠も消費しません。遺物・共鳴・依頼は次の冒険に持ち越しません。</p><p>依頼は任意です。受注後の行動で進み、探索・ショップ・報酬画面で報告できます。報告した層では再受注できず、次の層から新しい依頼を選べます。</p><div class="adventure-choice-grid guide-relics">${relics.map(r=>`<article class="${has(r.id)?'relic-owned':''}"><span class="relic-sigil">${r.mark}</span><h3>${r.name}${has(r.id)?' · 所持中':''}</h3><p>${r.text}</p></article>`).join('')}</div>`;
+    dialog.innerHTML=`<div class="weapon-art-titlebar"><h2>遺物と共鳴</h2><button onclick="document.getElementById('adventure-guide').close()">閉じる ×</button></div><p>武器技と魔法を交互に使い、共鳴6で奥義を選択。奥義は各戦闘1回、3種から1つ使えます。汎用カードで連携が途切れ、ターン更新時に連携と共鳴ゲージは0へ戻ります。共鳴6は同じターン内に溜めて使ってください。</p><p>遺物は出発時・戦闘3勝ごと・ボス撃破で3択。受け取るまで候補は固定。所持は1つまでで、新たに選ぶと現在の遺物と入れ替わります。以前の効果は失われます。デッキ枠は消費しません。遺物・共鳴・依頼は次の冒険に持ち越しません。</p><p>依頼は任意です。受注後の行動で進み、探索・ショップ・報酬画面で報告できます。報告した層では再受注できず、次の層から新しい依頼を選べます。</p><div class="adventure-choice-grid guide-relics">${relics.map(r=>`<article class="${has(r.id)?'relic-owned':''}"><span class="relic-sigil">${r.mark}</span><h3>${r.name}${has(r.id)?' · 所持中':''}</h3><p>${r.text}</p></article>`).join('')}</div>`;
     dialog.showModal();
   }
   let resolution=null;
@@ -167,7 +168,7 @@ const ArcanaAdventure = (() => {
     if(s.phase==='battle')render();else if(s.phase==='reward')refreshCamp();
   };
   const oldTurn=newTurn;
-  newTurn=function(){oldTurn();if(s){const a=state();a.lastKind=null;a.turnFlags={};a.notice='';}};
+  newTurn=function(){if(s){const a=state();a.momentum=0;a.lastKind=null;a.turnFlags={};a.notice='';}oldTurn();};
   const oldBattle=battle;
   battle=function(){
     const a=state();a.momentum=0;a.lastKind=null;a.burstUsed=false;a.turnFlags={};a.notice='';
@@ -196,7 +197,7 @@ const ArcanaAdventure = (() => {
   finish=function(...args){oldFinish(...args);const a=s?.adventure;if(a)$('#app').innerHTML+=`<section class="adventure-result"><h2>今回の冒険の軌跡</h2><div><span>双奏連携 <b>${a.links}回</b></span><span>共鳴奥義 <b>${a.bursts}回</b></span><span>依頼達成 <b>${a.claims}件</b></span></div>${collectionPanel()}<p>遺物は遺跡へ還ります。次の冒険では、新たな組み合わせを。</p></section>`;};
   Object.assign(globalThis,{chooseAdventureRelic:chooseRelic,skipAdventureRelic:skipRelic,chooseAdventureContract:chooseContract,claimAdventureContract:claimContract,useAdventureBurst:burst,openAdventureGuide:openGuide});
   const oldSetup=setup;
-  setup=function(){oldSetup();$('#app').innerHTML+='<section class="adventure-intro"><span class="adventure-kicker">A DIFFERENT JOURNEY, EVERY TIME</span><h2>遺物を選び、武器と魔法を繋げ。</h2><p>冒険限定の遺物12種類。カードを繋ぐ共鳴と3種類の奥義。<br>自分のデッキに合う依頼を選んで、遺跡の奥へ。</p><button onclick="openAdventureGuide()">新しい冒険の遊び方</button></section>';};
+  setup=function(){oldSetup();$('#app').innerHTML+='<section class="adventure-intro"><span class="adventure-kicker">A DIFFERENT JOURNEY, EVERY TIME</span><h2>遺物を選び、武器と魔法を繋げ。</h2><p>冒険限定の遺物12種類から、所持する1つを選択。ターン内で繋ぐ共鳴と3種類の奥義。<br>自分のデッキに合う依頼を選んで、遺跡の奥へ。</p><button onclick="openAdventureGuide()">新しい冒険の遊び方</button></section>';};
   if(!s)setup();
   return {state,relics,contracts,progress};
 })();
