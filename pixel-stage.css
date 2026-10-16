@@ -90,3 +90,44 @@ body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{grid-template-r
 #attack-motion-preview canvas{width:100%;height:auto;aspect-ratio:60/19;max-height:none}
 #attack-motion-preview .choices{display:flex;flex-wrap:wrap;gap:6px}
 #attack-motion-preview .choices button{min-width:64px}
+
+/* Responsive battle stage: reserve readable space instead of shrinking to fit one screen. */
+body[data-scene=battle]:has(.pixel-targets) #app{
+ width:100%;max-width:1920px;box-sizing:border-box;
+ grid-template-columns:minmax(0,1fr) clamp(200px,19vw,300px);
+ --battle-stage-height:clamp(260px,34vh,440px);
+}
+body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre{
+ height:var(--battle-stage-height);min-width:0;min-height:0;
+ grid-template-rows:30px minmax(0,1fr) 28px;
+}
+body[data-scene=battle] #app:has(>.pixel-targets) .pixel-theatre canvas{
+ display:block;min-width:0;min-height:0;
+}
+body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-targets{
+ height:var(--battle-stage-height);max-height:none;box-sizing:border-box;
+}
+body[data-scene=battle] #app:has(>.pixel-targets)>.cards .card{
+ flex-basis:clamp(160px,15vw,210px);
+}
+@media(min-width:1600px){
+ body[data-scene=battle] #app:has(>.pixel-targets) .card-art{height:90px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .card-title{font-size:15px}
+ body[data-scene=battle] #app:has(>.pixel-targets) .card .desc{font-size:12px}
+}
+@media(max-width:900px){
+ body[data-scene=battle]:has(.pixel-targets) #app{
+  grid-template-columns:minmax(0,1fr);--battle-stage-height:clamp(220px,32vh,320px);
+ }
+ body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-theatre,
+ body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-targets,
+ body[data-scene=battle] #app:has(>.pixel-targets)>.character-stats,
+ body[data-scene=battle] #app:has(>.pixel-targets)>.critical-stats{grid-column:1/-1}
+ body[data-scene=battle] #app:has(>.pixel-targets)>.pixel-targets{
+  height:auto;max-height:180px;flex-direction:row;flex-wrap:wrap;align-items:stretch;
+ }
+ body[data-scene=battle] #app:has(>.pixel-targets) .enemy{
+  flex:1 1 140px;width:auto;max-width:none;
+ }
+ body[data-scene=battle] #app:has(>.pixel-targets)>.stats{flex-wrap:wrap}
+}
