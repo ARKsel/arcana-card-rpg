@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [game.js, weapon-motion-v2.zip, heroine-attacks-v1.png, card-art-repaired.zip, card-art-fix.js, ARCANA-source.zip, index.html, pixel-stage.js, pixel-stage.css, heroine-reference-v1.png, heroine-weapons-v2.png, heroine-walk-v2.png, character-art-v1.png, '.github/workflows/pages.yml']
+    paths: ['resource-card-art/**', game.js, weapon-motion-v2.zip, heroine-attacks-v1.png, card-art-repaired.zip, card-art-fix.js, ARCANA-source.zip, index.html, pixel-stage.js, pixel-stage.css, heroine-reference-v1.png, heroine-weapons-v2.png, heroine-walk-v2.png, character-art-v1.png, '.github/workflows/pages.yml']
 permissions:
   contents: read
   pages: write
@@ -25,6 +25,9 @@ jobs:
           unzip -q -o card-art-repaired.zip -d site/dist
           unzip -q -o weapon-motion-v2.zip -d site/dist
           cp game.js heroine-attacks-v1.png card-art-fix.js index.html pixel-stage.js pixel-stage.css heroine-reference-v1.png character-art-v1.png heroine-weapons-v2.png heroine-walk-v2.png site/dist/
+          mkdir -p site/dist/assets/resource-card-art
+          cp resource-card-art/*.png site/dist/assets/resource-card-art/
+          test "$(find site/dist/assets/resource-card-art -name '*.png' | wc -l)" -eq 14
           test -f site/dist/index.html
           test -d site/dist/assets/card-art-v2
           test "$(find site/dist/assets/card-art-v2 -name '*.jpg' | wc -l)" -eq 1692

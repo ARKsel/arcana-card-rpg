@@ -575,18 +575,18 @@ for(const [groupIndex,group] of artGroups.entries()){
   Object.assign(c,{family,exclusive:false,rarityRank:rank,goldPrice:25+rank*10+cost*5,crystalPrice:0,critical:{rate:0,damage:0}});
  }
 }
+const resourceArtSheets=["generic","sword","greatsword","daggers","bow","spear","hammer","fire","ice","lightning","wind","earth","light","dark"];
+const resourceArtBounds={"generic":{"cols":[0,250,502,753,1004,1254],"height":1254,"width":1254,"rows":[0,142,283,433,588,731,891,1050,1254]},"spear":{"cols":[0,250,501,753,1002,1254],"height":1254,"width":1254,"rows":[0,142,282,425,573,727,880,1035,1254]},"bow":{"cols":[0,252,500,751,1001,1254],"height":1254,"width":1254,"rows":[0,153,300,453,622,773,924,1073,1254]},"lightning":{"cols":[0,255,501,756,1002,1254],"height":1254,"width":1254,"rows":[0,153,305,460,620,773,926,1071,1254]},"hammer":{"cols":[0,250,501,754,1005,1254],"height":1254,"width":1254,"rows":[0,153,297,443,596,744,890,1041,1254]},"greatsword":{"cols":[0,250,501,751,1002,1254],"height":1254,"width":1254,"rows":[0,157,314,469,626,785,941,1096,1254]},"dark":{"cols":[0,250,502,753,1002,1254],"height":1254,"width":1254,"rows":[0,147,293,439,588,736,884,1035,1254]},"wind":{"cols":[0,251,502,754,1005,1254],"height":1254,"width":1254,"rows":[0,142,281,422,564,711,858,1013,1254]},"earth":{"cols":[0,250,500,751,1001,1254],"height":1254,"width":1254,"rows":[0,144,290,440,591,741,892,1050,1254]},"sword":{"cols":[0,248,499,751,1002,1254],"height":1254,"width":1254,"rows":[0,143,285,441,595,748,905,1059,1254]},"ice":{"cols":[0,250,501,753,1004,1254],"height":1254,"width":1254,"rows":[0,139,281,424,564,706,846,993,1254]},"light":{"cols":[0,251,500,756,1004,1254],"height":1254,"width":1254,"rows":[0,148,287,438,591,730,880,1041,1254]},"fire":{"cols":[0,254,505,751,1002,1254],"height":1254,"width":1254,"rows":[0,151,300,448,611,756,904,1052,1254]},"daggers":{"cols":[0,250,501,752,1004,1254],"height":1254,"width":1254,"rows":[0,151,297,444,596,745,898,1050,1254]}};
 const uniqueImageBeforeResources=uniqueCardImage;
 uniqueCardImage=function(key){
  const id=Number(String(key).replace('combat-','')),c=String(key).startsWith('combat-')?all[id]:null;
  if(!c?.family)return uniqueImageBeforeResources(key);
- if(!cardArtwork[key]){
-  const index=id-resourceCardStart,color=colors[artGroups.indexOf(c.g)]||'#c6e6ff',r=29+index%17,points=3+index%6,angle=index*.37;
-  const polygon=Array.from({length:points},(_,i)=>{const a=angle+i*Math.PI*2/points;return (160+Math.cos(a)*r*1.6).toFixed(2)+','+(80+Math.sin(a)*r).toFixed(2)}).join(' ');
-  const rays=Array.from({length:12},(_,i)=>{const a=i*Math.PI/6+angle;return '<path d="M '+(160+Math.cos(a)*65)+' '+(80+Math.sin(a)*42)+' l '+(Math.cos(a)*12)+' '+(Math.sin(a)*9)+'"/>'}).join('');
-  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160"><defs><radialGradient id="g"><stop stop-color="'+color+'" stop-opacity=".32"/><stop offset="1" stop-color="#080d20"/></radialGradient></defs><path fill="url(#g)" d="M0 0h320v160H0z"/><g fill="none" stroke="'+color+'" stroke-width="1.5"><ellipse cx="160" cy="80" rx="83" ry="56" opacity=".5"/><ellipse cx="160" cy="80" rx="70" ry="46"/><polygon points="'+polygon+'"/>'+rays+'</g><g fill="'+color+'">'+(c.family==='recovery'?'<path d="M166 42l-25 42h17l-5 32 26-44h-17z"/>':'<path d="M142 43h36l-6 25 8 17-20 32-20-32 8-17z"/><path fill="#0c1326" d="M157 50h6v25h-6zM157 86h6v13h-6z"/>')+'</g><text x="12" y="145" fill="'+color+'" opacity=".65" font-size="9" font-family="monospace">'+String(index+1).padStart(3,'0')+' / '+(c.family==='recovery'?'RESONANCE':'EXPENDABLE')+'</text></svg>';
-  cardArtwork[key]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
- }
- return uniqueImageBeforeResources(key);
+ const group=artGroups.indexOf(c.g),local=id-resourceCardStart-group*40;
+ const col=local%5,row=Math.floor(local/5),sheet=resourceArtSheets[group],bounds=resourceArtBounds[sheet],src='assets/resource-card-art/'+sheet+'.png';
+ // Insets exclude divider pixels; each generated sheet has measured nonuniform rows.
+ const x=bounds.cols[col]+5,y=bounds.rows[row]+5,w=bounds.cols[col+1]-x-5,h=bounds.rows[row+1]-y-5;
+ const size=(bounds.width/w*100)+'% '+(bounds.height/h*100)+'%',position=(x/(bounds.width-w)*100)+'% '+(y/(bounds.height-h)*100)+'%';
+ return '<span class="resource-card-illustration" role="img" aria-label="'+c.n.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))+'のイラスト" data-art-cell="'+local+'" data-art-sheet="'+sheet+'" style="display:block;width:100%;height:100%;background-image:url(&quot;'+src+'&quot;);background-size:'+size+';background-position:'+position+';background-repeat:no-repeat"></span>';
 };
 const cardBeforeExpendableLabel=card;
 card=function(c,action,disabled=false){return cardBeforeExpendableLabel(c,action,disabled).replace('<span class="type">','<span class="type">'+(c.family==='recovery'?'コスト回復 / ':'')+(c.e.exhaust?'使い捨て / ':''));};
