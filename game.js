@@ -38,7 +38,30 @@ const weaponThemes={片手剣:['黎明','銀狼','王衛','月影','白銀','誓
 const weaponForms=['強襲','連舞','守勢','破甲','制圧','追撃','返撃','掃討','吸精','構え','奥義'];
 const magicThemes={火:['紅蓮','焔竜','焦熱','火山','炎鳥','燎原','赤星','熾天','灰燼','業火'],氷:['霜月','白雪','氷晶','凍海','冬夜','銀霧','零界','氷河','雪花','寒星'],雷:['紫電','雷獣','閃光','轟鳴','雷雲','天雷','電光','鳴神','嵐空','雷帝'],風:['翠嵐','疾風','風精','蒼羽','空鳴','旋風','緑影','天風','翼竜','流雲'],土:['岩峰','砂塵','琥珀','金剛','山脈','地脈','石獣','大地','黒曜','巨石'],光:['聖星','白耀','天使','祝福','黎明','日輪','祈願','聖堂','暁天','光輪'],闇:['黒月','深淵','夜魔','冥界','影霧','魔眼','暗星','夢喰い','虚無','幽冥']};
 const magicForms=['矢','障壁','奔流','癒し','連撃','呪縛','導き','波動','契約','秘術'];
-function effectText(a){let t=[];if(a.hpCost)t.push(`HPを${a.hpCost}消費`);if(a.break)t.push(a.break>=999?'敵の防御をすべて解除':`敵の防御を${a.break}減らす`);if(a.hit)t.push(`${a.all?'敵全体に':''}${a.hit}ダメージ${a.times?`を${a.times}回`:''}`);if(a.block)t.push(`防御${a.block}`);if(a.heal)t.push(`HPを${a.heal}回復`);if(a.draw)t.push(`${a.draw}枚引く`);if(a.burn)t.push('火傷（2ダメージ×2ターン）');if(a.poison)t.push('毒（3ダメージ×2ターン）');if(a.weak)t.push(`敵の次の攻撃−${a.weak}`);if(a.pierce)t.push('防御無視');if(a.counter)t.push(`次の攻撃者に${a.counter}ダメージ`);if(a.drain)t.push('実ダメージの半分を回復');if(a.buff)t.push(`次の攻撃＋${a.buff}`);if(a.weaponBuff)t.push(`次の武器攻撃＋${a.weaponBuff}`);if(a.discount)t.push('次の武器コスト−1');if(a.carry)t.push(`防御を最大${a.carry}持ち越す`);if(a.evade)t.push('次の攻撃を1回無効化');if(a.cleanse)t.push('自分の状態異常を解除');return t.join('。')+'。'}
+function effectText(a){
+ const t=[];
+ if(a.hpCost)t.push('HPを'+a.hpCost+'消費');
+ if(a.break)t.push(a.break>=999?'敵の防御をすべて解除':'敵の防御を'+a.break+'減らす');
+ if(a.hit)t.push((a.all?'敵全体に':'')+a.hit+'ダメージ'+(a.times?'を'+a.times+'回':''));
+ if(a.block)t.push('防御'+a.block);if(a.heal)t.push('HPを'+a.heal+'回復');
+ if(a.draw)t.push(a.draw+'枚引く');if(a.discard)t.push('手札を'+a.discard+'枚選んで捨てる');
+ if(a.burn)t.push('火傷（2ダメージ×'+a.burn+'ターン）');if(a.poison)t.push('毒（3ダメージ×'+a.poison+'ターン）');
+ if(a.weak)t.push('敵の次の攻撃−'+a.weak);if(a.freeze)t.push('敵の次の行動を'+a.freeze+'回停止');
+ if(a.vulnerable)t.push('今ターン対象の被ダメージ＋'+a.vulnerable);
+ if(a.pierce)t.push('防御無視');if(a.counter)t.push('次の攻撃者に'+a.counter+'ダメージ');
+ if(a.drain)t.push('実ダメージの半分を回復');
+ if(a.buff)t.push('次の攻撃＋'+a.buff);if(a.weaponBuff)t.push('次の武器攻撃＋'+a.weaponBuff);
+ if(a.magicBuff)t.push('次の雷攻撃＋'+a.magicBuff);
+ if(a.discount)t.push('次の武器コスト−'+a.discount);if(a.carry)t.push('防御を最大'+a.carry+'持ち越す');
+ if(a.evade)t.push('次の攻撃を'+a.evade+'回無効化');if(a.reduce)t.push('次に受ける攻撃を'+a.reduce+'軽減');
+ if(a.cleanse)t.push('自分の状態異常を解除');if(a.noDraw)t.push('今ターン以降ドロー不可');
+ if(a.consume)t.push('防御を最大'+a.consume+'消費して攻撃に加算');
+ if(a.guardBonus)t.push('今ターン防御獲得済みなら＋'+a.guardBonus);
+ if(a.firstDouble)t.push('最初のカードなら2回攻撃');if(a.combo)t.push('使用済み枚数×2を加算（最大＋10）');
+ if(a.thunderCombo)t.push('使用済み雷枚数×3を加算（最大＋9）');if(a.burnBonus)t.push('火傷中の敵に＋'+a.burnBonus);
+ if(a.noBlockBonus)t.push('防御がない敵に＋'+a.noBlockBonus);
+ return t.length?t.join('。')+'。':'';
+}
 function expanded(g,n,c,e){add(g,n,c,effectText(e),e);const card=all[all.length-1];card.exclusive=true;card.goldPrice=20+c*10+(n.includes('奥義')?10:0);card.crystalPrice=4+c*3+(n.includes('奥義')?3:0)}
 for(let k=0;k<70;k++){const w=weapons[k%6],j=Math.floor(k/6),rank=j%3,f=j%11;let e,c=1;
 switch(f){case 0:e={hit:6+rank*2};break;case 1:e={hit:3+rank,times:2};break;case 2:e={block:5+rank*2,hit:2};break;case 3:e={hit:4+rank,break:4+rank*2};break;case 4:e={hit:5+rank,weak:2+rank};break;case 5:e={hit:4+rank,draw:1};break;case 6:e={block:5+rank,counter:3+rank};break;case 7:c=2;e={hit:6+rank*2,all:1};break;case 8:c=2;e={hit:7+rank*2,drain:1};break;case 9:e={block:4+rank,weaponBuff:3+rank};break;default:c=3;e={hit:18+rank*2};}
@@ -62,12 +85,69 @@ function start(){const stats=characterStats();s={stats,hp:stats.maxHp,max:stats.
 function note(t){s.messages.unshift(t);s.messages=s.messages.slice(0,3)}
 function battle(){let st=stages[s.stage];Object.assign(s,{block:0,carry:0,energy:3,mana:3,hand:[],pile:shuffle([...s.deck]),discard:[],used:[],turn:0,once:[],target:0,evade:0,reduce:0,counter:0,buff:0,weaponBuff:0,magicBuff:0,discount:0,noDraw:false,guard:false,pending:0,thunder:0,played:0,poison:0,enemies:[]});let count=s.stage===1||s.stage===2?2:1;for(let i=0;i<count;i++)s.enemies.push({n:st[1]+(count>1?` ${i+1}`:''),icon:st[2],hp:st[3],max:st[3],attack:st[4],block:s.stage===1?6:0,weak:0,burn:0,poison:0,freeze:0,vulnerable:0});note(`${st[0]}に足を踏み入れた。`);newTurn()}
 function draw(n){if(s.noDraw)return;for(let i=0;i<n;i++){if(!s.pile.length)s.pile=shuffle(s.discard.splice(0));if(s.pile.length)s.hand.push(s.pile.pop())}}
-function newTurn(){s.turn++;s.energy=s.stats.maxEnergy;s.mana=s.stats.maxMana;s.played=0;s.thunder=0;s.guard=false;s.noDraw=false;draw(5);render()}
+function newTurn(){normalizeEnemyTarget();s.pendingDraw=0;s.resolvingCard=null;s.turn++;s.energy=s.stats.maxEnergy;s.mana=s.stats.maxMana;s.played=0;s.thunder=0;s.guard=false;s.noDraw=false;draw(5);render()}
 function cost(c){return Math.max(0,c.c-(weapons.includes(c.g)?s.discount:0))}
 function hurt(e,n,pierce=false){n=Math.max(0,n+e.vulnerable);const absorb=pierce?0:Math.min(e.block,n);e.block-=absorb;const actual=Math.min(e.hp,n-absorb);e.hp-=actual;return actual}
 function resource(c){return magics.includes(c.g)?'mana':'energy'}
-function can(c){return cost(c)<=s[resource(c)]&&s.hp>(c.e.hpCost||0)&&!(c.e.once&&s.once.includes(c.id))}
-function play(i){if(!s||s.phase!=='battle')return;if(s.pending){s.discard.push(s.hand.splice(i,1)[0]);s.pending--;render();return}const c=all[s.hand[i]],a=c.e;if(!can(c))return;const targets=a.all?s.enemies.filter(e=>e.hp>0):[s.enemies[s.target]];if((a.hit||a.weak||a.freeze)&&!targets[0]?.hp)return;s[resource(c)]-=cost(c);if(weapons.includes(c.g))s.discount=0;s.hp-=a.hpCost||0;s.hand.splice(i,1);if(a.once||a.exhaust)s.once.push(c.id);else s.discard.push(c.id);if(a.recoverEnergy)s.energy=Math.min(s.stats.maxEnergy,s.energy+a.recoverEnergy);if(a.recoverMana)s.mana=Math.min(s.stats.maxMana,s.mana+a.recoverMana);let bonus=(magics.includes(c.g)?s.stats.magic+(s.stats.elementMagic||0):s.stats.attack)+s.buff+(weapons.includes(c.g)?s.weaponBuff:0)+(c.g==='雷'?s.magicBuff:0);let consume=Math.min(s.block,a.consume||0);s.block-=consume;let damage=0;for(const e of targets){if(a.hit&&s.stats.penetration)e.block=Math.max(0,e.block-s.stats.penetration);if(a.break)e.block=Math.max(0,e.block-a.break);if(a.hit){let n=a.hit+consume+(a.guardBonus&&s.guard?a.guardBonus:0)+(a.burnBonus&&e.burn?a.burnBonus:0)+(a.noBlockBonus&&!e.block?a.noBlockBonus:0)+(a.combo?Math.min(10,s.played*2):0)+(a.thunderCombo?Math.min(9,s.thunder*3):0);for(let j=0;j<(a.firstDouble&&s.played===0?2:(a.times||1));j++)damage+=criticalHit(e,n+(j===0?bonus:0),a.pierce,c)}if(a.weak)e.weak+=a.weak;if(a.burn)e.burn=2;if(a.poison)e.poison=2;if(a.freeze)e.freeze=1;if(a.vulnerable)e.vulnerable+=a.vulnerable}if(a.splash)for(const e of s.enemies)if(!targets.includes(e)&&e.hp>0)damage+=criticalHit(e,a.splash,false,c);if(a.hit){s.buff=0;if(weapons.includes(c.g))s.weaponBuff=0;if(c.g==='雷')s.magicBuff=0}if(a.block){s.block+=a.block;s.guard=true}if(a.heal||a.drain)s.hp=Math.min(s.max,s.hp+(a.heal?a.heal+s.stats.healing:0)+(a.drain?Math.floor(damage/2):0));if(a.cleanse)s.poison=0;for(const key of ['evade','reduce','counter','buff','weaponBuff','magicBuff','discount','carry'])if(a[key])s[key]+=a[key];if(a.noDraw)s.noDraw=true;draw(a.draw||0);s.pending=a.discard&&s.hand.length?1:0;s.played++;if(c.g==='雷')s.thunder++;note(`${c.n}${damage?`：${damage}ダメージ`:'を使用'}。`);if(winCheck())return;if(s.enemies[s.target].hp<=0)s.target=s.enemies.findIndex(e=>e.hp>0);render()}
+function can(c){return !!s&&!!c&&cost(c)<=s[resource(c)]&&s.hp>(c.e.hpCost||0)&&!(c.e.once&&s.once.includes(c.id))}
+function play(i){
+ if(!s||s.phase!=='battle'||!Number.isInteger(i)||i<0||i>=s.hand.length)return;
+ if(s.pending){
+  s.discard.push(s.hand.splice(i,1)[0]);s.pending--;
+  if(!s.pending&&s.pendingDraw){const n=s.pendingDraw;s.pendingDraw=0;draw(n);}
+  if(!s.pending&&s.resolvingCard!=null){s.discard.push(s.resolvingCard);s.resolvingCard=null;}
+  render();return;
+ }
+ const c=all[s.hand[i]],a=c?.e;if(!c||!a)return;
+ normalizeEnemyTarget();
+ if(!can(c))return;
+ const targets=a.all?s.enemies.filter(e=>e.hp>0):[s.enemies[s.target]].filter(e=>e?.hp>0);
+ if((a.hit||a.weak||a.freeze||a.break||a.vulnerable||a.burn||a.poison)&&!targets.length)return;
+ const paid=cost(c);s[resource(c)]-=paid;if(weapons.includes(c.g))s.discount=0;
+ s.hp-=a.hpCost||0;s.hand.splice(i,1);
+ if(a.once||a.exhaust)s.once.push(c.id);
+ // The resolving card is not part of the discard pile until its draws finish.
+ if(a.recoverEnergy)s.energy=Math.min(s.stats.maxEnergy,s.energy+a.recoverEnergy);
+ if(a.recoverMana)s.mana=Math.min(s.stats.maxMana,s.mana+a.recoverMana);
+ const bonus=(magics.includes(c.g)?s.stats.magic+(s.stats.elementMagic||0):s.stats.attack)+s.buff+(weapons.includes(c.g)?s.weaponBuff:0)+(c.g==='雷'?s.magicBuff:0);
+ const consume=Math.min(s.block,a.consume||0);s.block-=consume;
+ let damage=0;
+ for(const enemy of targets){
+  if(a.hit&&s.stats.penetration)enemy.block=Math.max(0,enemy.block-s.stats.penetration);
+  if(a.break)enemy.block=Math.max(0,enemy.block-a.break);
+  if(a.hit){
+   const n=a.hit+consume+(a.guardBonus&&s.guard?a.guardBonus:0)+(a.burnBonus&&enemy.burn?a.burnBonus:0)+(a.noBlockBonus&&!enemy.block?a.noBlockBonus:0)+(a.combo?Math.min(10,s.played*2):0)+(a.thunderCombo?Math.min(9,s.thunder*3):0);
+   const times=a.firstDouble&&s.played===0?2:(a.times||1);
+   for(let j=0;j<times;j++)damage+=criticalHit(enemy,n+(j===0?bonus:0),a.pierce,c);
+  }
+  if(a.weak)enemy.weak+=a.weak;
+  if(a.burn)enemy.burn=Math.max(enemy.burn||0,a.burn);
+  if(a.poison)enemy.poison=Math.max(enemy.poison||0,a.poison);
+  if(a.freeze)enemy.freeze=Math.max(enemy.freeze||0,a.freeze);
+  if(a.vulnerable)enemy.vulnerable+=a.vulnerable;
+ }
+ if(a.splash)for(const enemy of s.enemies)if(!targets.includes(enemy)&&enemy.hp>0)damage+=criticalHit(enemy,a.splash,false,c);
+ if(a.hit){s.buff=0;if(weapons.includes(c.g))s.weaponBuff=0;if(c.g==='雷')s.magicBuff=0;}
+ if(a.block){s.block+=a.block;s.guard=true;}
+ const healing=(a.heal?a.heal+s.stats.healing:0)+(a.drain?Math.floor(damage/2):0);
+ if(healing)s.hp=Math.min(s.max,s.hp+healing);
+ if(a.cleanse)s.poison=0;
+ for(const key of ['evade','reduce','counter','buff','weaponBuff','magicBuff','discount','carry'])if(a[key])s[key]+=a[key];
+ if(a.noDraw)s.noDraw=true;
+ const deferred=!!a.discardFirst&&a.discard&&s.hand.length>0;
+ if(deferred){s.pending=Math.min(a.discard,s.hand.length);s.pendingDraw=a.draw||0;s.resolvingCard=a.once||a.exhaust?null:c.id;}
+ else{
+  draw(a.draw||0);s.pending=a.discard?Math.min(a.discard,s.hand.length):0;
+  if(!a.once&&!a.exhaust)s.discard.push(c.id);
+ }
+ s.played++;if(c.g==='雷')s.thunder++;
+ const details=[damage?damage+'ダメージ':'',a.block?'防御＋'+a.block:'',healing?'HP回復 '+healing:'',a.recoverEnergy?'行動回復 '+a.recoverEnergy:'',a.recoverMana?'マナ回復 '+a.recoverMana:'',a.weak?'弱体化 −'+a.weak:'',a.freeze?'凍結':'',a.discount?'次の武器コスト−'+a.discount:'',a.weaponBuff?'次の武器攻撃＋'+a.weaponBuff:'',a.magicBuff?'次の雷攻撃＋'+a.magicBuff:'',a.exhaust?'戦闘中除外':''].filter(Boolean);
+ note(c.n+(details.length?'：'+details.join(' / '):'を使用')+'。');
+ if(winCheck())return;normalizeEnemyTarget();render();
+}
+function normalizeEnemyTarget(){
+ if(s?.enemies?.length&&!s.enemies[s.target]?.hp)s.target=s.enemies.findIndex(enemy=>enemy.hp>0);
+}
 function winCheck(){if(s.enemies.every(e=>e.hp<=0)){s.phase='reward';s.pending=0;const bounty=25+s.stage*10;s.gold+=bounty;s.earned+=bounty;s.lastBounty=bounty;const gems=s.stage===3?15:3;s.lastCrystals=gems;queueCrystals(gems,'battle');s.hp=Math.min(s.max,s.hp+10);if(s.stage===3){finish(true);return true}s.reward=shuffle(all.filter(c=>['汎用',weapon,magic].includes(c.g)&&owned(c))).slice(0,3).map(c=>c.id);reward();return true}return false}
 function endTurn(){if(s.phase!=='battle'||s.pending)return;for(const e of s.enemies){e.vulnerable=0;if(e.hp<=0)continue;if(e.freeze){e.freeze=0;note(`${e.n}は凍結して動けない。`)}else if(e.healIntent){e.hp=Math.min(e.max,e.hp+6);note(`${e.n}はHPを6回復した。`)}else{let amount=Math.max(0,e.attack-e.weak-s.reduce-s.stats.defense);e.weak=0;s.reduce=0;if(Math.random()<(s.stats.dodge||0)){amount=0;note('敏捷性で攻撃を回避した。')}if(s.evade){s.evade--;amount=0}let absorb=Math.min(s.block,amount);s.block-=absorb;s.hp-=amount-absorb;note(`${e.n}の攻撃：${amount-absorb}ダメージ。`);if(s.counter){hurt(e,s.counter);s.counter=0}if(e.poisonAttack)s.poison=2}if(e.burn){e.hp=Math.max(0,e.hp-2);e.burn--}if(e.poison){e.hp=Math.max(0,e.hp-3);e.poison--}if(e.tactic===3||e.tactic===8)e.block=e.tactic===8?8:5;}if(s.poison){s.hp-=2;s.poison--;note('毒で2ダメージ。')}if(s.hp<=0){s.hp=0;finish(false);return}if(winCheck())return;s.discard.push(...s.hand);s.hand=[];s.block=Math.min(s.block,s.carry);s.carry=0;newTurn()}
 function render(){s.phase='battle';$('#app').innerHTML=`<div class="topbar"><div><span class="eyebrow">CHAPTER ${s.stage+1} / 4</span><h2>${s.encounterSpec?.name||stages[s.stage][0]}</h2></div><div class="journey-wallet"><span class="gold-badge">◈ ${s.gold} G</span><span class="crystal-badge">◇ ${meta.crystals} 魔晶石</span><div class="progress">${'◆ '.repeat(s.stage+1)}${'◇ '.repeat(3-s.stage)}</div></div></div><div class="arena"><img class="arena-backdrop" src="${artAssets.scene}" alt="">${s.enemies.map((e,i)=>`<div role="button" tabindex="0" aria-label="${e.n}を選択" onclick="selectTarget(${i})" onkeydown="if(event.key==='Enter')selectTarget(${i})" class="enemy ${s.target===i?'target':''}" style="opacity:${e.hp?1:.25}"><div class="intent">${e.freeze?'凍結 · 次の行動停止':e.intent||`次の攻撃 ${Math.max(0,e.attack-e.weak-s.stats.defense)}`}</div><div class="monster">${artImage(e.portrait??(14+s.stage))}</div><b>${e.n}</b><div class="hp"><i style="width:${e.hp/e.max*100}%"></i></div><div class="small">HP ${e.hp} / ${e.max}　防御 ${e.block}</div><div class="small">${e.burn?icon('火')+' 火傷 ':''}${e.poison?icon('毒')+' 毒 ':''}${e.poisonAttack?'攻撃に毒付与':''}</div></div>`).join('')}</div><div class="stats"><div class="player-health"><div class="health-label">${icon('HP')} <span>HP</span> <strong>${s.hp}</strong><span>/ ${s.max}</span>${s.poison?' · 毒':''}</div><div class="player-hp ${s.hp/s.max<=.25?'critical':''}" role="progressbar" aria-label="プレイヤーHP" aria-valuemin="0" aria-valuemax="${s.max}" aria-valuenow="${s.hp}"><i style="width:${Math.max(0,Math.min(100,s.hp/s.max*100))}%"></i></div></div><span>${icon('防御')} 防御 <strong>${s.block}</strong></span><span class="energy-stat">${icon('汎用')} 行動 <strong>${s.energy}</strong> / ${s.stats.maxEnergy}</span><span class="mana-stat">${icon('光')} マナ <strong>${s.mana}</strong> / ${s.stats.maxMana}</span><button onclick="endTurn()" ${s.pending?'disabled':''}>ターン終了 →</button></div>${statSummary()}<div class="hint">${s.pending?'捨てるカードを1枚選んでください':`TURN ${s.turn} · 敵を選んでカードを使用 · 山札 ${s.pile.length} / 捨て札 ${s.discard.length}${s.discount?' · 次の武器コスト−1':''}${s.buff?' · 次の攻撃＋'+s.buff:''}`}</div><div class="log" aria-live="polite">${s.messages.join('<br>')}</div><div class="cards">${s.hand.map((id,i)=>card(all[id],`play(${i})`,!s.pending&&!can(all[id]))).join('')}</div><p class="hint">ターン終了時に手札を捨て、5枚引きます。山札が尽きると捨て札を混ぜ直します。<br>武器・汎用は行動、魔法はマナを消費。毎ターンそれぞれの上限まで回復します。<br>防御は次ターンに消失。奥義以外の強化は使用するまで持続します。</p>`}
@@ -591,7 +671,7 @@ for(const [groupIndex,group] of artGroups.entries()){
   if(e.other){e[magical?'recoverEnergy':'recoverMana']=e.other;delete e.other}
   if(family==='expendable')e.exhaust=1;
   const name=resourceThemes[groupIndex]+(family==='recovery'?'還流・'+recoveryNames[i]:'消尽・'+expendableNames[i]);
-  const details=[e.recoverEnergy?'行動を'+e.recoverEnergy+'回復（上限まで）':'',e.recoverMana?'マナを'+e.recoverMana+'回復（上限まで）':'',effectText(e),e.reduce?'次に受ける攻撃を'+e.reduce+'軽減':'',e.exhaust?'使い捨て：使用後、この戦闘中は山札に戻らない。':''].filter(Boolean).join('。').replace(/。+/g,'。');
+  const details=[e.recoverEnergy?'行動を'+e.recoverEnergy+'回復（上限まで）':'',e.recoverMana?'マナを'+e.recoverMana+'回復（上限まで）':'',effectText(e),e.exhaust?'使い捨て：使用後、この戦闘中は山札に戻らない。':''].filter(Boolean).join('。').replace(/。+/g,'。');
   add(group,name,cost,details,e);
   const c=all[all.length-1],rank=Math.min(6,Math.floor(i/3));
   Object.assign(c,{family,exclusive:false,rarityRank:rank,goldPrice:25+rank*10+cost*5,crystalPrice:0,critical:{rate:0,damage:0}});
@@ -673,7 +753,7 @@ const enemiesBeforeBiomes=encounterEnemies;
 encounterEnemies=function(spec){
  const enemies=enemiesBeforeBiomes(spec),biome=getDungeonBiome();
  const element=spec.element||biomeWeighted(biome.primaryElement,biome.secondaryElement,magics,.7,.2);
- for(const enemy of enemies){enemy.species=spec.species||factionSpecies[spec.faction];enemy.element=element;enemy.environment=biome.id;enemy.visualKind=({獣:2,植物:0,機械:1,人型:1,竜族:2,精霊:0,昆虫:2,不死:1,魔族:2,幻獣:2})[enemy.species]??0;}
+ for(const enemy of enemies){enemy.species=spec.species||factionSpecies[spec.faction];enemy.element=element;enemy.environment=biome.id;enemy.boss=!!spec.boss;enemy.bossArtIndex=spec.biomeId?dungeonBiomes.findIndex(b=>b.id===spec.biomeId):-1;enemy.visualKind=({獣:2,植物:0,機械:1,人型:1,竜族:2,精霊:0,昆虫:2,不死:1,魔族:2,幻獣:2})[enemy.species]??0;}
  return enemies;
 };
 const intentBeforeBiomes=prepareEnemyIntent;
@@ -700,3 +780,36 @@ function openBiomeGuide(){
  dialog.innerHTML='<div class="weapon-art-titlebar"><h2>20種類の階層</h2><button onclick="document.getElementById(\'biome-guide\').close()">閉じる ×</button></div><p>20階層ごとに全20種類を一巡。次の周回では順番を再抽選します。階層内ではテーマが固定されます。</p><div class="biome-guide-list">'+dungeonBiomes.map(b=>'<article><h3>'+b.name+'</h3><p>'+b.description+'</p><p>系統：'+b.primarySpecies+' ／ '+b.secondarySpecies+'<br>属性：'+b.primaryElement+' ／ '+b.secondaryElement+'<br>主な守護者：'+b.boss+'</p></article>').join('')+'</div><p class="small">通常敵の系統：主60％・副25％・その他15％。出現属性：主70％・副20％・その他10％。守護者は70％で階層固有、30％で従来の封印の守護者から抽選します。</p>';
  dialog.showModal();
 }
+
+all[52].e.discardFirst=1;
+function enemyIntentLabel(enemy){
+ if(enemy.freeze)return '凍結 · 次の行動停止';
+ if(enemy.healIntent)return 'HP回復6';
+ return (enemy.element?enemy.element+'属性攻撃 ':'次の攻撃 ')+Math.max(0,enemy.attack-enemy.weak-s.reduce-s.stats.defense);
+}
+const renderBeforeEffectStatus=render;
+render=function(){
+ renderBeforeEffectStatus();
+ if(s?.phase!=='battle')return;
+ let html=$('#app').innerHTML;
+ for(const enemy of s.enemies){
+  const old=enemy.freeze?'凍結 · 次の行動停止':enemy.intent||'次の攻撃 '+Math.max(0,enemy.attack-enemy.weak-s.stats.defense);
+  html=html.replace('<div class="intent">'+old+'</div>','<div class="intent">'+enemyIntentLabel(enemy)+'</div>');
+ }
+ const statuses=[s.buff?'次の攻撃＋'+s.buff:'',s.weaponBuff?'次の武器攻撃＋'+s.weaponBuff:'',s.magicBuff?'次の雷攻撃＋'+s.magicBuff:'',s.discount?'次の武器コスト−'+s.discount:'',s.evade?'回避 '+s.evade+'回':'',s.reduce?'次の被ダメージ−'+s.reduce:'',s.counter?'反撃 '+s.counter:'',s.carry?'防御持越し '+s.carry:'',s.noDraw?'ドロー停止中':''];
+ const enemies=s.enemies.filter(e=>e.hp>0).flatMap(e=>[e.weak?e.n+'：攻撃−'+e.weak:'',e.vulnerable?e.n+'：被ダメージ＋'+e.vulnerable:'',e.freeze?e.n+'：凍結':'']);
+ html+='<div class="hint battle-effect-status" role="status">'+statuses.concat(enemies).filter(Boolean).join(' ／ ')+'</div>';
+ $('#app').innerHTML=html;
+};
+
+const catalogBeforeMotionPreview=fullCatalog;
+fullCatalog=function(){
+ catalogBeforeMotionPreview();
+ const entries=catalogItems().slice(catalogPage*16,catalogPage*16+16);
+ document.querySelectorAll('#catalog .shop-item').forEach((item,index)=>{
+  const entry=entries[index];if(entry?.kind!=='戦闘')return;
+  const button=document.createElement('button');button.textContent='演出を見る';
+  button.setAttribute('aria-label',entry.card.n+'の演出を見る');
+  button.onclick=()=>globalThis.arcanaPreviewCard?.(entry.card.id);item.append(button);
+ });
+};

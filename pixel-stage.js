@@ -109,6 +109,51 @@
   const weaponOrder=['片手剣','大剣','短剣','弓','槍','戦槌'];
   const spriteGeometry={"armed":{"width":1536,"height":1024,"cols":3,"rows":2,"referenceHeight":502,"frames":[{"left":87,"top":10,"right":467,"bottom":512,"anchorX":270,"sourceX":0,"sourceY":0},{"left":84,"top":10,"right":407,"bottom":512,"anchorX":264,"sourceX":512,"sourceY":0},{"left":55,"top":10,"right":380,"bottom":512,"anchorX":242,"sourceX":1024,"sourceY":0},{"left":102,"top":0,"right":531,"bottom":486,"anchorX":287,"sourceX":0,"sourceY":512,"clips":[[0,0,512,512],[512,120,19,40]]},{"left":63,"top":-14,"right":504,"bottom":486,"anchorX":271,"sourceX":512,"sourceY":512,"clips":[[45,0,467,512],[467,-14,45,14]]},{"left":69,"top":2,"right":493,"bottom":486,"anchorX":279,"sourceX":1024,"sourceY":512}],"rowReferenceHeights":[502,490]},"walk":{"width":1774,"height":887,"cols":4,"rows":2,"referenceHeight":436,"frames":[{"left":59,"top":8,"right":437,"bottom":444,"anchorX":280,"hand":[395.96,207.33],"sourceX":0,"sourceY":0},{"left":74,"top":8,"right":306,"bottom":444,"anchorX":259,"hand":[294.27,213.96],"sourceX":444,"sourceY":0},{"left":50,"top":7,"right":305,"bottom":444,"anchorX":246,"hand":[288.78,219.13],"sourceX":887,"sourceY":0},{"left":38,"top":8,"right":389,"bottom":444,"anchorX":233,"hand":[331.61,203.88],"sourceX":1330,"sourceY":0},{"left":60,"top":19,"right":444,"bottom":427,"anchorX":247,"hand":[128.16,193.95],"sourceX":0,"sourceY":444},{"left":154,"top":10,"right":405,"bottom":426,"anchorX":214,"hand":[165.21,207.24],"sourceX":444,"sourceY":444},{"left":128,"top":10,"right":386,"bottom":430,"anchorX":190,"hand":[146.64,212.86],"sourceX":887,"sourceY":444},{"left":56,"top":13,"right":382,"bottom":429,"anchorX":209,"hand":[108.85,197.83],"sourceX":1330,"sourceY":444}],"rowReferenceHeights":[436,415]}};
   const enemySheet=new Image();enemySheet.src='character-art-v1.png';
+  const combatAtlasGeometry={"support-poses-v3":{"frames":[{"path":"support-poses-v3/0.png","x":0,"y":0,"w":286,"h":384,"anchor":172.18153153153153,"foot":371,"pixels":47055},{"path":"support-poses-v3/1.png","x":0,"y":0,"w":340,"h":382,"anchor":193.99243772241994,"foot":369,"pixels":52986},{"path":"support-poses-v3/2.png","x":0,"y":0,"w":351,"h":379,"anchor":197.0658070253446,"foot":366,"pixels":55393},{"path":"support-poses-v3/3.png","x":0,"y":0,"w":299,"h":383,"anchor":176.25711662075298,"foot":370,"pixels":46991},{"path":"support-poses-v3/4.png","x":0,"y":0,"w":276,"h":372,"anchor":164.07642679900744,"foot":359,"pixels":44884},{"path":"support-poses-v3/5.png","x":0,"y":0,"w":354,"h":376,"anchor":185.22691637630663,"foot":363,"pixels":56676},{"path":"support-poses-v3/6.png","x":0,"y":0,"w":304,"h":367,"anchor":167.3861161524501,"foot":354,"pixels":48591},{"path":"support-poses-v3/7.png","x":0,"y":0,"w":330,"h":369,"anchor":184.27542179662564,"foot":356,"pixels":51985},{"path":"support-poses-v3/8.png","x":0,"y":0,"w":397,"h":290,"anchor":273.9367681498829,"foot":277,"pixels":51213},{"path":"support-poses-v3/9.png","x":0,"y":0,"w":318,"h":386,"anchor":181.2101881597063,"foot":373,"pixels":49480},{"path":"support-poses-v3/10.png","x":0,"y":0,"w":340,"h":366,"anchor":169.99480396787908,"foot":353,"pixels":52212},{"path":"support-poses-v3/11.png","x":0,"y":0,"w":371,"h":369,"anchor":205.13770794824399,"foot":356,"pixels":57010}]},"enemies-v3":{"frames":[{"path":"enemies-v3/0.png","x":0,"y":0,"w":257,"h":163,"anchor":109.45431034482759,"foot":150,"pixels":18061},{"path":"enemies-v3/1.png","x":0,"y":0,"w":175,"h":233,"anchor":99.59173553719009,"foot":220,"pixels":12305},{"path":"enemies-v3/2.png","x":0,"y":0,"w":243,"h":189,"anchor":113.50625711035268,"foot":176,"pixels":23481},{"path":"enemies-v3/3.png","x":0,"y":0,"w":221,"h":231,"anchor":140.5992277992278,"foot":218,"pixels":23135},{"path":"enemies-v3/4.png","x":0,"y":0,"w":264,"h":216,"anchor":139.08407437348424,"foot":203,"pixels":24161},{"path":"enemies-v3/5.png","x":0,"y":0,"w":244,"h":215,"anchor":123.0912330719886,"foot":202,"pixels":19285},{"path":"enemies-v3/6.png","x":0,"y":0,"w":223,"h":220,"anchor":119.88589743589743,"foot":207,"pixels":15737},{"path":"enemies-v3/7.png","x":0,"y":0,"w":247,"h":207,"anchor":105.9322033898305,"foot":194,"pixels":13329},{"path":"enemies-v3/8.png","x":0,"y":0,"w":271,"h":212,"anchor":137.1290322580645,"foot":199,"pixels":24017},{"path":"enemies-v3/9.png","x":0,"y":0,"w":268,"h":227,"anchor":142.89986648865153,"foot":214,"pixels":18801},{"path":"enemies-v3/10.png","x":0,"y":0,"w":241,"h":222,"anchor":118.44186046511628,"foot":209,"pixels":19270},{"path":"enemies-v3/11.png","x":0,"y":0,"w":183,"h":230,"anchor":108.72260869565217,"foot":217,"pixels":15996},{"path":"enemies-v3/12.png","x":0,"y":0,"w":256,"h":180,"anchor":122.1660777385159,"foot":167,"pixels":18323},{"path":"enemies-v3/13.png","x":0,"y":0,"w":297,"h":227,"anchor":139.36036036036037,"foot":214,"pixels":22383},{"path":"enemies-v3/14.png","x":0,"y":0,"w":285,"h":207,"anchor":163.72861842105263,"foot":194,"pixels":25981},{"path":"enemies-v3/15.png","x":0,"y":0,"w":204,"h":200,"anchor":96.8110599078341,"foot":187,"pixels":11960},{"path":"enemies-v3/16.png","x":0,"y":0,"w":242,"h":210,"anchor":144.64137931034483,"foot":197,"pixels":18781},{"path":"enemies-v3/17.png","x":0,"y":0,"w":224,"h":200,"anchor":68.87254901960785,"foot":187,"pixels":18767},{"path":"enemies-v3/18.png","x":0,"y":0,"w":251,"h":172,"anchor":114.94972067039106,"foot":159,"pixels":18600},{"path":"enemies-v3/19.png","x":0,"y":0,"w":279,"h":207,"anchor":166.9120879120879,"foot":194,"pixels":18737},{"path":"enemies-v3/20.png","x":0,"y":0,"w":255,"h":191,"anchor":151.30935251798562,"foot":178,"pixels":20161},{"path":"enemies-v3/21.png","x":0,"y":0,"w":235,"h":210,"anchor":124.08211143695014,"foot":197,"pixels":16196},{"pixels":83706,"w":537,"foot":467,"path":"enemies-v3/22.png","h":480,"y":0,"x":0,"anchor":302.37097196751375},{"pixels":85414,"w":442,"foot":473,"path":"enemies-v3/23.png","h":486,"y":0,"x":0,"anchor":237.65158648925282},{"path":"enemies-v3/24.png","x":0,"y":0,"w":255,"h":231,"anchor":153.5492565055762,"foot":218,"pixels":24955},{"path":"enemies-v3/25.png","x":0,"y":0,"w":251,"h":220,"anchor":149.9908536585366,"foot":207,"pixels":19805},{"path":"enemies-v3/26.png","x":0,"y":0,"w":261,"h":227,"anchor":119.71398747390397,"foot":214,"pixels":25411},{"path":"enemies-v3/27.png","x":0,"y":0,"w":256,"h":186,"anchor":96.41909196740396,"foot":173,"pixels":23831},{"pixels":110091,"w":593,"foot":473,"path":"enemies-v3/28.png","h":486,"y":0,"x":0,"anchor":241.76453674121404},{"pixels":162842,"w":651,"foot":474,"path":"enemies-v3/29.png","h":487,"y":0,"x":0,"anchor":211.12315841748054}]},"bosses-v3":{"frames":[{"path":"bosses-v3/0.png","x":0,"y":0,"w":255,"h":286,"anchor":138.96080218778488,"foot":273,"pixels":30276},{"path":"bosses-v3/1.png","x":0,"y":0,"w":293,"h":294,"anchor":153.23890339425589,"foot":281,"pixels":43144},{"path":"bosses-v3/2.png","x":0,"y":0,"w":301,"h":291,"anchor":160.56543037088872,"foot":278,"pixels":47500},{"path":"bosses-v3/3.png","x":0,"y":0,"w":285,"h":296,"anchor":141.35861856305888,"foot":283,"pixels":43525},{"path":"bosses-v3/4.png","x":0,"y":0,"w":289,"h":288,"anchor":139.84429065743944,"foot":275,"pixels":34038},{"path":"bosses-v3/5.png","x":0,"y":0,"w":268,"h":292,"anchor":117.29642647920328,"foot":279,"pixels":38592},{"path":"bosses-v3/6.png","x":0,"y":0,"w":312,"h":284,"anchor":161.3391583452211,"foot":271,"pixels":39841},{"path":"bosses-v3/7.png","x":0,"y":0,"w":278,"h":297,"anchor":125.7662129703763,"foot":284,"pixels":38409},{"path":"bosses-v3/8.png","x":0,"y":0,"w":301,"h":286,"anchor":149.04753363228699,"foot":273,"pixels":35586},{"path":"bosses-v3/9.png","x":0,"y":0,"w":290,"h":278,"anchor":145.77707930367504,"foot":265,"pixels":44668},{"path":"bosses-v3/10.png","x":0,"y":0,"w":280,"h":280,"anchor":141.6920343500148,"foot":267,"pixels":39093},{"path":"bosses-v3/11.png","x":0,"y":0,"w":301,"h":286,"anchor":173.14103110353642,"foot":273,"pixels":43345},{"path":"bosses-v3/12.png","x":0,"y":0,"w":285,"h":288,"anchor":143.9214891264283,"foot":275,"pixels":35659},{"path":"bosses-v3/13.png","x":0,"y":0,"w":305,"h":284,"anchor":168.60989533777354,"foot":271,"pixels":44794},{"path":"bosses-v3/14.png","x":0,"y":0,"w":281,"h":283,"anchor":140.57751277683136,"foot":270,"pixels":39652},{"path":"bosses-v3/15.png","x":0,"y":0,"w":283,"h":307,"anchor":168.4780999383097,"foot":294,"pixels":37958},{"path":"bosses-v3/16.png","x":0,"y":0,"w":312,"h":307,"anchor":156.15267175572518,"foot":294,"pixels":32809},{"path":"bosses-v3/17.png","x":0,"y":0,"w":278,"h":293,"anchor":109.7717576791809,"foot":280,"pixels":42619},{"path":"bosses-v3/18.png","x":0,"y":0,"w":282,"h":298,"anchor":149.4366576819407,"foot":285,"pixels":36456},{"path":"bosses-v3/19.png","x":0,"y":0,"w":307,"h":305,"anchor":148.15150316455697,"foot":292,"pixels":49298}]}};
+  const combatImageCache=new Map();
+  function combatImage(path){if(!combatImageCache.has(path)){const image=new Image();image.src='assets/combat-art-v3/'+path;combatImageCache.set(path,image);}return combatImageCache.get(path);}
+  for(const frame of combatAtlasGeometry['support-poses-v3'].frames)combatImage(frame.path);
+  const supportSequences={magic:[0,1,2,3],heal:[4,4,5,4],guard:[6,7,7,6],evade:[6,8,8,6],focus:[0,9,9,3],draw:[0,10,10,3],recharge:[0,9,9,3],cleanse:[4,5,5,4]};
+  function isolatedCombatSprite(ctx,image,frame,x,y,scale){
+    if(!frame||!image.complete||!image.naturalWidth)return false;
+    ctx.drawImage(image,frame.x,frame.y,frame.w,frame.h,x+(frame.x-frame.anchor)*scale,y+(frame.y-frame.foot)*scale,frame.w*scale,frame.h*scale);
+    return true;
+  }
+  function cardMotionKind(card){
+    const e=card.e;
+    if(e.hit)return magics.includes(card.g)?'magic':'attack';
+    if(e.recoverEnergy||e.recoverMana)return 'recharge';
+    if(e.heal||e.drain)return 'heal';
+    if(e.cleanse)return 'cleanse';
+    if(e.evade&&!e.block)return 'evade';
+    if(e.block||e.reduce||e.counter||e.carry)return 'guard';
+    if(e.draw||e.discard)return 'draw';
+    if(e.buff||e.weaponBuff||e.magicBuff||e.discount)return 'focus';
+    return magics.includes(card.g)?'magic':'focus';
+  }
+  function cardSpellStyle(card){
+    const e=card.e;
+    return e.all?'storm':e.freeze?'prison':e.times?'barrage':e.pierce?'beam':['bolt','burst','sigil','beam'][card.id%4];
+  }
+  function supportHero(ctx,kind,p){
+    const frames=combatAtlasGeometry['support-poses-v3'].frames,sequence=supportSequences[kind];
+    if(!sequence)return false;
+    let cell=sequence[Math.min(3,Math.floor(p*4))];
+    if(action?.card?.e.exhaust&&p>.58&&p<.78)cell=11;
+    const scale=103/(frames[0].foot-frames[0].y);
+    ctx.save();ctx.translate(0,-Math.sin(p*Math.PI)*(kind==='recharge'?2:1));ctx.rotate(kind==='evade'?-.07*Math.sin(p*Math.PI):0);
+    const drawn=isolatedCombatSprite(ctx,combatImage(frames[cell].path),frames[cell],0,1,scale);ctx.restore();return drawn;
+  }
+  function enemyAtlasFrame(enemy){
+    if(enemy.bossArtIndex>=0){const frame=combatAtlasGeometry['bosses-v3'].frames[enemy.bossArtIndex];return {image:combatImage(frame.path),frame};}
+    const order=['獣','植物','機械','人型','竜族','精霊','昆虫','不死','魔族','幻獣'];
+    const named={'森牙の狼':0,'角冠の大鹿':1,'洞窟熊':2,'歩く古樹':3,'喰らい蔓':4,'苔の番兵':5,'遺跡の自動兵':6,'巡回ドローン':7,'古式戦闘機':8,'白銀の騎士':9,'幼き地竜':12,'翼蛇':13,'焔の眷属':15,'雷雲の精霊':17,'甲殻の大蟲':18,'洞窟の毒蜘蛛':19,'石棺の亡者':23,'霧の幻狼':27,'星角の麒麟':28};
+    const name=String(enemy.n||'').replace(/・.*$/,'').replace(/\s+\d+$/,'');
+    const hash=Array.from(name).reduce((n,ch)=>(n*31+ch.charCodeAt(0))>>>0,0);
+    const cell=named[name]??Math.max(0,order.indexOf(enemy.species))*3+hash%3;
+    const frame=combatAtlasGeometry['enemies-v3'].frames[cell];return {image:combatImage(frame.path),frame};
+  }
+
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let scene=null, action=null, frame=0, animation=0, lastPaint=-Infinity;
   const esc = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -174,6 +219,7 @@
     ctx.save();ctx.translate(x,y);
     ctx.fillStyle='#07102177';ctx.beginPath();ctx.ellipse(0,1,21,2.5,0,0,Math.PI*2);ctx.fill();
     if(attacking){attackHero(ctx,action.weapon||scene.weapon,0,0,progress);ctx.restore();return;}
+    if(supportSequences[motion]&&supportHero(ctx,motion,progress)){ctx.restore();return;}
     let drawn=false;
     if(walking){
       // Eight uninterrupted contact/down/passing/up frames; soles stay on the ground.
@@ -229,7 +275,12 @@
     if(kind===1&&!reduced.matches)ctx.rotate(Math.sin(t/500)*.02);
     if(hit>0&&!dead&&!reduced.matches)ctx.translate(Math.sin(hit*35)*2,0);
     ctx.shadowColor=hit>0&&!dead?'#fff0dd':'#07101a';ctx.shadowBlur=hit>0&&!dead?9:3;
-    const size=boss?112:90;atlasSprite(ctx,enemySheet,2,2,cell,0,4,size,size,dead?Math.max(0,1-hit):1);
+    const size=boss?112:90,art=enemyAtlasFrame(scene.foes[index]);
+    const maxWidth=Math.min(scene.foes.length>=3?82:scene.foes.length===2?105:145,(scene.width||480)*(scene.foes.length>=3?.19:scene.foes.length===2?.24:.32));
+    const scale=Math.min(size/art.frame.h,maxWidth/art.frame.w);
+    ctx.save();ctx.globalAlpha=dead?Math.max(0,1-hit):1;
+    if(!isolatedCombatSprite(ctx,art.image,art.frame,0,2,scale))atlasSprite(ctx,enemySheet,2,2,cell,0,4,size,size);
+    ctx.restore();
     if(dead&&!reduced.matches){ctx.globalAlpha=1-hit;ctx.fillStyle='#dfc4ff';for(let j=0;j<16;j++){const q=j*2.4;ctx.beginPath();ctx.arc(Math.cos(q)*hit*34,-25+Math.sin(q)*hit*30,1.2,0,Math.PI*2);ctx.fill();}}
     ctx.restore();
   }
@@ -378,6 +429,108 @@
     for(let i=0;i<16;i++){const x=((i*67.31-seconds*7)%(width+20)+width+20)%(width+20)-10,y=15+i*37%94+Math.sin(pulse*.5+i)*2;ctx.fillStyle=biome.glow+'65';ctx.fillRect(x,y,.8,.8)}
     const shade=ctx.createLinearGradient(0,0,0,152);shade.addColorStop(0,'#03071255');shade.addColorStop(.5,'#03071200');shade.addColorStop(1,'#03071240');ctx.fillStyle=shade;ctx.fillRect(0,0,width,152);
   }
+  function effectPath(ctx,points,color,width=1){
+    ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+    points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
+  }
+  function effectGlow(ctx,x,y,r,color){
+    if(r<=0)return;
+    const glow=ctx.createRadialGradient(x,y,0,x,y,r);
+    glow.addColorStop(0,color+'aa');glow.addColorStop(.3,color+'55');glow.addColorStop(1,color+'00');
+    ctx.fillStyle=glow;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+  function elementalBurst(ctx,x,y,element,q,seed=0){
+    const color=colors[element]||'#ddcaff',fade=Math.max(0,Math.sin(Math.PI*q));
+    if(!fade)return;
+    ctx.save();ctx.globalAlpha=fade;
+    effectGlow(ctx,x,y,15+q*35,color);
+    if(element==='火'){
+      for(let n=0;n<13;n++){const a=n*2.399+seed,r=8+q*(15+n%4*7),xx=x+Math.cos(a)*r,yy=y+Math.sin(a)*r*.65;
+        ctx.fillStyle=n%2?'#ffe7a1':color;ctx.beginPath();ctx.ellipse(xx,yy,2+fade*2,5+fade*3,a,0,Math.PI*2);ctx.fill();}
+    }else if(element==='氷'||element==='土'){
+      for(let n=0;n<7;n++){const xx=x+(n-3)*9,yy=y+9-Math.sin(n*.7+seed)*8,h=(element==='氷'?28:18)*fade+6;
+        ctx.fillStyle=n%2?color:element==='氷'?'#e1fbff':'#90775c';ctx.beginPath();ctx.moveTo(xx-5,yy);ctx.lineTo(xx-3,yy-h*.7);ctx.lineTo(xx+1,yy-h);ctx.lineTo(xx+6,yy-h*.35);ctx.lineTo(xx+5,yy);ctx.closePath();ctx.fill();}
+    }else if(element==='雷'){
+      for(let n=0;n<5;n++){const a=n*Math.PI*.4+seed;const points=Array.from({length:8},(_,i)=>{const r=i*6;return[x+Math.cos(a)*r+Math.sin(i*2+n)*4,y+Math.sin(a)*r*.7+Math.cos(i*3)*4]});effectPath(ctx,points,color,2);effectPath(ctx,points,'#fffbea',.6);}
+    }else if(element==='風'){
+      for(let n=0;n<4;n++){ctx.strokeStyle=n%2?'#e1fff1':color;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,y-n*3,12+q*35,6+q*12,q*4+n,0,Math.PI*1.5);ctx.stroke();}
+    }else if(element==='光'){
+      ctx.strokeStyle='#fff8d7';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-44*fade);ctx.lineTo(x,y+20);ctx.moveTo(x-22*fade,y-4);ctx.lineTo(x+22*fade,y-4);ctx.stroke();
+      for(let n=0;n<8;n++){const a=n*Math.PI/4+q;effectPath(ctx,[[x+Math.cos(a)*12,y+Math.sin(a)*12],[x+Math.cos(a)*(17+q*25),y+Math.sin(a)*(17+q*25)]],color,1);}
+    }else{
+      ctx.fillStyle='#100e24';ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y,13+fade*9,11+fade*6,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+      for(let n=0;n<6;n++){const a=n*Math.PI/3+q*3;effectPath(ctx,[[x+Math.cos(a)*15,y+Math.sin(a)*12],[x+Math.cos(a+.4)*(24+q*12),y+Math.sin(a+.4)*(18+q*10)]],color,1);}
+    }
+    ctx.restore();
+  }
+  function spellEffects(ctx,a,hx,p,foes){
+    const color=colors[a.element]||'#ddcaff',targets=a.targets.length?a.targets:[s?.target??0],style=a.style;
+    const travel=Math.max(0,Math.min(1,(p-.15)/.43));
+    for(const index of targets){
+      const tx=foeX(index,foes.length),ox=hx+28,oy=63,ty=82;
+      if(p>=.15&&p<=.65){
+        if(style==='beam'||a.element==='雷'){
+          const points=Array.from({length:13},(_,i)=>{const z=i/12;return[ox+(tx-ox)*z*travel,oy+(ty-oy)*z+(a.element==='雷'?Math.sin(i*2.8+p*40)*5:Math.sin(z*Math.PI)*-5)]});
+          ctx.save();ctx.globalAlpha=Math.sin(Math.min(1,(p-.15)/.5)*Math.PI);effectPath(ctx,points,color,5);effectPath(ctx,points,'#fff4df',1.3);ctx.restore();
+        }else{
+          const count=style==='barrage'?3:1;
+          for(let n=0;n<count;n++){
+            const q=Math.max(0,Math.min(1,travel-n*.14)),x=ox+(tx-ox)*ease(q),y=oy+(ty-oy)*q-Math.sin(q*Math.PI)*(style==='storm'?40:15);
+            effectGlow(ctx,x,y,11,color);
+            effectPath(ctx,[[x-12,y+5],[x-5,y+1],[x,y]],color,2);
+            magicArt(ctx,x,y,a.element,q);
+          }
+        }
+      }
+      if(p>.48){const q=Math.min(1,(p-.48)/.52);elementalBurst(ctx,tx,ty,a.element,q,(a.card?.id||0)%11);
+        if(style==='sigil'||style==='prison'){ctx.save();ctx.globalAlpha=Math.sin(q*Math.PI);ctx.strokeStyle=color;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(tx,105,30,9,q*2,0,Math.PI*2);ctx.stroke();for(let n=0;n<5;n++){const x=tx-22+n*11;effectPath(ctx,[[x,104],[x,104-Math.sin(q*Math.PI)*50]],color,.8)}ctx.restore();}
+      }
+    }
+    if(p<.35){ctx.save();ctx.globalAlpha=Math.sin(p/.35*Math.PI)*.8;ctx.strokeStyle=color;ctx.beginPath();ctx.ellipse(hx,118,27,6,p*5,0,Math.PI*2);ctx.stroke();ctx.restore();}
+  }
+  function supportEffects(ctx,kind,x,p,element,e={}){
+    const q=Math.sin(Math.PI*p),color=kind==='heal'?'#8df0b8':kind==='guard'?'#9eeaff':kind==='cleanse'?'#fff2bf':kind==='recharge'?(e.recoverMana?'#a8cfff':'#ffda92'):colors[element]||'#c59aff';
+    ctx.save();ctx.globalAlpha=q;effectGlow(ctx,x,86,38,color);
+    if(kind==='guard'){
+      ctx.fillStyle=color+'22';ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+22,48);ctx.lineTo(x+46,57);ctx.lineTo(x+43,88);ctx.lineTo(x+25,105);ctx.lineTo(x+10,89);ctx.lineTo(x+8,57);ctx.closePath();ctx.fill();ctx.stroke();
+      effectPath(ctx,[[x+26,60],[x+26,91]],'#e7fcff',.8);effectPath(ctx,[[x+16,74],[x+38,74]],'#e7fcff',.8);
+      if(e.counter)for(let n=0;n<5;n++)effectPath(ctx,[[x+43,57+n*8],[x+51+q*5,61+n*8],[x+44,65+n*8]],'#ffe3a1',1);
+    }else if(kind==='heal'||kind==='cleanse'){
+      for(let n=0;n<10;n++){const xx=x-25+n*6,yy=112-(p*58+n*9)%64;ctx.fillStyle=color;ctx.fillRect(xx-2,yy,5,1);ctx.fillRect(xx,yy-2,1,5);}
+      ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,118,24+q*8,5+q*2,0,0,Math.PI*2);ctx.stroke();
+      if(kind==='cleanse')for(let n=0;n<8;n++){const angle=n*Math.PI/4;effectPath(ctx,[[x+Math.cos(angle)*15,84+Math.sin(angle)*18],[x+Math.cos(angle)*(20+p*28),84+Math.sin(angle)*(25+p*30)]],color,.9);}
+    }else if(kind==='draw'){
+      for(let n=0;n<3;n++){ctx.save();ctx.translate(x-24+n*22,69-Math.sin((p+n*.1)*Math.PI)*12);ctx.rotate((n-1)*.2+p*.25);ctx.fillStyle='#142539';ctx.strokeStyle=color;ctx.lineWidth=1;ctx.fillRect(-7,-10,14,20);ctx.strokeRect(-7,-10,14,20);effectPath(ctx,[[-4,0],[0,-5],[4,0],[0,5],[-4,0]],color,.7);ctx.restore();}
+    }else if(kind==='evade'){
+      for(let n=0;n<5;n++)effectPath(ctx,[[x+20,65+n*8],[x-10-p*32,68+n*8],[x-26-p*20,71+n*8]],color,.8);
+    }else{
+      for(let n=0;n<14;n++){const angle=n*2.399+p*6,r=(1-p)*35+8,xx=x+Math.cos(angle)*r,yy=82+Math.sin(angle)*r*.7;ctx.fillStyle=n%3?'#e5f5ff':color;ctx.beginPath();ctx.arc(xx,yy,1.2+n%2*.5,0,Math.PI*2);ctx.fill();}
+      ctx.strokeStyle=color;ctx.beginPath();ctx.ellipse(x,117,26,6,p*5,0,Math.PI*2);ctx.stroke();
+    }
+    if(e.exhaust){const z=Math.max(0,(p-.45)/.55);for(let n=0;n<10;n++){const angle=n*Math.PI/5;effectPath(ctx,[[x+Math.cos(angle)*(10+z*14),68+Math.sin(angle)*(10+z*14)],[x+Math.cos(angle)*(15+z*23),68+Math.sin(angle)*(15+z*23)]],'#ffd49f',1)}}
+    ctx.restore();
+  }
+  function cardWeaponAccents(ctx,a,hx,p,foes,impact){
+    const e=a.card?.e||{};if(p<impact)return;
+    const q=(p-impact)/(1-impact),color=colors[a.element]||'#e8d5a6';
+    for(const index of a.targets){const x=foeX(index,foes.length);
+      if(e.times>1)for(let n=1;n<Math.min(4,e.times);n++){const phase=Math.max(0,q-n*.1);if(phase>0&&phase<.6)effectPath(ctx,[[x-25,65+n*8],[x+12,94-n*5],[x+24,83-n*8]],'#f9e6b8',1.2*(1-phase));}
+      if(e.break)for(let n=0;n<8;n++){const angle=n*2.399;ctx.fillStyle='#9eeaff';ctx.globalAlpha=1-q;ctx.fillRect(x+Math.cos(angle)*q*28,85+Math.sin(angle)*q*25,2,3);ctx.globalAlpha=1;}
+      if(e.pierce)effectPath(ctx,[[hx+12,82],[x+20,82]],'#f5e7ca',Math.max(.2,(1-q)*1.5));
+      if(e.drain&&q>.1){const z=Math.min(1,(q-.1)/.8);effectGlow(ctx,x+(hx-x)*z,85-Math.sin(z*Math.PI)*12,7,'#c59aff');}
+    }
+  }
+  function drawHitNumbers(ctx,a,p,impact,foes){
+    if(p<impact)return;
+    const rise=(p-impact)/(1-impact);
+    for(const hit of a.hits||[]){
+      ctx.save();ctx.globalAlpha=reduced.matches?1:Math.min(1,(1-rise)*3);
+      ctx.fillStyle=hit.kind==='block'?'#79e5ff':hit.kind==='heal'?'#96f5b4':hit.kind==='resource'?'#abcfff':hit.kind==='guard'?'#a2ecff':hit.kind==='status'?'#d5b4ff':hit.player?'#ffb6a0':'#fff1c4';
+      ctx.strokeStyle='#101623';ctx.lineWidth=2.2;ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+      const x=hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),y=64-(reduced.matches?0:rise*17)+(hit.offset||0);
+      ctx.strokeText(hit.text,x,y);ctx.fillText(hit.text,x,y);ctx.restore();
+    }
+  }
   function draw(time){
     if(!scene)return;const ctx=scene.canvas.getContext('2d');if(!ctx)return;
     ctx.setTransform(2,0,0,2,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";frame++;const t=reduced.matches?0:time;
@@ -392,43 +545,108 @@
       motion='attack';const target=foeX(a.targets[0]??s?.target??0,scene.foes.length);
       hx+=reduced.matches||a.weapon==='弓'?0:attackTravel(a.weapon,p)*Math.max(0,target-hx-spec.reach);
     }
-    if(active&&['magic','heal','guard'].includes(a.kind))motion='cast';
-    if(active&&(a.kind==='hurt'||a.kind==='enemy'&&a.hits.length)){motion='hurt';hx+=reduced.matches?0:Math.sin(p*40)*4;}
+    if(active&&supportSequences[a.kind])motion=a.kind;
+    if(active&&a.kind==='enemy')motion=a.hits.some(hit=>hit.player&&hit.kind==='hp')?'hurt':'guard';
+    if(active&&motion==='hurt')hx+=reduced.matches?0:Math.sin(p*40)*4;
     const extent=motionExtents(scene.weapon);hx=Math.max(extent.left,Math.min(viewWidth-extent.right,hx));
     hero(ctx,hx,120,t,motion);
     const foes=scene.mode==='battle'?scene.foes:[];
     foes.forEach((e,i)=>{let x=foeX(i,foes.length);if(active&&a.kind==='enemy'&&!reduced.matches){const ep=Math.max(0,Math.min(1,p*1.6-i*.28));x-=Math.sin(ep*Math.PI)*48;}const affected=active&&a?.targets?.includes(i),landed=affected&&p>=impact;const death=affected&&!landed?false:e.hp<=0;const hit=landed?Math.min(1,(p-impact)/(1-impact)):e.hp<=0&&!affected?1:0;monster(ctx,x,120,i,t,death,hit);if(s?.target===i&&e.hp>0){rect(ctx,x-3,57,7,3,'#ead398');rect(ctx,x-1,60,3,3,'#ead398');}});
-    if(active&&!reduced.matches){
-      const color=colors[a.element]||'#f5dfac';
-      if(a.kind==='magic'){for(const i of a.targets){const origin=(scene.width||480)*.2;const x=origin+(foeX(i,foes.length)-origin)*p;magicArt(ctx,x,87,a.element,p);}}
-      if(a.kind==='attack')for(const i of a.targets.length?a.targets:[s?.target??0])weaponEffects(ctx,a.weapon,hx,foeX(i,foes.length),p);
-      if(a.kind==='heal'||a.kind==='guard'){for(let j=0;j<9;j++)rect(ctx,(scene.width||480)*.2-22+j*5,108-(p*35+j*7)%45,3,4,a.kind==='heal'?'#9ef0bf':color);}
-      if(p>=impact)for(const hit of a.hits||[]){const rise=(p-impact)/(1-impact);ctx.save();ctx.globalAlpha=Math.min(1,(1-rise)*3);ctx.fillStyle=hit.kind==='block'?'#79e5ff':hit.player?'#ffb6a0':'#fff1c4';ctx.strokeStyle='#131923';ctx.lineWidth=2;ctx.font='bold 11px monospace';ctx.textAlign='center';const tx=hit.player?(scene.width||480)*.2:foeX(hit.index,foes.length),ty=67-rise*18+(hit.offset||0);ctx.strokeText(hit.text,tx,ty);ctx.fillText(hit.text,tx,ty);ctx.restore();}
+    if(active){
+      if(!reduced.matches){
+        if(a.kind==='magic')spellEffects(ctx,a,hx,p,foes);
+        if(a.kind==='attack'){
+          for(const index of a.targets.length?a.targets:[s?.target??0])weaponEffects(ctx,a.weapon,hx,foeX(index,foes.length),p);
+          cardWeaponAccents(ctx,a,hx,p,foes,impact);
+        }
+        if(supportSequences[a.kind])supportEffects(ctx,a.kind,hx,p,a.element,a.card?.e);
+        else if(a.card?.e.exhaust)supportEffects(ctx,'focus',hx,p,a.element,a.card.e);
+        if(a.kind==='attack'||a.kind==='magic'){
+          if(a.card?.e.heal||a.card?.e.drain)supportEffects(ctx,'heal',hx,p,a.element);
+          if(a.card?.e.recoverEnergy||a.card?.e.recoverMana)supportEffects(ctx,'recharge',hx,p,a.element,a.card.e);
+        }
+      }
+      drawHitNumbers(ctx,a,p,impact,foes);
     }
   }
-  function foeX(i,count){const w=scene?.width||480;return count<=1?w*.74:w*.58+i*Math.min(100,w*.3/Math.max(1,count-1));}
-  function perform(kind,label,targets=[],hits=[],element=magic){const type=scene?.weapon||weapon;action={kind,targets,hits,element,weapon:type,duration:kind==='attack'?(attacks[type]?.duration||900):kind==='enemy'?1100:900,time:performance.now()};if(scene){scene.foes=(s?.enemies||[]).map(e=>({...e}));scene.box.querySelector('.pixel-caption').textContent=label+(hits.some(h=>h.kind==='block')?' ／ 水色：防御ダメージ・金色：HPダメージ':'');draw(action.time);}}
+  function foeX(i,count){const w=scene?.width||480,edge=Math.min(count<=1?75:48,w*.16),raw=count<=1?w*.74:w*.58+i*Math.min(100,w*.3/Math.max(1,count-1));return Math.max(edge,Math.min(w-edge,raw));}
+  function perform(kind,label,targets=[],hits=[],element=magic,card=null){
+    const type=scene?.weapon||weapon;
+    action={kind,targets,hits,element:magics.includes(element)?element:magic,weapon:type,card,style:card?cardSpellStyle(card):'bolt',duration:kind==='attack'?(attacks[type]?.duration||900):kind==='enemy'?1150:kind==='magic'?1400:kind==='heal'?1350:1100,time:performance.now()};
+    if(scene){scene.foes=(s?.enemies||[]).map(e=>({...e}));scene.box.querySelector('.pixel-caption').textContent=label+(hits.some(h=>h.kind==='block')?' ／ 水色：防御・金色：HP':'');draw(action.time);}
+  }
   const originalRender=render;render=function(...args){const result=originalRender(...args);mount('battle');return result;};
   const originalExplore=exploration;exploration=function(...args){const result=originalExplore(...args);mount('explore');return result;};
+  function ensureResultStage(){
+    if(s?.phase!=='reward')return;
+    const anchor=document.querySelector('#app > *');
+    if(anchor){const holder=document.createElement('div');holder.className='arena';anchor.before(holder);mount('battle');holder.remove();}
+  }
   const originalPlay=play;play=function(i){
     const card=s?.phase==='battle'&&!s.pending?all[s.hand[i]]:null;
     if(!card||!can(card))return originalPlay(i);
-    const run=s,before=s.enemies.map(e=>e.hp),beforeBlock=s.enemies.map(e=>e.block||0),hp=s.hp,played=s.played;
+    const run=s,before=s.enemies.map(e=>({...e})),hp=s.hp,block=s.block,energy=s.energy,mana=s.mana,paid=cost(card),played=s.played;
+    const target=s.enemies[s.target]?.hp>0?s.target:s.enemies.findIndex(e=>e.hp>0);
     const result=originalPlay(i);if(s!==run||s.played===played)return result;
-    const targets=before.map((h,i)=>h>s.enemies[i].hp||beforeBlock[i]>(s.enemies[i].block||0)?i:-1).filter(i=>i>=0);
+    const e=card.e;
+    const targets=before.map((old,index)=>old.hp>s.enemies[index].hp||(old.block||0)>(s.enemies[index].block||0)||(e.weak||e.freeze||e.vulnerable||e.burn||e.poison)&&(e.all||index===target)&&old.hp>0?index:-1).filter(index=>index>=0);
     const hits=targets.flatMap(index=>{
-      const hpDamage=before[index]-s.enemies[index].hp;
-      const blockDamage=beforeBlock[index]-(s.enemies[index].block||0),numbers=[];
+      const hpDamage=before[index].hp-s.enemies[index].hp,blockDamage=(before[index].block||0)-(s.enemies[index].block||0),numbers=[];
       if(blockDamage>0)numbers.push({index,kind:'block',text:'防御 −'+blockDamage,offset:hpDamage>0?-17:0});
       if(hpDamage>0)numbers.push({index,kind:'hp',text:'−'+hpDamage});
+      if(!hpDamage&&!blockDamage)numbers.push({index,kind:'status',text:e.freeze?'凍結':e.weak?'攻撃−'+e.weak:e.vulnerable?'被ダメージ＋'+e.vulnerable:e.poison?'毒':'火傷'});
       return numbers;
     });
-    if(s.hp>hp)hits.push({player:true,text:'＋'+(s.hp-hp)});
-    if(s.phase==='reward'){const anchor=document.querySelector('#app > *');if(anchor){const holder=document.createElement('div');holder.className='arena';anchor.before(holder);mount('battle');holder.remove();}}
-    perform(card.e.hit?(magics.includes(card.g)?'magic':'attack'):card.e.heal?'heal':'guard',card.n+(s.phase==='reward'?' · 敵を撃破！':''),targets,hits,card.g);
+    let actorLines=0;
+    const actorNumber=(text,kind)=>{hits.push({player:true,kind,text,offset:-actorLines*15});actorLines++;};
+    const healing=Math.max(0,s.hp-(hp-(e.hpCost||0)));
+    if(healing)actorNumber('HP＋'+healing,'heal');
+    if(e.hpCost)actorNumber('HP−'+e.hpCost,'hp');
+    if(e.block)actorNumber('防御＋'+e.block,'guard');
+    const energyGain=s.energy-(energy-(magics.includes(card.g)?0:paid)),manaGain=s.mana-(mana-(magics.includes(card.g)?paid:0));
+    if(energyGain>0)actorNumber('行動＋'+energyGain,'resource');
+    if(manaGain>0)actorNumber('マナ＋'+manaGain,'resource');
+    ensureResultStage();
+    perform(cardMotionKind(card),card.n+(s.phase==='reward'?' · 敵を撃破！':''),targets,hits,card.g,card);
     return result;
   };
-  const originalEnd=endTurn;endTurn=function(...args){const run=s,hp=s?.hp;const result=originalEnd(...args);if(s===run&&s?.phase==='battle')perform('enemy',s.hp<hp?'敵の攻撃を受けた':'敵の攻撃を防いだ',[],s.hp<hp?[{player:true,text:'−'+(hp-s.hp)}]:[]);return result;};
+  const originalEnd=endTurn;endTurn=function(...args){
+    const run=s,hp=s?.hp,before=s?.enemies?.map(e=>({...e}))||[];
+    const result=originalEnd(...args);
+    if(s===run&&['battle','reward'].includes(s?.phase)){
+      const hits=[],targets=[];
+      for(const [index,old]of before.entries()){
+        const now=s.enemies[index],damage=old.hp-now.hp;if(!damage)continue;targets.push(index);
+        hits.push({index,kind:damage<0?'heal':'hp',text:damage<0?'HP＋'+(-damage):'−'+damage});
+      }
+      if(s.hp<hp)hits.push({player:true,kind:'hp',text:'HP−'+(hp-s.hp)});
+      ensureResultStage();perform('enemy',s.phase==='reward'?'反撃・継続効果で敵を撃破！':s.hp<hp?'敵の攻撃を受けた':'敵の行動・継続効果',targets,hits,s.enemies.find(e=>e.hp>0)?.element||magic);
+    }
+    return result;
+  };
+
+  let cardPreviewAnimation=0;
+  globalThis.arcanaPreviewCard=function(id=0){
+    const card=all[id];if(!card)return;
+    cancelAnimationFrame(cardPreviewAnimation);
+    let dialog=document.getElementById('card-motion-preview');
+    if(!dialog){dialog=document.createElement('dialog');dialog.id='card-motion-preview';dialog.className='weapon-art-dialog';dialog.setAttribute('aria-label','カード演出');document.body.append(dialog);dialog.addEventListener('close',()=>cancelAnimationFrame(cardPreviewAnimation));}
+    const examples=magics.map(element=>all.find(c=>c.g===element&&c.e.hit)).concat([all.find(c=>c.e.heal&&!c.e.hit),all.find(c=>c.e.block&&!c.e.hit),all.find(c=>c.e.evade&&!c.e.block),all.find(c=>c.e.recoverEnergy),all.find(c=>c.e.draw&&!c.e.hit)]);
+    dialog.innerHTML='<div class="weapon-art-titlebar"><h2>'+esc(card.n)+'</h2><button onclick="document.getElementById(\'card-motion-preview\').close()">閉じる ×</button></div><p>'+esc(card.d)+'<br>演出のプレビューです。カード・HP・コストは消費しません。</p><div class="choices">'+examples.map(c=>'<button onclick="arcanaPreviewCard('+c.id+')">'+esc(magics.includes(c.g)?c.g:c.e.heal?'回復':c.e.block?'防御':c.e.evade?'回避':c.e.recoverEnergy?'コスト回復':'ドロー')+'</button>').join('')+'</div><canvas width="960" height="304" role="img" aria-label="'+esc(card.n)+'のカード演出"></canvas>';
+    const canvas=dialog.querySelector('canvas'),kind=cardMotionKind(card),duration=kind==='attack'?(attacks[weapons.includes(card.g)?card.g:weapon]?.duration||1100):1400,start=performance.now();
+    const hits=card.e.hit?[{index:0,kind:'hp',text:'−'+card.e.hit}]:card.e.heal?[{player:true,kind:'heal',text:'HP＋'+card.e.heal}]:card.e.block?[{player:true,kind:'guard',text:'防御＋'+card.e.block}]:[];
+    function paint(now){
+      if(!dialog.open||!canvas.isConnected)return;
+      const previousScene=scene,previousAction=action,elapsed=reduced.matches?duration*.65:(now-start)%(duration+600);
+      const foes=Array.from({length:card.e.all?3:1},(_,i)=>({n:i?'遺跡の自動兵':'森牙の狼',hp:100,max:100,species:i?'機械':'獣',bossArtIndex:-1,portrait:0}));
+      scene={mode:'battle',canvas,width:480,weapon:weapons.includes(card.g)?card.g:weapon,magic:magics.includes(card.g)?card.g:magic,foes};
+      action={kind,card,targets:card.e.hit?foes.map((_,i)=>i):[],hits,element:magics.includes(card.g)?card.g:magic,style:cardSpellStyle(card),weapon:scene.weapon,duration,time:now-Math.min(elapsed,duration)};
+      try{draw(now)}finally{scene=previousScene;action=previousAction}
+      if(!reduced.matches)cardPreviewAnimation=requestAnimationFrame(paint);
+    }
+    if(!dialog.open)dialog.showModal();paint(start);
+    if(reduced.matches)for(const image of combatImageCache.values())if(!image.complete)image.addEventListener('load',()=>paint(performance.now()),{once:true});
+  };
 
   let previewAnimation=0;
   globalThis.arcanaPreviewAttack=function(type=scene?.weapon||weapon){
