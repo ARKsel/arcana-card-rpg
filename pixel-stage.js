@@ -125,7 +125,21 @@
     const bounds=canvas.getBoundingClientRect?.();
     if(bounds?.height>0&&bounds?.width>0)canvas.width=Math.round(304*bounds.width/bounds.height/2)*2;
     scene={mode,box,canvas,width:(canvas.width||960)/2,foes:foes.map(e=>({...e})),weapon,magic};
-    draw(performance.now());if(!animation)animation=requestAnimationFrame(tick);
+    // Recompute the logical stage after layout, monitor, orientation or window changes.
+    const mounted=scene;
+    const fitCanvas=()=>{
+      if(scene!==mounted||!box.isConnected)return;
+      const bounds=canvas.getBoundingClientRect();
+      if(bounds.width<=0||bounds.height<=0)return;
+      const width=Math.max(2,Math.round(152*bounds.width/bounds.height)*2);
+      if(canvas.width!==width){canvas.width=width;mounted.width=width/2;}
+      draw(performance.now());
+    };
+    if(typeof ResizeObserver!=='undefined'){
+      mounted.resizeObserver=new ResizeObserver(fitCanvas);
+      mounted.resizeObserver.observe(canvas);
+    }
+    fitCanvas();if(!animation)animation=requestAnimationFrame(tick);
   }
   function tick(time){animation=0;if(!scene?.box.isConnected){scene?.resizeObserver?.disconnect();scene=null;return;}if(!document.hidden&&time-lastPaint>=15){lastPaint=time;draw(time);}animation=requestAnimationFrame(tick);}
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
