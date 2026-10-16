@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [combat-art-v3.zip, 'resource-card-art/**', game.js, weapon-motion-v2.zip, heroine-attacks-v1.png, card-art-repaired.zip, card-art-fix.js, ARCANA-source.zip, index.html, pixel-stage.js, pixel-stage.css, heroine-reference-v1.png, heroine-weapons-v2.png, heroine-walk-v2.png, character-art-v1.png, '.github/workflows/pages.yml']
+    paths: [adventure.js, adventure.css, combat-art-v3.zip, 'resource-card-art/**', game.js, weapon-motion-v2.zip, heroine-attacks-v1.png, card-art-repaired.zip, card-art-fix.js, ARCANA-source.zip, index.html, pixel-stage.js, pixel-stage.css, heroine-reference-v1.png, heroine-weapons-v2.png, heroine-walk-v2.png, character-art-v1.png, '.github/workflows/pages.yml']
 permissions:
   contents: read
   pages: write
@@ -26,7 +26,7 @@ jobs:
           unzip -q -o weapon-motion-v2.zip -d site/dist
           unzip -q -o combat-art-v3.zip -d site/dist
           test "$(find site/dist/assets/combat-art-v3 -name '*.png' | wc -l)" -eq 62
-          cp game.js heroine-attacks-v1.png card-art-fix.js index.html pixel-stage.js pixel-stage.css heroine-reference-v1.png character-art-v1.png heroine-weapons-v2.png heroine-walk-v2.png site/dist/
+          cp adventure.js adventure.css game.js heroine-attacks-v1.png card-art-fix.js index.html pixel-stage.js pixel-stage.css heroine-reference-v1.png character-art-v1.png heroine-weapons-v2.png heroine-walk-v2.png site/dist/
           mkdir -p site/dist/assets/resource-card-art
           cp resource-card-art/*.png site/dist/assets/resource-card-art/
           test "$(find site/dist/assets/resource-card-art -name '*.png' | wc -l)" -eq 14
