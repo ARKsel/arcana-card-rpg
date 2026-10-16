@@ -500,3 +500,39 @@ function confirmLayerMagic(){
 }
 const returnBeforeLayerMagic=returnFromLevel;
 returnFromLevel=function(){if(s?.phase==='layer-magic')renderLayerMagicSelection();else returnBeforeLayerMagic();};
+
+
+// Attunement at the merchant preserves this visit's stock and purchase flags.
+const shopBeforeMagicTrade=shop;
+shop=function(){
+  shopBeforeMagicTrade();
+  const controls='<div class="shop-heal"><div><b>魔法属性の変更</b><p class="small">現在：'+magic+'属性 ／ 7属性から無料で変更できます。</p></div><button onclick="openMerchantMagic()">属性を変更する →</button></div>';
+  $('#app').innerHTML=$('#app').innerHTML.replace('<div class="cards">',controls+'<div class="cards">');
+};
+function openMerchantMagic(){
+  if(s?.phase!=='shop'||pendingReceipt)return;
+  s.phase='shop-magic';s.merchantMagicChoice=magic;renderMerchantMagic();
+}
+function renderMerchantMagic(){
+  if(s?.phase!=='shop-magic')return;
+  document.body.dataset.scene='shop';
+  const chosen=s.merchantMagicChoice;
+  $('#app').innerHTML=`<section class="reward"><div class="eyebrow">WANDERING MERCHANT / ELEMENT ATTUNEMENT</div><h1 style="font-size:clamp(28px,5vw,40px)">魔法属性の交易</h1><p>行商人の魔術具で、魔法属性を選び直します。<br>変更は無料。現在の属性を維持することもできます。</p><p>現在：<b>${magic}属性</b> ／ 所持金 ${s.gold} G</p><div class="choices" role="group" aria-label="交易する魔法属性">${magics.map(m=>`<button class="${chosen===m?'chosen':''}" aria-pressed="${chosen===m}" onclick="selectMerchantMagic('${m}')" style="--accent:${colors[artGroups.indexOf(m)]};min-width:76px;padding:16px">${icon(m)}<span>${m}</span></button>`).join('')}</div><div class="panel" style="max-width:560px;margin:24px auto;padding:20px"><h2>${chosen}属性${chosen===magic?' · 現在の属性':''}</h2><p>${groups[chosen][1]}</p><p>属性熟練度 ${magicMastery(chosen)} ／ 熟練度による魔力＋${Math.min(20,Math.floor(magicMastery(chosen)/50))}</p></div><p class="small">所持カード・装備・Lv・HPは引き継ぎ、属性補正を再計算します。<br>品揃えと購入済みの商品はそのままです。選んだ属性に応じて購入できる魔法カードが変わります。</p><div class="choices"><button class="primary" onclick="confirmMerchantMagic()">${chosen===magic?'属性を維持して交易へ戻る':chosen+'属性へ変更する'} →</button><button onclick="cancelMerchantMagic()">変更せず戻る</button></div></section>`;
+}
+function selectMerchantMagic(element){
+  if(s?.phase!=='shop-magic'||!magics.includes(element))return;
+  s.merchantMagicChoice=element;renderMerchantMagic();
+}
+function confirmMerchantMagic(){
+  if(s?.phase!=='shop-magic'||!magics.includes(s.merchantMagicChoice))return;
+  const previous=magic;magic=s.merchantMagicChoice;delete s.merchantMagicChoice;
+  refreshGearStats();s.phase='shop';
+  s.shopMessage=previous===magic?magic+'属性を維持しました。':previous+'から'+magic+'属性に変更しました。';
+  shop();
+}
+function cancelMerchantMagic(){
+  if(s?.phase!=='shop-magic')return;
+  delete s.merchantMagicChoice;s.phase='shop';shop();
+}
+const returnBeforeMerchantMagic=returnFromLevel;
+returnFromLevel=function(){if(s?.phase==='shop-magic')renderMerchantMagic();else returnBeforeMerchantMagic();};
