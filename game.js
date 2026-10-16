@@ -485,18 +485,39 @@ function renderLayerMagicSelection(){
   if(s?.phase!=='layer-magic')return;
   document.body.dataset.scene='layer-magic';
   const chosen=s.layerMagicChoice,mastery=magicMastery(chosen);
-  $('#app').innerHTML=`<section class="reward"><div class="eyebrow">NEXT LAYER / ELEMENT ATTUNEMENT</div><h1 style="font-size:clamp(28px,5vw,42px)">第${s.layer}層へ · 魔法を選ぶ</h1><p>新しい階層で使う魔法属性を選んでください。<br>現在の「${magic}」を維持することもできます。変更は無料です。</p><div class="choices" role="group" aria-label="次の階層の魔法属性">${magics.map(m=>`<button class="${chosen===m?'chosen':''}" aria-pressed="${chosen===m}" onclick="selectLayerMagic('${m}')" style="--accent:${colors[artGroups.indexOf(m)]};min-width:76px;padding:16px">${icon(m)}<span>${m}</span></button>`).join('')}</div><div class="panel" style="max-width:560px;margin:24px auto;padding:20px"><h2>${chosen}属性${chosen===magic?' · 現在の属性':''}</h2><p>${groups[chosen][1]}</p><p>属性熟練度 ${mastery} ／ 熟練度による魔力＋${Math.min(20,Math.floor(mastery/50))}</p></div><p class="small">所持カード・装備・Lv・HP・ゴールドは引き継ぎます。<br>属性に応じた熟練度補正・スキル・武器との属性一致補正を再計算します。<br>以後の戦闘報酬などの魔法候補は、選んだ属性になります。</p><button class="primary" onclick="confirmLayerMagic()">${chosen===magic?chosen+'属性を維持して進む':chosen+'属性に変更して進む'} →</button></section>`;
+  $('#app').innerHTML=`<section class="reward"><div class="eyebrow">NEXT LAYER / ELEMENT ATTUNEMENT</div><h1 style="font-size:clamp(28px,5vw,42px)">第${s.layer}層へ · 魔法を選ぶ</h1><p>新しい階層で使う魔法属性を選んでください。<br>現在の「${magic}」を維持することもできます。変更は無料です。</p><div class="choices" role="group" aria-label="次の階層の魔法属性">${magics.map(m=>`<button class="${chosen===m?'chosen':''}" aria-pressed="${chosen===m}" onclick="selectLayerMagic('${m}')" style="--accent:${colors[artGroups.indexOf(m)]};min-width:76px;padding:16px">${icon(m)}<span>${m}</span></button>`).join('')}</div><div class="panel" style="max-width:560px;margin:24px auto;padding:20px"><h2>${chosen}属性${chosen===magic?' · 現在の属性':''}</h2><p>${groups[chosen][1]}</p><p>属性熟練度 ${mastery} ／ 熟練度による魔力＋${Math.min(20,Math.floor(mastery/50))}</p></div><p class="small">属性を変えると、デッキ内の別属性魔法カードを同じコストの選択属性カードへランダムに変換します。<br>武器技・汎用カード・枚数はそのまま。装備・Lv・HP・ゴールドも引き継ぎます。<br>属性に応じた熟練度補正・スキル・武器との属性一致補正を再計算します。<br>以後の戦闘報酬などの魔法候補は、選んだ属性になります。</p><button class="primary" onclick="confirmLayerMagic()">${chosen===magic?chosen+'属性を維持して進む':chosen+'属性に変更して進む'} →</button></section>`;
 }
 function selectLayerMagic(element){
   if(s?.phase!=='layer-magic'||!magics.includes(element))return;
   s.layerMagicChoice=element;renderLayerMagicSelection();
 }
+
+function changeAttunedMagic(element){
+  if(!s||!['layer-magic','shop-magic'].includes(s.phase)||!magics.includes(element))return null;
+  const previous=magic;
+  if(previous===element)return {previous,element,count:0};
+  const pools=new Map(),changes=[];
+  for(const id of s.deck){
+    const c=all[id];if(!c||!magics.includes(c.g)||c.g===element)continue;
+    if(!pools.has(c.c))pools.set(c.c,all.filter(candidate=>candidate.g===element&&candidate.c===c.c));
+    if(!pools.get(c.c).length)return null;
+  }
+  const deck=s.deck.map((id,index)=>{
+    const c=all[id];if(!c||!magics.includes(c.g)||c.g===element)return id;
+    const pool=pools.get(c.c),replacement=pool[Math.floor(Math.random()*pool.length)];
+    changes.push({index,from:id,to:replacement.id,cost:c.c});return replacement.id;
+  });
+  s.deck=deck;magic=element;
+  s.lastMagicSwap={previous,element,changes};
+  refreshGearStats();
+  return {previous,element,count:changes.length};
+}
 function confirmLayerMagic(){
   if(s?.phase!=='layer-magic'||!magics.includes(s.layerMagicChoice))return;
-  const previous=magic;
-  magic=s.layerMagicChoice;delete s.layerMagicChoice;
-  refreshGearStats();
-  exploration('第'+s.layer+'層へ到達。'+(previous===magic?magic+'属性を維持した。':previous+'から'+magic+'属性に変更した。'));
+  const result=changeAttunedMagic(s.layerMagicChoice);
+  if(!result)return;
+  delete s.layerMagicChoice;
+  exploration('第'+s.layer+'層へ到達。'+(result.previous===magic?magic+'属性を維持した。':result.previous+'から'+magic+'属性に変更。魔法カード'+result.count+'枚を同じコストの'+magic+'属性カードに変換した。'));
 }
 const returnBeforeLayerMagic=returnFromLevel;
 returnFromLevel=function(){if(s?.phase==='layer-magic')renderLayerMagicSelection();else returnBeforeLayerMagic();};
@@ -517,7 +538,7 @@ function renderMerchantMagic(){
   if(s?.phase!=='shop-magic')return;
   document.body.dataset.scene='shop';
   const chosen=s.merchantMagicChoice;
-  $('#app').innerHTML=`<section class="reward"><div class="eyebrow">WANDERING MERCHANT / ELEMENT ATTUNEMENT</div><h1 style="font-size:clamp(28px,5vw,40px)">魔法属性の交易</h1><p>行商人の魔術具で、魔法属性を選び直します。<br>変更は無料。現在の属性を維持することもできます。</p><p>現在：<b>${magic}属性</b> ／ 所持金 ${s.gold} G</p><div class="choices" role="group" aria-label="交易する魔法属性">${magics.map(m=>`<button class="${chosen===m?'chosen':''}" aria-pressed="${chosen===m}" onclick="selectMerchantMagic('${m}')" style="--accent:${colors[artGroups.indexOf(m)]};min-width:76px;padding:16px">${icon(m)}<span>${m}</span></button>`).join('')}</div><div class="panel" style="max-width:560px;margin:24px auto;padding:20px"><h2>${chosen}属性${chosen===magic?' · 現在の属性':''}</h2><p>${groups[chosen][1]}</p><p>属性熟練度 ${magicMastery(chosen)} ／ 熟練度による魔力＋${Math.min(20,Math.floor(magicMastery(chosen)/50))}</p></div><p class="small">所持カード・装備・Lv・HPは引き継ぎ、属性補正を再計算します。<br>品揃えと購入済みの商品はそのままです。選んだ属性に応じて購入できる魔法カードが変わります。</p><div class="choices"><button class="primary" onclick="confirmMerchantMagic()">${chosen===magic?'属性を維持して交易へ戻る':chosen+'属性へ変更する'} →</button><button onclick="cancelMerchantMagic()">変更せず戻る</button></div></section>`;
+  $('#app').innerHTML=`<section class="reward"><div class="eyebrow">WANDERING MERCHANT / ELEMENT ATTUNEMENT</div><h1 style="font-size:clamp(28px,5vw,40px)">魔法属性の交易</h1><p>行商人の魔術具で、魔法属性を選び直します。<br>変更は無料。現在の属性を維持することもできます。</p><p>現在：<b>${magic}属性</b> ／ 所持金 ${s.gold} G</p><div class="choices" role="group" aria-label="交易する魔法属性">${magics.map(m=>`<button class="${chosen===m?'chosen':''}" aria-pressed="${chosen===m}" onclick="selectMerchantMagic('${m}')" style="--accent:${colors[artGroups.indexOf(m)]};min-width:76px;padding:16px">${icon(m)}<span>${m}</span></button>`).join('')}</div><div class="panel" style="max-width:560px;margin:24px auto;padding:20px"><h2>${chosen}属性${chosen===magic?' · 現在の属性':''}</h2><p>${groups[chosen][1]}</p><p>属性熟練度 ${magicMastery(chosen)} ／ 熟練度による魔力＋${Math.min(20,Math.floor(magicMastery(chosen)/50))}</p></div><p class="small">属性を変えると、デッキ内の別属性魔法カードを同じコストの選択属性カードへランダムに変換します。<br>武器技・汎用カード・枚数はそのまま。装備・Lv・HPを引き継ぎ、属性補正を再計算します。<br>品揃えと購入済みの商品はそのままです。選んだ属性に応じて購入できる魔法カードが変わります。</p><div class="choices"><button class="primary" onclick="confirmMerchantMagic()">${chosen===magic?'属性を維持して交易へ戻る':chosen+'属性へ変更する'} →</button><button onclick="cancelMerchantMagic()">変更せず戻る</button></div></section>`;
 }
 function selectMerchantMagic(element){
   if(s?.phase!=='shop-magic'||!magics.includes(element))return;
@@ -525,9 +546,10 @@ function selectMerchantMagic(element){
 }
 function confirmMerchantMagic(){
   if(s?.phase!=='shop-magic'||!magics.includes(s.merchantMagicChoice))return;
-  const previous=magic;magic=s.merchantMagicChoice;delete s.merchantMagicChoice;
-  refreshGearStats();s.phase='shop';
-  s.shopMessage=previous===magic?magic+'属性を維持しました。':previous+'から'+magic+'属性に変更しました。';
+  const result=changeAttunedMagic(s.merchantMagicChoice);
+  if(!result)return;
+  delete s.merchantMagicChoice;s.phase='shop';
+  s.shopMessage=result.previous===magic?magic+'属性を維持しました。':result.previous+'から'+magic+'属性に変更。魔法カード'+result.count+'枚を同じコストの'+magic+'属性カードへランダムに変換しました。';
   shop();
 }
 function cancelMerchantMagic(){
