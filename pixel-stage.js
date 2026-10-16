@@ -5,82 +5,91 @@
   const heroineSheet=new Image();heroineSheet.src='heroine-reference-v1.png';
   const armedSheet=new Image();armedSheet.src='heroine-weapons-v2.png';
   const walkingSheet=new Image();walkingSheet.src='heroine-walk-v2.png';
-  const attackSheet=new Image();attackSheet.src='heroine-attacks-v1.png';
+  const motionIds={'片手剣':'sword','大剣':'greatsword','短剣':'daggers','弓':'bow','槍':'spear','戦槌':'hammer'};
+  const motionGeometry={"spear":{"cw":768,"frames":[{"top":58,"h":395,"left":159,"x":159,"y":58,"foot":450,"anchor":320,"w":364},{"top":64,"h":389,"left":130,"x":898,"y":64,"foot":450,"anchor":320,"w":411},{"top":79,"h":374,"left":105,"x":1641,"y":79,"foot":450,"anchor":320,"w":436},{"top":84,"h":370,"left":133,"x":2437,"y":84,"foot":450,"anchor":320,"w":439},{"top":101,"h":352,"left":163,"x":163,"y":613,"foot":450,"anchor":320,"w":484},{"top":82,"h":371,"left":183,"x":951,"y":594,"foot":450,"anchor":320,"w":398},{"top":57,"h":396,"left":155,"x":1691,"y":569,"foot":450,"anchor":320,"w":365},{"top":60,"h":393,"left":159,"x":2463,"y":572,"foot":450,"anchor":320,"w":362}],"height":1024,"ch":512,"width":3072},"daggers":{"cw":768,"frames":[{"top":46,"h":407,"left":162,"x":162,"y":46,"foot":450,"anchor":320,"w":348},{"top":80,"h":373,"left":164,"x":932,"y":80,"foot":450,"anchor":320,"w":366},{"top":64,"h":389,"left":149,"x":1685,"y":64,"foot":450,"anchor":320,"w":386},{"top":76,"h":377,"left":140,"x":2444,"y":76,"foot":450,"anchor":320,"w":407},{"top":87,"h":369,"left":143,"x":143,"y":599,"foot":450,"anchor":320,"w":428},{"top":67,"h":386,"left":155,"x":923,"y":579,"foot":450,"anchor":320,"w":401},{"top":81,"h":372,"left":167,"x":1703,"y":593,"foot":450,"anchor":320,"w":320},{"top":41,"h":412,"left":157,"x":2461,"y":553,"foot":450,"anchor":320,"w":353}],"height":1024,"ch":512,"width":3072},"sword":{"cw":768,"frames":[{"top":50,"h":403,"left":168,"x":168,"y":50,"foot":450,"anchor":320,"w":316},{"top":63,"h":390,"left":77,"x":845,"y":63,"foot":450,"anchor":320,"w":399},{"top":72,"h":381,"left":70,"x":1606,"y":72,"foot":450,"anchor":320,"w":381},{"top":72,"h":381,"left":70,"x":2374,"y":72,"foot":450,"anchor":320,"w":381},{"top":103,"h":356,"left":109,"x":109,"y":615,"foot":450,"anchor":320,"w":567},{"top":103,"h":356,"left":109,"x":877,"y":615,"foot":450,"anchor":320,"w":567},{"top":60,"h":393,"left":166,"x":1702,"y":572,"foot":450,"anchor":320,"w":409},{"top":50,"h":403,"left":170,"x":2474,"y":562,"foot":450,"anchor":320,"w":321}],"height":1024,"ch":512,"width":3072},"bow":{"cw":768,"frames":[{"top":46,"h":407,"left":156,"x":156,"y":46,"foot":450,"anchor":320,"w":369},{"top":19,"h":434,"left":134,"x":902,"y":19,"foot":450,"anchor":320,"w":391},{"top":19,"h":434,"left":134,"x":1670,"y":19,"foot":450,"anchor":320,"w":391},{"top":21,"h":432,"left":157,"x":2461,"y":21,"foot":450,"anchor":320,"w":368},{"top":16,"h":437,"left":150,"x":150,"y":528,"foot":450,"anchor":320,"w":393},{"top":20,"h":433,"left":148,"x":916,"y":532,"foot":450,"anchor":320,"w":348},{"top":45,"h":408,"left":157,"x":1693,"y":557,"foot":450,"anchor":320,"w":350},{"top":44,"h":409,"left":157,"x":2461,"y":556,"foot":450,"anchor":320,"w":366}],"height":1024,"ch":512,"width":3072},"greatsword":{"cw":768,"frames":[{"top":73,"h":380,"left":177,"x":177,"y":73,"foot":450,"anchor":320,"w":419},{"top":20,"h":433,"left":153,"x":921,"y":20,"foot":450,"anchor":320,"w":382},{"top":58,"h":395,"left":169,"x":1705,"y":58,"foot":450,"anchor":320,"w":429},{"top":13,"h":440,"left":146,"x":2450,"y":13,"foot":450,"anchor":320,"w":332},{"top":91,"h":362,"left":168,"x":168,"y":603,"foot":450,"anchor":320,"w":438},{"top":142,"h":311,"left":176,"x":944,"y":654,"foot":450,"anchor":320,"w":453},{"top":60,"h":393,"left":161,"x":1697,"y":572,"foot":450,"anchor":320,"w":398},{"top":73,"h":380,"left":177,"x":2481,"y":585,"foot":450,"anchor":320,"w":419}],"height":1024,"ch":512,"width":3072},"hammer":{"cw":768,"frames":[{"top":114,"h":339,"left":169,"x":169,"y":114,"foot":450,"anchor":320,"w":382},{"top":37,"h":416,"left":154,"x":922,"y":37,"foot":450,"anchor":320,"w":347},{"top":63,"h":390,"left":166,"x":1702,"y":63,"foot":450,"anchor":320,"w":294},{"top":38,"h":415,"left":158,"x":2462,"y":38,"foot":450,"anchor":320,"w":317},{"top":161,"h":292,"left":198,"x":198,"y":673,"foot":450,"anchor":320,"w":376},{"top":155,"h":298,"left":193,"x":961,"y":667,"foot":450,"anchor":320,"w":395},{"top":50,"h":403,"left":161,"x":1697,"y":562,"foot":450,"anchor":320,"w":381},{"top":114,"h":339,"left":168,"x":2472,"y":626,"foot":450,"anchor":320,"w":381}],"height":1024,"ch":512,"width":3072}};
+  const motionImages={};
+  function motionImage(type){const id=motionIds[type]||'sword';if(!motionImages[id]){const image=new Image();image.src='attack-'+id+'-v2.png';motionImages[id]=image;}return motionImages[id];}
   const attacks={
-    '片手剣':{duration:820,impact:.42,reach:66,color:'#c3edff',name:'横一閃'},
-    '大剣':{duration:1150,impact:.52,reach:76,color:'#ffe4a6',name:'断ち下ろし'},
-    '短剣':{duration:720,impact:.35,reach:53,color:'#e1c2ff',name:'双刃連撃'},
-    '弓':{duration:980,impact:.65,reach:0,color:'#b6f1cb',name:'疾風の射撃'},
-    '槍':{duration:880,impact:.43,reach:84,color:'#a7e9ff',name:'貫通突き'},
-    '戦槌':{duration:1200,impact:.54,reach:68,color:'#ffd08d',name:'砕地撃'}
+    '片手剣':{duration:1080,impact:.45,reach:63,color:'#bcecff',name:'蒼白の弧'},
+    '大剣':{duration:1380,impact:.5,reach:72,color:'#ffe4ab',name:'断空の一撃'},
+    '短剣':{duration:960,impact:.43,reach:53,color:'#dfb8ff',name:'紫閃の双刃'},
+    '弓':{duration:1260,release:.44,impact:.7,reach:0,color:'#b8f4ca',name:'風を裂く矢'},
+    '槍':{duration:1100,impact:.45,reach:78,color:'#9ee8ff',name:'蒼穹の刺突'},
+    '戦槌':{duration:1440,impact:.51,reach:65,color:'#ffd294',name:'砕地の波紋'}
   };
   const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
   function attackTravel(type,p){
-    const spec=attacks[type]||attacks['片手剣'];if(type==='弓')return -Math.sin(p*Math.PI)*3;
-    return ease(p/(spec.impact*.85))*(1-ease((p-.69)/.31));
+    if(type==='弓')return 0;
+    const impact=(attacks[type]||attacks['片手剣']).impact;
+    return ease((p-.08)/(impact-.1))*(1-ease((p-.64)/.36));
+  }
+  function motionFrame(type,p){
+    const a=attacks[type]||attacks['片手剣'];
+    const times=type==='弓'?[0,.07,.17,.25,.34,a.release,.62,.89]:[0,.07,.17,a.impact-.14,a.impact-.025,a.impact+.10,a.impact+.24,.9];
+    let cell=0;for(let i=1;i<8;i++)if(p>=times[i])cell=i;return cell;
+  }
+  function motionSprite(ctx,type,x,y,cell,height=103,lean=0){
+    const image=motionImage(type),data=motionGeometry[motionIds[type]],f=data?.frames[cell];
+    if(!f||!image.complete||!image.naturalWidth)return false;
+    const maxUp=Math.max(...data.frames.map(g=>g.foot-g.top));
+    const scale=Math.min(height/(data.ch*.64),110/maxUp);
+    ctx.save();ctx.translate(x,y);ctx.transform(1,0,lean,1,0,0);
+    ctx.drawImage(image,f.x,f.y,f.w,f.h,(f.left-f.anchor)*scale,(f.top-f.foot)*scale,f.w*scale,f.h*scale);ctx.restore();return true;
+  }
+  function motionExtents(type,height=103){
+    const d=motionGeometry[motionIds[type]];if(!d)return{left:40,right:60};const scale=Math.min(height/(d.ch*.64),110/Math.max(...d.frames.map(f=>f.foot-f.top)));
+    return{left:Math.max(...d.frames.map(f=>(f.anchor-f.left)*scale))+7,right:Math.max(...d.frames.map(f=>(f.left+f.w-f.anchor)*scale))+7};
   }
   function attackHero(ctx,type,x,y,p,height=103){
-    const spec=attacks[type]||attacks['片手剣'];
-    const col=p<spec.impact-.09?0:p<spec.impact+.15?1:2;
-    const row=Math.max(0,weaponOrder.indexOf(type));
-    ctx.save();ctx.translate(x,y);
-    const heavy=type==='大剣'||type==='戦槌';
-    const settle=Math.sin(ease(Math.max(0,p-spec.impact)/.28)*Math.PI);
-    ctx.translate(0,heavy?settle*2:-Math.sin(p*Math.PI)*1.3);
-    if(attackSheet.complete&&attackSheet.naturalWidth){
-      // One fully opaque articulated pose at a time; transparent margins remain intact.
-      const cw=attackSheet.naturalWidth/3,sy=attackSheet.naturalHeight/1774;
-      const bounds=[0,279,589,833,1132,1407,1774],feet=[274,572,824,1124,1398,1730];
-      const anchors=[[142,132,180],[143,133,142],[139,132,145],[139,145,151],[139,138,162],[145,144,153]];
-      const top=bounds[row]*sy,bottom=Math.min(bounds[row+1],feet[row]+1)*sy,scale=height/(260*sy)*(type==='戦槌'?.88:1);
-      const width=row===2&&col===1?cw*.81:cw;
-      ctx.drawImage(attackSheet,col*cw,top,width,bottom-top,-anchors[row][col]*cw/295.67*scale,(top-feet[row]*sy)*scale,width*scale,(bottom-top)*scale);
-    }else groundedSprite(ctx,armedSheet,3,2,row,0,2,height,spriteGeometry.armed);
-    ctx.restore();
+    const a=attacks[type]||attacks['片手剣'],drive=ease((p-.12)/(a.impact-.12))*(1-ease((p-.62)/.38));
+    // A single opaque pose plus continuous torso shear and planted feet, never a crossfade.
+    const lean=type==='弓'?.012*Math.sin(p*Math.PI):-.045*drive;
+    if(!motionSprite(ctx,type,x,y,motionFrame(type,p),height,lean))groundedSprite(ctx,armedSheet,3,2,Math.max(0,weaponOrder.indexOf(type)),x,y+2,height,spriteGeometry.armed);
+  }
+  function glow(ctx,x,y,r,color,alpha=1){
+    ctx.save();ctx.globalAlpha*=alpha;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'#fffce9');g.addColorStop(.18,color);g.addColorStop(1,color+'00');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);ctx.restore();
+  }
+  function ribbon(ctx,x,y,angle,progress,color,size=1){
+    if(progress<0||progress>1)return;
+    const head=ease(Math.min(1,progress*2.1)),tail=ease(Math.max(0,(progress-.18)/.82));
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(size,size);ctx.globalAlpha*=Math.sin(Math.PI*Math.min(1,progress*1.1));
+    const a=-2.5+head*3.9,b=-2.5+tail*3.9;
+    ctx.beginPath();ctx.ellipse(-8,0,40,20,0,b,a);ctx.ellipse(-8,-1,34,15,0,a,b,true);ctx.closePath();
+    const gradient=ctx.createLinearGradient(-40,-20,35,20);gradient.addColorStop(0,color+'00');gradient.addColorStop(.5,color+'aa');gradient.addColorStop(1,'#ffffff');ctx.fillStyle=gradient;ctx.fill();
+    ctx.lineWidth=1;ctx.strokeStyle='#f5fdff';ctx.beginPath();ctx.ellipse(-8,0,40,20,0,Math.max(b,a-.5),a);ctx.stroke();ctx.restore();
   }
   function weaponEffects(ctx,type,origin,target,p,baseline=120){
-    const spec=attacks[type]||attacks['片手剣'],q=(p-spec.impact)/.28;
-    const stroke=(points,color,width)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points(ctx);ctx.stroke();};
-    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    const a=attacks[type]||attacks['片手剣'],q=(p-a.impact)/.36,y=baseline-38;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.globalCompositeOperation='lighter';
+    const line=(x1,y1,x2,y2,color,width)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();};
+    if(type==='片手剣')ribbon(ctx,target-3,y,-.24,(p-a.impact+.13)/.43,a.color,1.05);
+    if(type==='大剣')ribbon(ctx,target-4,y,.86,(p-a.impact+.14)/.47,a.color,1.35);
+    if(type==='短剣'){ribbon(ctx,target-2,y,-.7,(p-a.impact+.12)/.32,a.color,.8);ribbon(ctx,target+2,y,.7,(p-a.impact-.015)/.31,'#e7c9ff',.8);}
     if(type==='弓'){
-      const flight=(p-.32)/(spec.impact-.32);
-      if(flight>=0&&flight<=1){const x=origin+24+(target-origin-24)*flight,y=baseline-44;
-        const trail=ctx.createLinearGradient(x-42,y,x,y);trail.addColorStop(0,'#b6f1cb00');trail.addColorStop(1,'#e9ffed');
-        stroke(c=>{c.moveTo(x-42,y);c.lineTo(x,y);},trail,2);
-        stroke(c=>{c.moveTo(x-12,y);c.lineTo(x+4,y);c.moveTo(x,y-3);c.lineTo(x+4,y);c.lineTo(x,y+3);},'#f5ffde',1.3);
+      const flight=(p-a.release)/(a.impact-a.release);
+      if(flight>=0&&flight<=1){const x=origin+24+(target-origin-24)*flight,yy=y-Math.sin(flight*Math.PI)*7;
+        const g=ctx.createLinearGradient(x-44,yy,x,yy);g.addColorStop(0,a.color+'00');g.addColorStop(1,a.color);line(x-44,yy+2,x,yy,g,2);
+        line(x-12,yy,x+6,yy,'#f8ffe5',1.3);line(x+1,yy-3,x+6,yy,'#f8ffe5',1);line(x+1,yy+3,x+6,yy,'#f8ffe5',1);glow(ctx,x,yy,7,a.color,.5);
+        for(let j=0;j<3;j++){const z=x-15-j*10;line(z,yy+7+j,z+8,yy+5+j,a.color+'66',.6);}
       }
     }
-    if(q>=-.28&&q<=1){
-      const k=Math.max(0,q),alpha=Math.max(0,1-k);ctx.globalAlpha=alpha;
-      ctx.shadowColor=spec.color;ctx.shadowBlur=7;
-      if(type==='片手剣'||type==='短剣'){
-        const slash=(tilt,delay)=>{const v=Math.max(0,Math.min(1,(q+.22-delay)*2.7));if(!v)return;
-          ctx.save();ctx.translate(target,baseline-39);ctx.rotate(tilt);
-          stroke(c=>c.ellipse(-9,0,38,16,0,-2.5,-2.5+v*3.5),spec.color,5*(1-k)+1);
-          stroke(c=>c.ellipse(-9,-1,38,16,0,-2.5,-2.5+v*3.5),'#ffffff',1.2);ctx.restore();};
-        slash(type==='短剣'?-.65:-.25,0);if(type==='短剣')slash(.7,.2);
-      }else if(type==='大剣'){
-        stroke(c=>{c.moveTo(target-30,baseline-80);c.quadraticCurveTo(target+28,baseline-45,target-4,baseline-4);},spec.color,9*(1-k)+1);
-        stroke(c=>{c.moveTo(target-29,baseline-80);c.quadraticCurveTo(target+27,baseline-45,target-4,baseline-4);},'#fffdf2',2);
-      }else if(type==='槍'){
-        stroke(c=>{c.moveTo(target-67,baseline-37);c.lineTo(target+22,baseline-37);},spec.color,4*(1-k)+.5);
-        stroke(c=>{c.moveTo(target-60,baseline-37);c.lineTo(target+22,baseline-37);c.moveTo(target+9,baseline-43);c.lineTo(target+22,baseline-37);c.lineTo(target+9,baseline-31);},'#f4fdff',1);
-      }else if(type==='戦槌'){
-        stroke(c=>c.ellipse(target,baseline,8+k*48,2+k*9,0,0,Math.PI*2),spec.color,2.5*(1-k)+.5);
-        for(let j=0;j<7;j++){const dx=(j-3)*8;stroke(c=>{c.moveTo(target,baseline);c.lineTo(target+dx*.5,baseline-4);c.lineTo(target+dx,baseline+1);},'#ffe3a5',.8);}
+    if(type==='槍'&&q>-.22&&q<.55){const f=ease((q+.22)/.77);ctx.globalAlpha=1-f;
+      const g=ctx.createLinearGradient(target-82,y,target+24,y);g.addColorStop(0,a.color+'00');g.addColorStop(.8,a.color);g.addColorStop(1,'#ffffff');
+      ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(target-82,y-1);ctx.lineTo(target+13,y-5);ctx.lineTo(target+26,y);ctx.lineTo(target+13,y+5);ctx.closePath();ctx.fill();line(target-65,y,target+22,y,'#ffffff',1);
+    }
+    if(q>=0&&q<1){const fade=1-ease(q),ground=type==='戦槌';ctx.globalAlpha=fade;
+      glow(ctx,target,ground?baseline-3:y,ground?21:16,a.color,.68*(1-q));
+      const count=ground?16:type==='大剣'?13:8;
+      for(let i=0;i<count;i++){const angle=i*2.399+.3,dist=5+ease(q)*(ground?39:27),px=target+Math.cos(angle)*dist,py=(ground?baseline-3:y)+Math.sin(angle)*dist*.64+q*q*10;
+        if(ground){ctx.fillStyle=i%2?'#e3b87f':'#9a8265';ctx.save();ctx.translate(px,py-Math.sin(q*Math.PI)*13);ctx.rotate(angle+q*3);ctx.fillRect(-1.5,-1.2,3,2.4);ctx.restore();}
+        else line(px,py,px+Math.cos(angle)*(3+3*(1-q)),py+Math.sin(angle)*3,i%3?a.color:'#ffffff',i%3?.65:1.4);
       }
-      if(q>=0){
-        ctx.shadowBlur=0;
-        for(let j=0;j<(type==='戦槌'?15:9);j++){
-          const angle=j*2.399,dist=5+k*(type==='戦槌'?35:24),cy=type==='戦槌'?baseline-3:baseline-38;
-          const px=target+Math.cos(angle)*dist,py=cy+Math.sin(angle)*dist*(type==='戦槌'?.55:.8)+k*k*9;
-          stroke(c=>{c.moveTo(px,py);c.lineTo(px+Math.cos(angle)*(3+2*k),py+Math.sin(angle)*3);},j%3?'#fff7df':spec.color,j%3?.9:1.7);
-        }
-        ctx.globalAlpha=alpha*.7;stroke(c=>c.arc(target,baseline-38,3+k*15,0,Math.PI*2),spec.color,.7);
-      }
+      if(ground){for(let k=0;k<2;k++){ctx.globalAlpha=fade*(1-k*.3);ctx.strokeStyle=a.color;ctx.lineWidth=1.5-k*.6;ctx.beginPath();ctx.ellipse(target,baseline+1,9+q*(49-k*12),2+q*(11-k*3),0,.1,Math.PI*1.85);ctx.stroke();}}
+      else{line(target-3,y-10*(1-q),target+3,y+10*(1-q),'#ffffff',1.2);line(target-13*(1-q),y+3,target+13*(1-q),y-3,a.color,1);}
     }
     ctx.restore();
   }
+
   const weaponOrder=['片手剣','大剣','短剣','弓','槍','戦槌'];
   const spriteGeometry={"armed":{"width":1536,"height":1024,"cols":3,"rows":2,"referenceHeight":502,"frames":[{"left":87,"top":10,"right":467,"bottom":512,"anchorX":270,"sourceX":0,"sourceY":0},{"left":84,"top":10,"right":407,"bottom":512,"anchorX":264,"sourceX":512,"sourceY":0},{"left":55,"top":10,"right":380,"bottom":512,"anchorX":242,"sourceX":1024,"sourceY":0},{"left":102,"top":0,"right":531,"bottom":486,"anchorX":287,"sourceX":0,"sourceY":512,"clips":[[0,0,512,512],[512,120,19,40]]},{"left":63,"top":-14,"right":504,"bottom":486,"anchorX":271,"sourceX":512,"sourceY":512,"clips":[[45,0,467,512],[467,-14,45,14]]},{"left":69,"top":2,"right":493,"bottom":486,"anchorX":279,"sourceX":1024,"sourceY":512}],"rowReferenceHeights":[502,490]},"walk":{"width":1774,"height":887,"cols":4,"rows":2,"referenceHeight":436,"frames":[{"left":59,"top":8,"right":437,"bottom":444,"anchorX":280,"hand":[395.96,207.33],"sourceX":0,"sourceY":0},{"left":74,"top":8,"right":306,"bottom":444,"anchorX":259,"hand":[294.27,213.96],"sourceX":444,"sourceY":0},{"left":50,"top":7,"right":305,"bottom":444,"anchorX":246,"hand":[288.78,219.13],"sourceX":887,"sourceY":0},{"left":38,"top":8,"right":389,"bottom":444,"anchorX":233,"hand":[331.61,203.88],"sourceX":1330,"sourceY":0},{"left":60,"top":19,"right":444,"bottom":427,"anchorX":247,"hand":[128.16,193.95],"sourceX":0,"sourceY":444},{"left":154,"top":10,"right":405,"bottom":426,"anchorX":214,"hand":[165.21,207.24],"sourceX":444,"sourceY":444},{"left":128,"top":10,"right":386,"bottom":430,"anchorX":190,"hand":[146.64,212.86],"sourceX":887,"sourceY":444},{"left":56,"top":13,"right":382,"bottom":429,"anchorX":209,"hand":[108.85,197.83],"sourceX":1330,"sourceY":444}],"rowReferenceHeights":[436,415]}};
   const enemySheet=new Image();enemySheet.src='character-art-v1.png';
@@ -158,7 +167,7 @@
     }else if(!casting&&!hurt){
       // Hands and weapon are painted together, including two-handed heavy weapons.
       ctx.save();if(attacking){ctx.translate(0,-42);ctx.rotate(Math.sin(progress*Math.PI)*.12);ctx.translate(0,42);}
-      drawn=groundedSprite(ctx,armedSheet,3,2,Math.max(0,equipped),0,2,103,spriteGeometry.armed);ctx.restore();
+      drawn=motionSprite(ctx,scene.weapon,0,0,0)||groundedSprite(ctx,armedSheet,3,2,Math.max(0,equipped),0,2,103,spriteGeometry.armed);ctx.restore();
     }
     if(!drawn)atlasSprite(ctx,heroineSheet,3,2,cell,0,4,110,112);
     if(casting){
@@ -260,6 +269,7 @@
     }
     if(active&&['magic','heal','guard'].includes(a.kind))motion='cast';
     if(active&&(a.kind==='hurt'||a.kind==='enemy'&&a.hits.length)){motion='hurt';hx+=reduced.matches?0:Math.sin(p*40)*4;}
+    const extent=motionExtents(scene.weapon);hx=Math.max(extent.left,Math.min(viewWidth-extent.right,hx));
     hero(ctx,hx,120,t,motion);
     const foes=scene.mode==='battle'?scene.foes:[];
     foes.forEach((e,i)=>{let x=foeX(i,foes.length);if(active&&a.kind==='enemy'&&!reduced.matches){const ep=Math.max(0,Math.min(1,p*1.6-i*.28));x-=Math.sin(ep*Math.PI)*48;}const affected=active&&a?.targets?.includes(i),landed=affected&&p>=impact;const death=affected&&!landed?false:e.hp<=0;const hit=landed?Math.min(1,(p-impact)/(1-impact)):e.hp<=0&&!affected?1:0;monster(ctx,x,120,i,t,death,hit);if(s?.target===i&&e.hp>0){rect(ctx,x-3,57,7,3,'#ead398');rect(ctx,x-1,60,3,3,'#ead398');}});
@@ -305,14 +315,14 @@
       ctx.strokeStyle='#b6c3cf30';ctx.beginPath();ctx.moveTo(0,124);ctx.lineTo(480,124);ctx.stroke();
       const active=elapsed<spec.duration||reduced.matches,x=96+(type==='弓'?0:attackTravel(type,p)*Math.max(0,344-96-spec.reach));
       ctx.fillStyle='#0c0b1599';ctx.beginPath();ctx.ellipse(x,121,22,3,0,0,Math.PI*2);ctx.fill();
-      if(active)attackHero(ctx,type,x,120,p);else groundedSprite(ctx,armedSheet,3,2,weaponOrder.indexOf(type),96,122,103,spriteGeometry.armed);
+      if(active)attackHero(ctx,type,x,120,p);else attackHero(ctx,type,96,120,0);
       ctx.save();ctx.translate(344,83);ctx.strokeStyle=spec.color;ctx.fillStyle='#253a50';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(13,0);ctx.lineTo(0,22);ctx.lineTo(-13,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
       if(active)weaponEffects(ctx,type,96,344,p);
       ctx.fillStyle='#e8d9b0';ctx.font='8px sans-serif';ctx.fillText(reduced.matches?'攻撃ポーズ':!active?'構え':p<spec.impact?'溜め':p<spec.impact+.15?'攻撃':'振り抜き',14,18);
       if(!reduced.matches)previewAnimation=requestAnimationFrame(paint);
     }
     if(!dialog.open)dialog.showModal();paint(start);
-    if(reduced.matches&&!attackSheet.complete)attackSheet.addEventListener('load',()=>paint(start),{once:true});
+    const previewSheet=motionImage(type);if(reduced.matches&&!previewSheet.complete)previewSheet.addEventListener('load',()=>paint(start),{once:true});
   };
   globalThis.arcanaOpenWeaponArt=function(type=scene?.weapon||weapon){
     if(!weaponOrder.includes(type))return;
@@ -325,6 +335,7 @@
     if(!dialog.open)dialog.showModal();
   };
 
+  motionImage(weapon);
   // Initial page may already have a resumed adventure.
   if(s?.phase==='battle')mount('battle');else if(s?.phase==='explore')mount('explore');
 })();
